@@ -1,0 +1,34 @@
+# init
+python -m virtualenv venv
+venv\Scripts\activate
+pip install django
+django-admin startproject config
+#requirement
+pip install psycopg2
+pip install django-allauth
+pip install django-filter
+pip install djangorestframework
+pip install django-rest-swagger
+pip install bleach
+pip install django_taggit
+pip install django-contrib-comments
+
+# app
+python manage.py startapp
+
+# test
+python manage.py test
+
+# serve
+python myblog/manage.py runserver 0.0.0.0:4000
+python manage.py shell
+
+# check
+python manage.py check
+python manage.py sqlmigrate
+
+# migrate/init_db
+python manage.py makemigrations
+python manage.py migrate
+
+python manage.py createsuperuser
