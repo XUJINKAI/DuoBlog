@@ -4,14 +4,18 @@ venv\Scripts\activate
 pip install django
 django-admin startproject config
 #requirement
-pip install psycopg2
 pip install django-allauth
-pip install django-filter
 pip install djangorestframework
-pip install django-rest-swagger
-pip install bleach
+pip install django-crispy-forms
+pip install django-filter
 pip install django_taggit
 pip install django-contrib-comments
+# for api flow
+pip install django-rest-swagger
+# for <html>
+pip install bleach
+# for postgresql
+pip install psycopg2
 
 # app
 python manage.py startapp
