@@ -38,8 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    # 'allauth',
-    # 'allauth.account',
+    'allauth',
+    'allauth.account',
     'rest_framework',
     'rest_framework_swagger',
     'crispy_forms',
@@ -134,3 +134,6 @@ STATIC_URL = '/static/'
 SITE_ID = 1
 AUTH_USER_MODEL = 'accounts.User'
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+
+LOGIN_URL = '/account/login'
