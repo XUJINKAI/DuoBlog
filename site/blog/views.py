@@ -20,15 +20,15 @@ def posts_detail(request):
 
 
 @user_passes_test(lambda u:u.is_superuser)
-def manage_blog(request, url):
-	# if not models.BlogSetting.is_setup():
-	# 	return HttpResponseRedirect(reverse('blog_setup')) 
+def manage(request, url):
+	allow_urls = ('profile', )
 	menu = (
 		# name, url, submenu
 		('Dashboard', 'dashboard', None),
 		('Posts', 'posts', None),
 		('Pages', 'pages', None),
-		('Tools', '#', (
+		('Setting', 'setting', None),
+		('Tools', None, (
 			('Import Jekyll', 'import_jekyll', None),
 			)
 		),
@@ -37,6 +37,8 @@ def manage_blog(request, url):
 		'menu': menu,
 	}
 
+	if url in allow_urls:
+		return render(request, 'manage/'+ url +'.html', ctx)
 	# max 3 level, the most quickest way
 	for item in menu:
 		if url == item[1]:

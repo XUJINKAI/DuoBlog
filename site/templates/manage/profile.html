@@ -1,0 +1,20 @@
+{% extends './base.html' %}
+
+{% block title %}Blog{% endblock %}
+
+
+{% block css %}
+{% endblock %}
+
+
+{% block content %}
+{{ request.user.id }}
+{{ request.user.username }}
+{{ request.user.email }}
+{% endblock %}
+
+
+{% block js %}
+<script>
+</script>
+{% endblock %}

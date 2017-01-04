@@ -1,6 +1,6 @@
 {% extends './base.html' %}
 
-{% block title %}Blog{% endblock %}
+{% block title %}Import Jekyll posts{% endblock %}
 
 
 {% block css %}
@@ -8,42 +8,93 @@
 #jekyll_md_holder {
 	border: 10px dashed #ccc;
 	width: 300px;
-	min-height: 300px;
-	margin: 20px auto;
+	min-height: 200px;
+	margin: 0px auto;
 }
 #jekyll_md_holder.hover {
 	border: 10px dashed #0c0;
 }
-#jekyll_md_holder span {
+#jekyll_md_holder p {
 	color: #797979;
-	font-size: xx-large;
+	font-size: large;
+}
+.file_list .btn-default {
+	border-color: #FFF;
+	padding: 0px;
 }
 </style>
 {% endblock %}
 
 
 {% block content %}
-<div id="jekyll_md_holder">
-	<span>Drag jekyll posts .md files in here</span>
-</div>
-<div id="jekyll_files_app">
-	<div v-for='file in files' v-on:click='click_file($event, file);'>${ file.name }</div>
+<div class="row">
+	<div id="import_jekyll_app" style="margin-top: 30px;">
+		<div class="col-md-4">
+			<div id="jekyll_md_holder" class="text-center">
+				<p>Drag jekyll post.md files here</p>
+			</div>
+			<div style="margin: 10px 0 10px 10px;">
+				<button class="btn btn-primary">Import ${select_count} posts</button>
+				<button class="btn btn-default" v-on:click='select_all();'>select all</button>
+				<button class="btn btn-default" v-on:click='reverse_select();'>reverse select</button>
+			</div>
+			<div style="margin: 5px;" class="file_list">
+				<ul v-for="file in files" :key='file.name'>
+					<input type="checkbox" v-bind:checked="file.check" v-on:click="click_check($event, file);">
+					<label v-on:click='click_check($event, file);'>${ file.name }</label>
+					<a href="#" v-on:click='click_file($event, file);' style="color: gray;">preview</a>
+				</ul>
+			</div>
+		</div>
+		<div class="col-md-8" v-if='current_file'>
+			<p>${ current_file.name }</p>
+			<p>${ current_file.lastModifiedDate }</p>
+			<div v-html='current_marked'></div>
+		</div>
+	</div>
 </div>
 {% endblock %}
 
 
 {% block js %}
 <script>
-var jekyll_files_app = new Vue({
+var import_jekyll_app = new Vue({
 	delimiters: ['${', '}'],
-	el: '#jekyll_files_app',
+	el: '#import_jekyll_app',
 	data: {
 		files: [],
-		target_file: null,
+		current_file: null,
+		current_marked: '',
 	},
 	methods: {
+		click_check: function(event, file){
+			file.check = !file.check;
+			this.current_file = file;
+		},
 		click_file: function(event, file){
-			target_file = file
+			this.current_file = file;
+		},
+		select_all: function(){
+			for (var i = this.files.length - 1; i >= 0; i--) {
+				this.files[i].check = true;
+			}
+		},
+		reverse_select: function(){
+			for (var i = this.files.length - 1; i >= 0; i--) {
+				this.files[i].check = !this.files[i].check;
+			}
+		},
+	},
+	computed: {
+		current_marked: function(){
+			return marked(this.current_file.content);
+		},
+		select_count: function(){
+			var count = 0;
+			for (var i = this.files.length - 1; i >= 0; i--) {
+				count += this.files[i].check
+			}
+			return count;
 		}
 	}
 })
@@ -55,9 +106,28 @@ if('draggable' in document.createElement('span')){
 	holder.ondrop = function (event) {
 		event.preventDefault();
 		this.className = '';
+		import_jekyll_app.files = [];
 		var files = event.dataTransfer.files;
-		jekyll_files_app.files = files
+		var results = [];
+		for (var i = files.length - 1; i >= 0; i--) {
+			var reader = new FileReader();
+			reader.readAsText(files[i], 'UTF-8');
+			// fuck javascript
+			reader.onload = (function(file) {
+				return function(event){
+					import_jekyll_app.files.push({
+						'name': file.name,
+						'lastModifiedDate': file.lastModifiedDate,
+						'size': file.size,
+						'content': event.target.result,
+						'check': true,
+					});
+				}
+			})(files[i]);
+		}
 	};
+} else {
+	alert('Your Browser doesn\'t support drag files.');
 }
 </script>
 {% endblock %}
