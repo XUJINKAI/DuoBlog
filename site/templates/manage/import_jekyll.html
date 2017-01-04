@@ -1,0 +1,63 @@
+{% extends './base.html' %}
+
+{% block title %}Blog{% endblock %}
+
+
+{% block css %}
+<style type="text/css">
+#jekyll_md_holder {
+	border: 10px dashed #ccc;
+	width: 300px;
+	min-height: 300px;
+	margin: 20px auto;
+}
+#jekyll_md_holder.hover {
+	border: 10px dashed #0c0;
+}
+#jekyll_md_holder span {
+	color: #797979;
+	font-size: xx-large;
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div id="jekyll_md_holder">
+	<span>Drag jekyll posts .md files in here</span>
+</div>
+<div id="jekyll_files_app">
+	<div v-for='file in files' v-on:click='click_file($event, file);'>${ file.name }</div>
+</div>
+{% endblock %}
+
+
+{% block js %}
+<script>
+var jekyll_files_app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#jekyll_files_app',
+	data: {
+		files: [],
+		target_file: null,
+	},
+	methods: {
+		click_file: function(event, file){
+			target_file = file
+		}
+	}
+})
+// 检查浏览器是否支持拖放上传。
+if('draggable' in document.createElement('span')){
+	var holder = document.getElementById('jekyll_md_holder');
+	holder.ondragover = function () { this.className = 'hover'; return false; };
+	holder.ondragend = function () { this.className = ''; return false; };
+	holder.ondrop = function (event) {
+		event.preventDefault();
+		this.className = '';
+		var files = event.dataTransfer.files;
+		jekyll_files_app.files = files
+	};
+}
+</script>
+{% endblock %}

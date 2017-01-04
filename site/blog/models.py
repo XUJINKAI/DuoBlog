@@ -5,14 +5,8 @@ from django.conf import settings
 from taggit.managers import TaggableManager
 
 # Create your models here.
-COMMENT_CHOICES = (
-	('i', 'buildin'),
-	('d', 'disqus'),
-	)
 POST_VISIBLITY = (
 	('p', 'public'),
-	('l', 'login'),
-	('s', 'staff'),
 	('d', 'draft'),
 	)
 POST_CONTENT_TYPE = (
@@ -28,8 +22,7 @@ class Setting(models.Model):
 
 	google_analytics_id = models.CharField(max_length=16, null=True)
 
-	comment_system = models.CharField(max_length=1, choices=COMMENT_CHOICES)
-	disqus_id = models.CharField(max_length=32)
+	disqus_id = models.CharField(max_length=32, null=True)
 
 	new_post_content_type = models.CharField(max_length=1, choices=POST_CONTENT_TYPE)
 # flatpage
