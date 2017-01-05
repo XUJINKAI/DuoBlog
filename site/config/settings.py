@@ -25,7 +25,7 @@ SECRET_KEY = 'a0l*+xp2a)_svomnw4an2ge6mx&k6p+amzr1g#f3(z%_siqikr'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -137,8 +137,10 @@ STATICFILES_DIRS = [
 ]
 
 
+### Get SITE_ID by request hostname, not in setting.py
+### SITE_ID = 2
 
-SITE_ID = 1
+
 AUTH_USER_MODEL = 'accounts.User'
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 

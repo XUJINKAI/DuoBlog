@@ -1,8 +1,9 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.contrib.sites.models import Site
 
 # Create your models here.
-from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
-	pass
+	site = models.ForeignKey(Site)

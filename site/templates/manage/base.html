@@ -50,19 +50,26 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="{% url 'manage' %}">ADMIN</a>
+                <a class="navbar-brand" href="{% url 'manage' %}">MultBlog Admin</a>
             </div>
             <!-- /.navbar-header -->
+            <ul class="nav navbar-nav">
+                {% for site in sites %}
+                <li>
+                    <a href="//{{ site.domain }}"><i class="fa fa-home fa-fw"></i>{{ site.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
 
             <ul class="nav navbar-top-links navbar-right">
-                <li>
-                    <a href="{% url 'index' %}"><i class="fa fa-home fa-fw"></i></a>
-                </li>
                 <li>
                     <a href="{% url 'manage' 'create' %}"><i class="fa fa-edit fa-fw"></i></a>
                 </li>
                 <li>
-                    <a href="{% url 'manage' 'profile' %}"><i class="fa fa-user fa-fw"></i></a>
+                    <a href="{% url 'manage' 'profile' %}"><i class="fa fa-user fa-fw"></i>{{ request.user.username }}</a>
+                </li>
+                <li>
+                    <a href="JavaScript:void(0);" onclick="account_logout();"><span class="glyphicon glyphicon-log-out"></span></a>
                 </li>
             </ul>
             <!-- /.navbar-top-links -->
@@ -140,6 +147,36 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="{% static 'js/manage/sb-admin-2.min.js' %}"></script>
+
+    <script>
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                    }
+            }
+    }
+    return cookieValue;
+}
+var account_logout = function(){
+    $.ajax({
+        url: "{% url 'account_logout' %}",
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        complete: function() {
+            window.location = '{% url "index" %}';
+        }
+    })
+}
+    </script>
     {% block js %}{% endblock %}
 </body>
 

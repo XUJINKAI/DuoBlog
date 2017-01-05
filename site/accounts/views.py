@@ -68,11 +68,11 @@ class CreateSuperUserView(allauth_views.SignupView):
 createsuperuser_view = CreateSuperUserView.as_view()
 
 
+###
+# An example for function view, 
+# but can't deal redirect query
+###
 # def createsuperuser_view(request):
-# 	'''
-# 	An example for function view, 
-# 	but can't deal redirect query
-# 	'''
 # 	if models.User.objects.count() != 0:
 # 		return HttpResponseRedirect(reverse('accounts_index'))
 # 	elif request.method == 'POST':

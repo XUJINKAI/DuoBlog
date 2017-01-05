@@ -127,10 +127,15 @@ p.text-muted {
 				<div class="container">
 					<p class="text-muted">© 2016 TOBEDECIDED. All Rights Reserved
 					<span class="pull-right">
-						{% if request.user.is_superuser %}
+						{% if request.user.is_authenticated %}
+						<span class="text-muted" style="margin-right: 8px;">Login as {{ request.user.username }}</span>
 						<span style="margin-right: 8px;"><a href="JavaScript:void(0);" onclick="account_logout();" class="staff_btn">登出</a></span>
+						{% else %}
+						<span><a href="{% url 'account_login' %}">登录</span>
 						{% endif %}
+						{% if request.user.is_superuser %}
 						<span><a href="{% url 'manage' %}" class="staff_btn">管理</a></span>
+						{% endif %}
 					</span>
 					</p>
 				</div>

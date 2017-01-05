@@ -13,28 +13,35 @@ def blog_index(request):
 	return render(request, t('index.html'))
 
 def posts_list(request):
-	return render(request, t('posts/detail.html'))
+	return render(request, t('posts_list.html'))
 
-def posts_detail(request):
-	return render(request, t('posts/detail.html'))
+def posts_detail(request, slug):
+	return render(request, t('posts_detail.html'))
 
 
-@user_passes_test(lambda u:u.is_superuser)
 def manage(request, url):
-	allow_urls = ('profile', )
+	if not request.user.is_superuser:
+		raise Http404
+
+	allow_urls = ('profile', 'create')
 	menu = (
 		# name, url, submenu
 		('Dashboard', 'dashboard', None),
 		('Posts', 'posts', None),
 		('Pages', 'pages', None),
+		('Blogs', 'blogs', None),
 		('Setting', 'setting', None),
 		('Tools', None, (
 			('Import Jekyll', 'import_jekyll', None),
 			)
 		),
+		('About', 'about', None),
 	)
+
+	from django.contrib.sites.models import Site
 	ctx = {
 		'menu': menu,
+		'sites': Site.objects.all(),
 	}
 
 	if url in allow_urls:

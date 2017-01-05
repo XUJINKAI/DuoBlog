@@ -1,0 +1,40 @@
+{% extends './base.html' %}
+
+{% block title %}Blogs{% endblock %}
+
+
+{% block css %}
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+	<ul class="nav nav-tabs" id="nav_site_tab">
+		{% for site in sites %}
+		<li data-domain="{{ site.domain }}"><a href="javascript:void(0);">{{ site.name }}</a></li>
+		{% endfor %}
+	</ul>
+	
+
+</div>
+{% endblock %}
+
+
+{% block js %}
+<script>
+var load_domain_info = function(domain){
+	alert(domain);
+};
+var save_domain_info = function(){
+
+};
+$(function(){
+	$("#nav_site_tab li").on('click', function(){
+		$("#nav_site_tab li").removeClass("active");
+		$(this).addClass("active");
+		load_domain_info($(this).data("domain"));
+	});
+	$("#nav_site_tab li:first").addClass("active");
+})
+</script>
+{% endblock %}
