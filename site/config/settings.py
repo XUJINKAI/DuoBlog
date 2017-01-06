@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
+BLOG_PROGRAM_NAME = 'MultBlog'
 # Application definition
 
 INSTALLED_APPS = [
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'accounts',
     'api',
     'blog',
+    'management',
 ]
 
 MIDDLEWARE = [
@@ -137,6 +138,13 @@ STATICFILES_DIRS = [
 ]
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAdminUser',
+    )
+}
+
+
 ### Get SITE_ID by request hostname, not in setting.py
 ### SITE_ID = 2
 
@@ -146,6 +154,3 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 
 LOGIN_URL = '/account/login'
-
-
-BLOG_PROGRAM_NAME = 'postyp'

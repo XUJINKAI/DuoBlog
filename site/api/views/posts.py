@@ -7,51 +7,40 @@ import django_filters
 from blog import models as blog_models
 from accounts import models as account_models
 
-
-class MBooleanFilter(django_filters.Filter):
-
-	def filter(self, qs, value):
-		if value in [None, '']:
-			return qs
-		else:
-			lc_value = value.lower()
-			if lc_value in ["true", '1']:
-				value = True
-			elif lc_value in ["false", '0']:
-				value = False
-			return qs.filter(**{self.name: value})
-		return qs
+from ..filters import MBooleanFilter
+from ..serializers import TagSerializerField
+from ..permissions import PostPermission
 
 
-# post
 
 class PostAuthorSerializer(serializers.HyperlinkedModelSerializer):
-	# api_url = serializers.HyperlinkedIdentityField(view_name='api:user-detail', read_only=True)
-	# html_url = serializers.HyperlinkedIdentityField(view_name='blog:detail', read_only=True)
 
 	class Meta:
 		model = account_models.User
-		fields = ('username')
+		fields = ('username', )
+
 
 class PostBaseSerializer(serializers.HyperlinkedModelSerializer):
-	# author = PostAuthorSerializer(read_only=True)
+	author = PostAuthorSerializer(read_only=True)
 	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='slug', read_only=True)
 	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
+	tags = TagSerializerField()
 
 	class Meta:
 		model = blog_models.Post
 		fields = (
-			'slug', 'api_url', 'html_url', \
+			'slug', 'author', 'api_url', 'html_url', \
 			'create_time', 'last_modified_time', \
 			'views_count', 'modified_count', \
-			'visible', 'sticky', 'show_comment', \
+			'tags', 'comments', 'sticky', 'status', \
 			'title', 'content_type', 'content', \
 			)
 		read_only_fields = (
-			'slug', 'api_url', 'html_url', \
+			'slug', 'author', 'api_url', 'html_url', \
 			'create_time', 'last_modified_time', \
 			'views_count', 'modified_count', \
 			)
+
 
 class PostListSerializer(PostBaseSerializer):
 	class Meta(PostBaseSerializer.Meta):
@@ -61,25 +50,18 @@ class PostDetailSerializer(PostBaseSerializer):
 	class Meta(PostBaseSerializer.Meta):
 		pass
 
-class PostPermission(permissions.BasePermission):
-	def has_permission(self, request, view):
-		return True
-
-	def has_object_permission(self, request, view, obj):
-		# owner or public & safe
-		return obj.author == request.user or \
-			obj.visible == 'p' and request.method in permissions.SAFE_METHODS
 
 class PostFilter(rest_filter.FilterSet):
 	content_type = MBooleanFilter(name='content_type')
 	author = django_filters.CharFilter(name='author__username')
-	public = MBooleanFilter(name='visible')
+	public = MBooleanFilter(name='status')
 	sticky = MBooleanFilter(name='sticky')
-	comment = MBooleanFilter(name='show_comment')
+	comments = MBooleanFilter(name='comments')
 
 	class Meta:
 		model = blog_models.Post
-		fields = ['slug', 'content_type', 'author', 'public', 'sticky', 'comment']
+		fields = ['slug', 'content_type', 'author', 'public', 'sticky', 'comments']
+
 
 class PostViewSet(viewsets.ModelViewSet):
 	lookup_field = 'slug'
@@ -100,7 +82,8 @@ class PostViewSet(viewsets.ModelViewSet):
 		return self.serializer_class
 
 	def get_queryset(self):
+		# return blog_models.Post.objects.
 		if self.request.user.is_staff:
 			return blog_models.Post.objects.all()
 		else:
-			return blog_models.Post.objects.filter(visible='p')
+			return blog_models.Post.objects.filter(status='p')

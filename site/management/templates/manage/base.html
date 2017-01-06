@@ -50,7 +50,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="{% url 'manage' %}">MultBlog Admin</a>
+                <a class="navbar-brand" href="{% url 'manage:index' %}">MultBlog Admin</a>
             </div>
             <!-- /.navbar-header -->
             <ul class="nav navbar-nav">
@@ -63,10 +63,10 @@
 
             <ul class="nav navbar-top-links navbar-right">
                 <li>
-                    <a href="{% url 'manage' 'create' %}"><i class="fa fa-edit fa-fw"></i></a>
+                    <a href="JavaScript:void(0);"><i class="fa fa-edit fa-fw"></i></a>
                 </li>
                 <li>
-                    <a href="{% url 'manage' 'profile' %}"><i class="fa fa-user fa-fw"></i>{{ request.user.username }}</a>
+                    <a href="{% url 'manage:profile' %}"><i class="fa fa-user fa-fw"></i>{{ request.user.username }}</a>
                 </li>
                 <li>
                     <a href="JavaScript:void(0);" onclick="account_logout();"><span class="glyphicon glyphicon-log-out"></span></a>
@@ -90,17 +90,18 @@
                         </li>
                         {% for item in menu %}
                         <li>
-                            <a href="{% if item.2 %}#{% else %}{% url 'manage' item.1 %}{% endif %}"> {{ item.0 }}</a>
+                        <!-- //TODO manage.index/item.1 !!!??? -->
+                            <a href="{% if item.2 %}#{% else %}{{ item.1 }}{% endif %}"> {{ item.0 }}</a>
                             {% if item.2 %}
                             {% for item_sub in item.2 %}
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="{% if item_sub.2 %}#{% else %}{% url 'manage' item_sub.1 %}{% endif %}"> {{ item_sub.0 }}</a>
+                                    <a href="{% if item_sub.2 %}#{% else %}{{ item_sub.1 }}{% endif %}"> {{ item_sub.0 }}</a>
                                     {% if item_sub.2 %}
                                     {% for item_sub_sub in item_sub.2 %}
                                     <ul class="nav nav-third-level">
                                         <li>
-                                            <a href="{% if item_sub_sub.2 %}#{% else %}{% url 'manage' item_sub_sub.1 %}{% endif %}"> {{ item_sub_sub.0 }}</a>
+                                            <a href="{% if item_sub_sub.2 %}#{% else %}{{ item_sub_sub.1 }}{% endif %}"> {{ item_sub_sub.0 }}</a>
                                         </li>
                                     </ul>
                                     {% endfor %}

@@ -18,6 +18,7 @@ from django.contrib import admin
 
 urlpatterns = [
     url('', include('blog.urls')),
+    url(r'^manage/', include('management.urls')),
     url(r'^api/', include('api.urls')),
     url(r'^account/', include('accounts.urls')),
     url(r'^account/', include('allauth.account.urls')),

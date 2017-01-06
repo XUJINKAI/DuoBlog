@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib.flatpages import views as flat_views
 from . import views
 
@@ -11,7 +11,4 @@ urlpatterns = [
 	# about/, pages/...
 	url(r'^about/$', flat_views.flatpage, {'url': '/about/'}, name='about'),
 	url(r'^(?=pages/)(?P<url>.*/)$', flat_views.flatpage, name='pages'),
-	# manage/...
-	url(r'^manage/$', views.manage, {'url': 'dashboard'}, name='manage'),
-	url(r'^manage/(?P<url>(?!/).*)/$', views.manage, name='manage'),
 ]
