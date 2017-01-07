@@ -1,10 +1,12 @@
 from django.db import models
 from django.db.models import Q, F
 from django.contrib.sites.models import Site
+from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
 from django.utils.html import escape, strip_tags
 from django.template.defaultfilters import slugify
 from django.utils.crypto import get_random_string
+from django.db.models.signals import post_save
 
 import datetime
 from taggit.managers import TaggableManager
@@ -26,11 +28,11 @@ POST_TITLE_TRUNC = 32
 def get_random_id(length):
 	return get_random_string(length=length, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789')
 
-
 class Blog(models.Model):
-	site = models.OneToOneField(Site, primary_key=True, on_delete=models.CASCADE)
+	site = models.OneToOneField(Site, on_delete=models.CASCADE)
+	domain = models.CharField(max_length=100, unique=True)
+	name = models.CharField(max_length=50)
 
-	name = models.CharField(max_length=32, default=settings.BLOG_PROGRAM_NAME)
 	desc = models.CharField(max_length=140, default='', blank=True)
 	navs = models.CharField(max_length=1024, default='', blank=True)
 	theme = models.CharField(max_length=16, default='default')
@@ -45,14 +47,44 @@ class Blog(models.Model):
 	rss = models.BooleanField(default=True)
 	sitemap = models.BooleanField(default=True)
 
-
 	def __str__(self):
-		return self.name
+		return self.domain
+
+	def save(self, *args, **kwargs):
+		site = self.related_site
+		site.domain = self.domain
+		site.name = self.name
+		site.save()
+		super().save(*args, **kwargs)
+
+	@property
+	def related_site(self):
+		return self.site
 
 	@classmethod
-	def create(cls, site):
-		blog = cls(site=site)
-		return blog
+	def create_new(cls):
+		domain = get_random_id(8)
+		name = get_random_id(8)
+		site = Site.objects.create(domain=domain, name=name)
+		### blog will be create automatic cause signal connect site_post_save()
+		### blog = Blog.objects.create(site=site, domain=domain, name=name)
+		### NO need to create blog AGAIN
+		return site.blog
+
+	@staticmethod
+	def get_or_create_by_site(site):
+		if hasattr(site, 'blog'):
+			return site.blog
+		else:
+			return Blog.objects.create(site=site, domain=site.domain, name=site.name)
+
+
+def site_post_save(instance, create=None, raw=None, **kwargs):
+	if not hasattr(instance, 'blog'):
+		Blog.objects.create(site=instance, domain=instance.domain, name=instance.name)
+
+post_save.connect(site_post_save, sender=Site)
+
 
 class Post(models.Model):
 	slug = models.CharField(max_length=64, unique=True, blank=True, \

@@ -6,4 +6,4 @@ from django.contrib.sites.models import Site
 
 
 class User(AbstractUser):
-	site = models.ForeignKey(Site)
+	pass

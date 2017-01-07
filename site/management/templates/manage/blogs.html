@@ -10,19 +10,25 @@
 
 {% block content %}
 <div class="row">
+	<br>
 	<ul class="nav nav-tabs" id="nav_site_tab">
 		{% for site in sites %}
-		<li data-domain="{{ site.domain }}"><a href="javascript:void(0);">{{ site.domain }}</a></li>
+		<li{% if site_pk == site.pk %} class='active'{% endif %}><a href="{% url 'manage:blogs' site.pk %}">{{ site.domain }}</a></li>
 		{% endfor %}
+		<form action="{% url 'manage:blog_create' %}" method="POST">
+			{% csrf_token %}
+			<button type="submit" class="btn btn-default"><p class="fa fa-plus"></p></button>
+		</form>
 	</ul>
 </div>
+<br>
 <div class="row">
-	<div style="max-width: 300px;" class="col-md-6">
-		{{ form | crispy }}
+	<div style="max-width: 500px;" class="col-md-8">
+	{% crispy form %}
 	</div>
-	<div style="" class="col-md-6">
+	<div style="" class="col-md-4">
 		<ul>
-			<li><a href="#">修改博客列表</a></li>
+			<button class="btn btn-danger" onclick="delete_blog({{ site_pk }});">Delete this Blog</button>
 		</ul>
 	</div>
 </div>
@@ -31,19 +37,19 @@
 
 {% block js %}
 <script>
-var load_domain_info = function(domain){
-	alert(domain);
-};
-var save_domain_info = function(){
-
-};
-$(function(){
-	$("#nav_site_tab li").on('click', function(){
-		$("#nav_site_tab li").removeClass("active");
-		$(this).addClass("active");
-		load_domain_info($(this).data("domain"));
-	});
-	$("#nav_site_tab li:first").addClass("active");
-})
+var delete_blog = function(pk){
+	if(prompt('This will delete blog {{ blog.name }}, please input your blog domain {{ blog.domain }} to confirm:') == '{{ blog.domain }}') {
+		$.ajax({
+			url: "{% url 'manage:blog_delete' blog.site.id %}",
+			method: 'POST',
+			headers: {
+				'X-CSRFToken': getCookie('csrftoken'),
+			},
+			success: function(data){
+				window.location = "{% url 'manage:blogs' %}";
+			}
+		})
+	}
+}
 </script>
 {% endblock %}

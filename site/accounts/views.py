@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.http import HttpResponseRedirect, Http404
 
+from django.views import generic
 from django.views.generic.edit import FormView
 from django.contrib.auth import login as auth_login
 
@@ -88,3 +89,10 @@ createsuperuser_view = CreateSuperUserView.as_view()
 # 	else:
 # 		form = forms.CreateSuperUserForm()
 # 	return render(request, 'accounts/createsuperuser.html', {'form': form })
+
+
+class ProfileView(generic.FormView):
+	template_name = 'accounts/profile.html'
+	form_class = forms.UserForm
+
+profile_view = ProfileView.as_view()

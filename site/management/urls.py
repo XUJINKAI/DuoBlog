@@ -9,9 +9,11 @@ urlpatterns = [
 	url(r'^posts$', views.posts_view, name='posts'),
 	url(r'^pages$', views.pages_view, name='pages'),
 	url(r'^comments$', views.comments_view, name='comments'),
-	url(r'^blogs/', views.blogs_view, name='blogs'),
+	url(r'^blogs/$', views.blogs_view, name='blogs'),
+	url(r'^blogs/(?P<site_pk>\d*)/$', views.blogs_view, name='blogs'),
+	url(r'^blogs/(?P<site_pk>\d*)/delete/$', views.blogs_delete_view, name='blog_delete'),
+	url(r'^blogs/create/$', views.blogs_create_view, name='blog_create'),
 	url(r'^about/$', views.manage_view, {'page': 'about'}, name='about'),
-	url(r'^profile/$', views.profile_view, name='profile'),
 	url(r'^import_jekyll/$', views.manage_view, {'page': 'import_jekyll'}, name='import_jekyll'),
 	url(r'^export_jekyll/$', views.manage_view, {'page': 'export_jekyll'}, name='export_jekyll'),
 ]
