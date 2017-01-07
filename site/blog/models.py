@@ -30,7 +30,8 @@ def get_random_id(length):
 
 class Blog(models.Model):
 	site = models.OneToOneField(Site, on_delete=models.CASCADE)
-	domain = models.CharField(max_length=100, unique=True)
+	domain = models.CharField(max_length=100, unique=True, \
+		help_text="Only this domain can access this blog")
 	name = models.CharField(max_length=50)
 
 	desc = models.CharField(max_length=140, default='', blank=True)

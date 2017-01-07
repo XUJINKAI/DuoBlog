@@ -87,3 +87,7 @@ class PostViewSet(viewsets.ModelViewSet):
 			return blog_models.Post.objects.all()
 		else:
 			return blog_models.Post.objects.filter(status='p')
+
+	def create(self, request, *args, **kwargs):
+
+		super().create(request, *args, **kwargs)

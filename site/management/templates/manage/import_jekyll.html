@@ -8,7 +8,7 @@
 #jekyll_md_holder {
 	border: 10px dashed #ccc;
 	width: 300px;
-	min-height: 200px;
+	min-height: 100px;
 	margin: 0px auto;
 }
 #jekyll_md_holder.hover {
@@ -32,23 +32,43 @@
 		<div class="col-md-4">
 			<div id="jekyll_md_holder" class="text-center">
 				<p>Drag jekyll post.md files here</p>
+				<p>click file name to view content</p>
 			</div>
 			<div style="margin: 10px 0 10px 10px;">
-				<button class="btn btn-primary">Import ${select_count} posts</button>
+				<button class="btn btn-primary" onclick="start_import_data();">Import ${select_count} posts</button>
+				to
+				<select class="" id="blogs_list">
+					{% for blog in blogs %}
+					<option value="{{ blog.pk }}">{{ blog.name }}</option>
+					{% endfor %}
+				</select>
+				<br>
 				<button class="btn btn-default" v-on:click='select_all();'>select all</button>
 				<button class="btn btn-default" v-on:click='reverse_select();'>reverse select</button>
 			</div>
 			<div style="margin: 5px;" class="file_list">
-				<ul v-for="file in files" :key='file.name'>
-					<input type="checkbox" v-bind:checked="file.check" v-on:click="click_check($event, file);">
-					<label v-on:click='click_check($event, file);'>${ file.name }</label>
-					<a href="#" v-on:click='click_file($event, file);' style="color: gray;">preview</a>
+				<p>Load list:</p>
+				<ul style="max-height: 300px; overflow: scroll;">
+					<p v-for="file in files" :key='file.name'>
+						<input type="checkbox" v-bind:checked="file.check" v-on:click="file_check($event, file);">
+						<label v-on:click='file_preview($event, file);'>${ file.name }</label>
+					</p>
+				</ul>
+				<hr>
+				<p>Error list:</p>
+				<ul style="max-height: 500px; overflow: scroll;">
+					<label v-for="file in error_files" :key='file.name' v-on:click=''>${ file.name }</label>
 				</ul>
 			</div>
 		</div>
 		<div class="col-md-8" v-if='current_file'>
-			<p>${ current_file.name }</p>
-			<p>${ current_file.lastModifiedDate }</p>
+			<p><strong>URL:<strong> ${ current_file.url }</p>
+			<p><strong>TITLE:<strong> ${ current_file.title }</p>
+			<p><strong>TAGS:<strong> ${ current_file.tags }</p>
+			<p><strong>LAST_MODIFIED_TIME:<strong> ${ current_file.last_modified_time }</p>
+			<p><strong>FILENAME:<strong> ${ current_file.name }</p>
+			<p><strong>SIZE:<strong> ${ current_file.size }</p>
+			<hr>
 			<div v-html='current_marked'></div>
 		</div>
 	</div>
@@ -65,13 +85,13 @@ var import_jekyll_app = new Vue({
 		files: [],
 		current_file: null,
 		current_marked: '',
+		error_files: [],
 	},
 	methods: {
-		click_check: function(event, file){
+		file_check: function(event, file){
 			file.check = !file.check;
-			this.current_file = file;
 		},
-		click_file: function(event, file){
+		file_preview: function(event, file){
 			this.current_file = file;
 		},
 		select_all: function(){
@@ -98,6 +118,35 @@ var import_jekyll_app = new Vue({
 		}
 	}
 })
+var analysis_post = function(data, file){
+	try{
+		var title, tags, content;
+		var arr = data.match(/-{3,}([\s\S]*?)-{3,}([\s\S]*)/);
+		content = arr[2];
+		var arr_tagstr = arr[1].match(/tags:(.*)/)
+		if(arr_tagstr) {
+			tags = arr_tagstr[1].match(/(?!,)(\S+)/g);
+		}
+		var arr_catstr = arr[1].match(/categories:(.*)/)
+		if(arr_catstr) {
+			cate = arr_catstr[1].match(/(?!,)(\S+)/g);
+			tags.push(cate[0])
+		}
+		var arr_titlestr = arr[1].match(/title:(.*)/)
+		if (arr_titlestr) {
+			title = arr_titlestr[1];
+		}
+		return {
+			'title': title,
+			'tags': tags,
+			'content': content,
+		}
+	} catch(e) {
+		console.error(e);
+		import_jekyll_app.error_files.push(file);
+		return 0;
+	}
+}
 // 检查浏览器是否支持拖放上传。
 if('draggable' in document.createElement('span')){
 	var holder = document.getElementById('jekyll_md_holder');
@@ -115,19 +164,45 @@ if('draggable' in document.createElement('span')){
 			// fuck javascript
 			reader.onload = (function(file) {
 				return function(event){
-					import_jekyll_app.files.push({
-						'name': file.name,
-						'lastModifiedDate': file.lastModifiedDate,
-						'size': file.size,
-						'content': event.target.result,
-						'check': true,
-					});
+					var re = analysis_post(event.target.result, file);
+					if(re && re['content']){
+						import_jekyll_app.files.push({
+							'url': file.name,
+							'title': re['title'],
+							'tags': re['tags'],
+							'last_modified_time': file.lastModifiedDate,
+							'name': file.name,
+							'size': file.size,
+							'content': re['content'],
+							'check': true,
+						});
+					}
 				}
 			})(files[i]);
 		}
 	};
 } else {
 	alert('Your Browser doesn\'t support drag files.');
+}
+var start_import_data = function(){
+	var blog_pk = $("#blogs_list").val();
+	for(file in import_jekyll_app.files) {
+		$.ajax({
+			url: "{% url 'api:post-list' %}",
+			method: 'POST',
+			headers: {
+				'X-CSRFToken': getCookie('csrftoken'),
+			},
+			data: {
+				'title': file['title'],
+				'content': file['content'],
+				'tags': file['tags'],
+			},
+			success: function(data){
+				console.log(data);
+			}
+		})
+	}
 }
 </script>
 {% endblock %}

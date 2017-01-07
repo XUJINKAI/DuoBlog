@@ -101,8 +101,8 @@ p.text-muted {
 		<div class="wrapper">
 		<header>
 		<nav class="container" role="navigation" style="margin-top: 20px; margin-bottom: 40px;">
-			 <ul class="nav navbar-nav" style="margin: 10px 0 0 5px;">
-				<a href="/"><span style="font-size: 28px; font-weight: bold; color: #585858;">{{ blog.name }}</span></a>
+			 <ul class="nav navbar-nav" style="margin: 5px 0 0 5px;">
+				<a href="/"><span style="font-size: 47px; font-weight: bold; color: #585858;">{{ blog.name }}</span></a>
 			 </ul>
 					<ul class="nav navbar-nav navbar-right">
 						{% if request.user.is_staff %}
@@ -121,6 +121,10 @@ p.text-muted {
 		</nav>
 		</header>
 			<div class="main-content container">
+			{% if blog.desc %}
+			<p style="font-size: x-large;"><i>{{ blog.desc }}</i></p>
+			<hr>
+			{% endif %}
 {% block content %}{% endblock %}
 			</div>
 			<footer class="footer">
