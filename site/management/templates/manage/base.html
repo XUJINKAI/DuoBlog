@@ -63,7 +63,7 @@
 
             <ul class="nav navbar-top-links navbar-right">
                 <li>
-                    <a href="JavaScript:void(0);"><i class="fa fa-edit fa-fw"></i></a>
+                    <a href="{% url 'manage:post_create' %}"><i class="fa fa-plus staff_btn" aria-hidden="true"></i></a>
                 </li>
                 <li>
                     <a href="{% url 'accounts_profile' %}"><i class="fa fa-user fa-fw"></i>{{ request.user.username }}</a>

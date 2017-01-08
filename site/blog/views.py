@@ -46,3 +46,8 @@ def posts_detail(request, slug):
 
 def posts_list(request):
 	return render_theme(request, 'posts_list.html')
+
+
+def my_page(request, page):
+	print(page)
+	return render_theme(request, 'my_%s.html' % page)

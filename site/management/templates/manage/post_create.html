@@ -20,7 +20,7 @@ textarea {
 
 
 {% block content %}
-<div class="row">
+<div class="row" id="edit_app">
 	<br>
 	<div class="form-group">
 		<input class="form-control" id="url" placeholder="">
@@ -55,8 +55,13 @@ textarea {
 {% block js %}
 <link href="//cdn.bootcss.com/wangeditor/2.1.20/css/wangEditor.min.css" rel="stylesheet">
 <script src="//cdn.bootcss.com/wangeditor/2.1.20/js/wangEditor.min.js"></script>
-<script src="//cdn.bootcss.com/marked/0.3.6/marked.min.js"></script>
 <script>
+var edit_app = new Vue({
+	el: '#edit_app',
+	data: {
+		
+	}
+})
 $("#markdown_content").on("input", function(){
 	$("#markdown_preview").html(marked($("#markdown_content").val()));
 });

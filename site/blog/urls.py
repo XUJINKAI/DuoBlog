@@ -8,7 +8,9 @@ urlpatterns = [
 	# posts/, posts/tags=a,b,c&order_by=name
 	url(r'^posts/$', views.posts_list, name='posts_list'),
 	url(r'^posts/(?P<slug>(?!/).*)/$', views.posts_detail, name='posts_detail'),
+	# custom pages, for theme self
+	url(r'^my/(?P<page>(?!/).*)/$', views.my_page, name='my_page'),
 	# about/, pages/...
 	url(r'^about/$', flat_views.flatpage, {'url': '/about/'}, name='about'),
-	url(r'^(?=pages/)(?P<url>.*/)$', flat_views.flatpage, name='pages'),
+	url(r'^(?=pages/)(?P<url>(?!/).*)/$', flat_views.flatpage, name='pages'),
 ]
