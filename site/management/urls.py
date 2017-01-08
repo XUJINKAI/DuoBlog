@@ -7,6 +7,7 @@ urlpatterns = [
 	url(r'^$', views.dashboard_view, name='index'),
 	url(r'^dashboard$', views.dashboard_view, name='dashboard'),
 	url(r'^posts$', views.posts_view, name='posts'),
+	url(r'^posts/create/$', views.manage_view, {'page': 'post_create'}, name='post_create'),
 	url(r'^pages$', views.pages_view, name='pages'),
 	url(r'^comments$', views.comments_view, name='comments'),
 	url(r'^blogs/$', views.blogs_view, name='blogs'),

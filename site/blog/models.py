@@ -43,7 +43,7 @@ class Blog(models.Model):
 	navs = models.CharField(max_length=1024, default='', blank=True)
 	theme = models.CharField(max_length=16, default='default')
 
-	default_editor = models.CharField(max_length=1, choices=POST_CONTENT_TYPE, default='e')
+	default_editor = models.CharField(max_length=1, choices=POST_CONTENT_TYPE, default='m')
 	posts_url_prefix = models.CharField(max_length=12, default='posts')
 	pages_url_prefix = models.CharField(max_length=12, default='pages')
 

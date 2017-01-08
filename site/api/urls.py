@@ -2,6 +2,7 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from .views.posts import PostViewSet
 from .views.comments import CommentViewSet
+from .views.img import img_view
 
 
 app_name = 'api'
@@ -29,9 +30,11 @@ POST:	posts/<p>/tags/
 
 GET:	posts/<p>/comments/
 POST:	posts/<p>/comments/
+
+POST:	img/
 '''
 urlpatterns = [
 	url(r'^', include(router.urls)),
-	# url(r'^posts/', posts_view),
+	url(r'^img/', img_view),
 	# url(r'^', include('rest_framework.urls')),
 ]

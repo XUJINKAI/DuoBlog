@@ -25,6 +25,9 @@ SECRET_KEY = 'a0l*+xp2a)_svomnw4an2ge6mx&k6p+amzr1g#f3(z%_siqikr'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# if DEMO, anyone can access admin, but can't make any change
+DEMO = False
+
 ALLOWED_HOSTS = ['*']
 
 BLOG_PROGRAM_NAME = 'MultBlog'
