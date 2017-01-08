@@ -1,54 +1,20 @@
-from rest_framework import viewsets, serializers, permissions
+from rest_framework import generics, viewsets, serializers, permissions
+from rest_framework.views import APIView
+from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
 
 # http://django-filter.readthedocs.io/en/stable/
 import django_filters.rest_framework as rest_filter
 import django_filters
 
 from blog import models as blog_models
+from blog.shortcuts import get_current_blog
 from accounts import models as account_models
 
+from ..serializers.posts import PostListSerializer, PostCreateSerializer, \
+					PostDetailSerializer, PostUpdateSerializer
 from ..filters import MBooleanFilter
-from ..serializers import TagSerializerField
 from ..permissions import PostPermission
-
-
-
-class PostAuthorSerializer(serializers.HyperlinkedModelSerializer):
-
-	class Meta:
-		model = account_models.User
-		fields = ('username', )
-
-
-class PostBaseSerializer(serializers.HyperlinkedModelSerializer):
-	author = PostAuthorSerializer(read_only=True)
-	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='slug', read_only=True)
-	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
-	tags = TagSerializerField()
-
-	class Meta:
-		model = blog_models.Post
-		fields = (
-			'slug', 'author', 'api_url', 'html_url', \
-			'create_time', 'last_modified_time', \
-			'views_count', 'modified_count', \
-			'tags', 'comments', 'sticky', 'status', \
-			'title', 'content_type', 'content', \
-			)
-		read_only_fields = (
-			'slug', 'author', 'api_url', 'html_url', \
-			'create_time', 'last_modified_time', \
-			'views_count', 'modified_count', \
-			)
-
-
-class PostListSerializer(PostBaseSerializer):
-	class Meta(PostBaseSerializer.Meta):
-		extra_kwargs = {'content': {'write_only': True}}
-
-class PostDetailSerializer(PostBaseSerializer):
-	class Meta(PostBaseSerializer.Meta):
-		pass
 
 
 class PostFilter(rest_filter.FilterSet):
@@ -66,28 +32,27 @@ class PostFilter(rest_filter.FilterSet):
 class PostViewSet(viewsets.ModelViewSet):
 	lookup_field = 'slug'
 	queryset = blog_models.Post.objects.all()
-	serializer_class = PostListSerializer
 	permission_classes = (PostPermission,)
 	filter_backends = (rest_filter.DjangoFilterBackend,)
 	filter_class = PostFilter
 
-	def perform_create(self, serializer):
-		serializer.save(author=self.request.user)
-
 	def get_serializer_class(self):
-		if self.action == 'list':
-			return PostListSerializer
-		elif self.action == 'retrieve':
-			return PostDetailSerializer
-		return self.serializer_class
+		print(self.request.POST)
+		return {
+			'list': PostListSerializer,
+			'retrieve': PostDetailSerializer,
+			'create': PostCreateSerializer,
+			'update': PostUpdateSerializer,
+			'partial_update': PostUpdateSerializer,
+			'metadata': PostCreateSerializer,
+		}[self.action]
 
 	def get_queryset(self):
-		# return blog_models.Post.objects.
-		if self.request.user.is_staff:
-			return blog_models.Post.objects.all()
-		else:
-			return blog_models.Post.objects.filter(status='p')
+		return blog_models.Post.objects.accessible_queryset(self.request)
+
 
 	def create(self, request, *args, **kwargs):
+		return super().create(request, *args, **kwargs)
 
-		super().create(request, *args, **kwargs)
+	def perform_create(self, serializer):
+		serializer.save(author=self.request.user, blog=get_current_blog(self.request))

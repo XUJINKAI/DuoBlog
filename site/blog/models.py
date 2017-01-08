@@ -14,6 +14,12 @@ from taggit.managers import TaggableManager
 from . import managers
 
 # Create your models here.
+BLOG_COMMENTS = (
+	('a', 'Anyone'),
+	('l', 'Login'),
+	('x', 'Close'),
+	('d', 'disqus'),
+	)
 POST_STATUS = (
 	('p', 'public'),
 	('d', 'draft'),
@@ -29,7 +35,7 @@ def get_random_id(length):
 	return get_random_string(length=length, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789')
 
 class Blog(models.Model):
-	site = models.OneToOneField(Site, on_delete=models.CASCADE)
+	site = models.OneToOneField(Site, on_delete=models.CASCADE, to_field='id')
 	domain = models.CharField(max_length=100, unique=True, \
 		help_text="Only this domain can access this blog")
 	name = models.CharField(max_length=50)
@@ -43,6 +49,7 @@ class Blog(models.Model):
 	pages_url_prefix = models.CharField(max_length=12, default='pages')
 
 	google_analytics_id = models.CharField(max_length=16, null=True, blank=True)
+	comments = models.CharField(max_length=1, choices=BLOG_COMMENTS, default='a')
 	disqus_id = models.CharField(max_length=32, null=True, blank=True)
 
 	rss = models.BooleanField(default=True)
@@ -80,6 +87,7 @@ class Blog(models.Model):
 			return Blog.objects.create(site=site, domain=site.domain, name=site.name)
 
 
+# when create Site(), auto create related Blog()
 def site_post_save(instance, create=None, raw=None, **kwargs):
 	if not hasattr(instance, 'blog'):
 		Blog.objects.create(site=instance, domain=instance.domain, name=instance.name)
@@ -88,7 +96,7 @@ post_save.connect(site_post_save, sender=Site)
 
 
 class Post(models.Model):
-	slug = models.CharField(max_length=64, unique=True, blank=True, \
+	slug = models.CharField(max_length=128, unique=True, blank=True, \
 		help_text="as post url")
 	blog = models.ForeignKey(Blog)
 

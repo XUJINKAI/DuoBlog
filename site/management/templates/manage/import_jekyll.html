@@ -186,23 +186,33 @@ if('draggable' in document.createElement('span')){
 }
 var start_import_data = function(){
 	var blog_pk = $("#blogs_list").val();
-	for(file in import_jekyll_app.files) {
+	for (var i = import_jekyll_app.files.length - 1; i >= 0; i--) {
+		var file = import_jekyll_app.files[i];
 		$.ajax({
 			url: "{% url 'api:post-list' %}",
 			method: 'POST',
 			headers: {
 				'X-CSRFToken': getCookie('csrftoken'),
 			},
+			dataType: 'json',
 			data: {
-				'title': file['title'],
-				'content': file['content'],
-				'tags': file['tags'],
+				'title': file.title,
+				'content': file.content,
+				'content_type': 'e',
+				'status': 'p',
+				'comments': true,
+				'sticky': false,
+				'tags': JSON.stringify(file.tags),
 			},
 			success: function(data){
-				console.log(data);
+				import_jekyll_app.files = [];
+			},
+			error: function(data){
+				console.log(data.responseText);
 			}
 		})
 	}
+	alert('done, see console if error happened.');
 }
 </script>
 {% endblock %}
