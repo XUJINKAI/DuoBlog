@@ -1,1 +1,61 @@
 {% extends './base.html' %}
+{% load staticfiles %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block cssext %}
+<style>
+.content-row {
+	max-width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+	font-size: 20px;
+}
+#content {
+	line-height: 1.8em;
+}
+h1 {
+	font-size: 3ex;
+	text-align: center;
+}
+p {
+	margin: 0 0 .9em;
+}
+.last-modified-time {
+	font-size: .8em;
+}
+.tags {
+	font-size: .8em;
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="row content-row">
+	<h1>{{ post.title }}</h1>
+	<br>
+	<p class="last-modified-time pull-right">编辑于： <script>document.write(moment('{{ post.last_modified_time | date:"c" }}').format('lll'));</script></p>
+	<p class="tags"><i>Tags: {{ tags_href_string | safe }}</i></p>
+	<br>
+	{# //TODO 下面的textarea换成div会出错，可能是与raw content里的标签发生作用 #}
+	{# 出错文章【自动创建post文件的脚本】 #}
+	{% if post.content_type == 'm' %}
+	<div id="content"></div>
+	<textarea id="content-source" hidden="true">{{ post.content | safe }}</textarea>
+	{% elif post.content_type == 'h' %}
+	<div id="content">{{ post.content }}</div>
+	{% else %}
+	
+	{% endif %}
+	<hr>
+</div>
+{% endblock %}
+
+{% block jsext %}
+<script>
+$(function() {
+	$("#content").html(marked($("#content-source").text()));
+});
+</script>
+{% endblock %}

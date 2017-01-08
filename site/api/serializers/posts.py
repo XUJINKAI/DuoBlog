@@ -19,7 +19,7 @@ class PostViewSerializer(serializers.HyperlinkedModelSerializer):
 	# author = PostAuthorSerializer(read_only=True)
 	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='slug', read_only=True)
 	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
-	tags = TagListSerializerField(format_string=True)
+	tags = TagListSerializerField(format_string=True, read_only=True)
 
 	class Meta:
 		model = blog_models.Post
@@ -34,6 +34,8 @@ class PostViewSerializer(serializers.HyperlinkedModelSerializer):
 			'slug', 'api_url', 'html_url', \
 			'create_time', 'last_modified_time', \
 			'views_count', 'modified_count', \
+			'tags', 'comments', 'sticky', 'status', \
+			'title', 'content_type', \
 			)
 
 
@@ -46,19 +48,6 @@ class PostDetailSerializer(PostViewSerializer):
 	class Meta(PostViewSerializer.Meta):
 		pass
 
-
-
-class TagListSerializer(serializers.ModelSerializer):
-
-    def from_native(self, data):
-        if type(data) is not list:
-            raise ParseError("expected a list of data")     
-        return data
-    
-    def to_native(self, obj):
-        if type(obj) is not list:
-            return [tag.name for tag in obj.all()]
-        return obj
 
 
 

@@ -19,15 +19,30 @@ def render_theme(request, page_name, ctx=None):
 def blog_index(request):
 	try:
 		site = get_current_site(request)
-		return render_theme(request, 'index.html')
+		posts = models.Post.objects.accessible_queryset(request)
+		context = {
+			'posts': posts,
+		}
+		return render_theme(request, 'index.html', context)
 	except Site.DoesNotExist:
-		if request.get_host() in ['localhost', '127.0.0.1']:
+		if request.get_host().split(':')[0] in ['localhost', '127.0.0.1']:
 			return HttpResponseRedirect(reverse('manage:index'))
 		else:
 			raise Site.DoesNotExist
 
-def posts_list(request):
-	return render_theme(request, 'posts_list.html')
 
 def posts_detail(request, slug):
-	return render_theme(request, 'posts_detail.html')
+	post = models.Post.objects.accessible_queryset(request).filter(slug=slug).first()
+	if not post:
+		raise Http404
+	tags_href_string = ', '.join(['<a href="%s?tags=%s">%s</a>' \
+			% (reverse('posts_list'), tag.name, tag.name) for tag in post.tags.all()])
+	context = {
+		'post': post,
+		'tags_href_string': tags_href_string,
+	}
+	return render_theme(request, 'posts_detail.html', context)
+
+
+def posts_list(request):
+	return render_theme(request, 'posts_list.html')

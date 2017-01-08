@@ -61,6 +61,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    # global permission
+    'management.middleware.RequirePermissionMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -127,7 +129,6 @@ USE_L10N = False
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
@@ -163,4 +164,14 @@ AUTH_USER_MODEL = 'accounts.User'
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 
-LOGIN_URL = '/account/login'
+LOGIN_URL = '/account/login/'
+
+
+### permission required
+# management.middleware.py
+RESTRICTED_URLS = (
+    (r'^/manage/', 'access_manage'),
+    (r'^/admin/', 'access_admin'),
+)
+RESTRICTED_URLS_EXCEPTIONS = (
+)

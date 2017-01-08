@@ -37,7 +37,7 @@ class PostViewSet(viewsets.ModelViewSet):
 	filter_class = PostFilter
 
 	def get_serializer_class(self):
-		print(self.request.POST)
+		# print(self.request.POST)
 		return {
 			'list': PostListSerializer,
 			'retrieve': PostDetailSerializer,

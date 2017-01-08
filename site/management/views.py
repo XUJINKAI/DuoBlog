@@ -62,6 +62,11 @@ def dashboard_view(request):
 			})
 	else:
 		for site in Site.objects.all():
+			if site.domain == 'example.com':
+				infos.append({
+					'msg': "You should replace site %s\'s domain <strong>%s</strong> to your own domain. <a href='%s'>Detail</a></strong>" \
+						% (site.name, site.domain, reverse('manage:blogs', args=[site.id]))
+					})
 			blog = models.Blog.objects.filter(domain=site.domain).first()
 			if not blog:
 				infos.append({

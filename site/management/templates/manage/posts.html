@@ -9,32 +9,75 @@
 
 {% block content %}
 <div class="row">
-	<ul class="nav nav-tabs" id="nav_site_tab">
-		{% for site in sites %}
-		<li data-domain="{{ site.domain }}"><a href="javascript:void(0);">{{ site.name }}</a></li>
-		{% endfor %}
-	</ul>
-	
-
+	<div id="posts_app">
+		<table style="width:100%">
+			<thead>
+				<tr>
+					<th><input type="checkbox" name=""></th>
+					<th>Title</th>
+					<th>Tags</th>
+					<th>Comments</th>
+					<th>Sticky</th>
+					<th>Status</th>
+					<th>Views</th>
+					<th>Modified</th>
+				</tr>
+			</thead>
+			<tr v-for='post in posts'>
+				<th><input type="checkbox" name="post.title"></th>
+				<th>${ post.title }</th>
+				<th><span v-for='tag in post.tags'>${ tag }, </span></th> 
+				<th>${ post.comments }</th>
+				<th>${ post.sticky }</th>
+				<th>${ post.status }</th>
+				<th>${ post.views_count }</th>
+				<th>${ post.modified_count }</th>
+			</tr>
+		</table>
+	</div>
 </div>
 {% endblock %}
 
 
 {% block js %}
 <script>
-var load_domain_info = function(domain){
-	alert(domain);
-};
-var save_domain_info = function(){
-
-};
+var posts_app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#posts_app',
+	data: {
+		posts: [],
+		previous: '',
+		next: '',
+		page: 1,
+		tags: [],
+	},
+	methods: {
+		fresh_data: function(){
+			$.ajax({
+				url: "{% url 'api:post-list' %}",
+				method: 'GET',
+				headers: {
+					'X-CSRFToken': getCookie('csrftoken'),
+				},
+				dataType: 'json',
+				data: {
+				},
+				success: function(data){
+					this.previous = data.previous;
+					this.next = data.next;
+					for (var i = 0; i < data.count; i++) {
+						posts_app.posts.push(data.results[i]);
+					}
+				},
+				error: function(data){
+					console.log(data.responseText);
+				}
+			})
+		}
+	}
+})
 $(function(){
-	$("#nav_site_tab li").on('click', function(){
-		$("#nav_site_tab li").removeClass("active");
-		$(this).addClass("active");
-		load_domain_info($(this).data("domain"));
-	});
-	$("#nav_site_tab li:first").addClass("active");
+	posts_app.fresh_data();
 })
 </script>
 {% endblock %}

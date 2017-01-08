@@ -1,1 +1,22 @@
 {% extends './base.html' %}
+
+
+{% block title %}主页{% endblock %}
+
+{% block content %}
+{% if blog.desc %}
+<br>
+<p style="font-size: x-large;"><i>{{ blog.desc }}</i></p>
+<hr>
+{% endif %}
+<div class="row">
+	<ul>
+		{% for post in posts %}
+		<li>
+			<h3><a href="{% url 'posts_detail' post.slug %}">{{ post.title }}</a></h3>
+			<span class="text-muted"><script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script></span>
+		</li>
+		{% endfor %}
+	</ul>
+</div>
+{% endblock %}

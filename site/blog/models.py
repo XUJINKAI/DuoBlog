@@ -25,7 +25,6 @@ POST_STATUS = (
 	('d', 'draft'),
 	)
 POST_CONTENT_TYPE = (
-	('e', 'Editor.md'),
 	('m', 'marked.js'),
 	('h', 'html'),
 	)
