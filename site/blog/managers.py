@@ -13,12 +13,12 @@ class PostManager(models.Manager):
 		all_blogs = kwargs.get('all_blogs', False)
 		queryset = self.all()
 
-		# by blog
+		# filter by blog
 		if not all_blogs:
 			current_blog = get_current_blog(request)
 			queryset = queryset.filter(blog=current_blog)
 
-		# by user
+		# filter by user
 		if not request.user.is_superuser:
 			queryset = queryset.filter(status='d')
 

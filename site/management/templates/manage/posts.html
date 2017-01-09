@@ -4,17 +4,59 @@
 
 
 {% block css %}
+<style>
+.post_title:hover {
+	cursor: default;
+	text-decoration: none;
+}
+.post_title {
+}
+.post_item_selected {
+	background: #95ff9f;
+}
+.post_item:hover {
+	background: antiquewhite;
+}
+.tags_filter select {
+	border:none;
+	white-space: normal;
+	width: 100%;
+	height: auto;
+	overflow: auto;
+}
+.tags_filter option {
+	border:1px solid #000;
+	background-color:white;
+	margin-right: 5px;
+	display:inline-block;
+}
+</style>
 {% endblock %}
 
 
 {% block content %}
 <div class="row">
 	<div id="posts_app">
+		<span>${ page }/${ page_max }</span>
+		<button class="btn btn-default" v-on:click='goto_offset(offset-limit)'>Previous</button>
+		<button class="btn btn-default" v-on:click='goto_offset(offset+limit)'>Next</button>
+		<select v-on:change="limit_option_change();" id="limit_select">
+			<option>20</option>
+			<option>50</option>
+			<option>100</option>
+			<option>1000</option>
+		</select>
+		<button class="btn btn-default" v-if='last_check_post'>edit</button>
+		<div class="tags_filter">
+			<select v-model="select_tags" multiple size="3" v-on:change="filter_by_select_tags();">
+				<option v-for='tag in tags' v-on:click="toggle_check_filter($event, tag);">${ tag }</option>
+			</select>
+		</div>
 		<table style="width:100%">
 			<thead>
 				<tr>
-					<th><input type="checkbox" name=""></th>
-					<th>Title</th>
+					<th><input type="checkbox" name="" v-bind:checked="is_all_check" v-on:click="check_all();"></th>
+					<th>Title, Select ${ check_count }</th>
 					<th>Tags</th>
 					<th>Comments</th>
 					<th>Sticky</th>
@@ -23,10 +65,10 @@
 					<th>Modified</th>
 				</tr>
 			</thead>
-			<tr v-for='post in posts'>
-				<th><input type="checkbox" name="post.title"></th>
-				<th>${ post.title }</th>
-				<th><span v-for='tag in post.tags'>${ tag }, </span></th> 
+			<tr v-for='post in posts' v-on:click="check_this($event, post);" v-on:dblclick="preview_post(post);" v-bind:class='{post_item_selected: post.check, post_item: !post.check}'>
+				<th><input type="checkbox" name="post.title" v-bind:checked="post.check" v-on:click="check_this($event, post);"></th>
+				<th><a class="post_title" href="javascript:void(0);">${ post.title }</a></th>
+				<th><span v-for='tag in post.tags'><a href="javascript:void(0);">${ tag }, </a></span></th> 
 				<th>${ post.comments }</th>
 				<th>${ post.sticky }</th>
 				<th>${ post.status }</th>
@@ -45,16 +87,49 @@ var posts_app = new Vue({
 	delimiters: ['${', '}'],
 	el: '#posts_app',
 	data: {
+		url: "{% url 'api:post-list' %}",
+		limit: 20,
+		offset: 0,
+		total_count: null,
 		posts: [],
 		previous: '',
 		next: '',
-		page: 1,
 		tags: [],
+		select_tags: [],
+		tags_set: new Set(),
+		last_check_post: null,
+	},
+	computed: {
+		query_str: function() {
+			return '?limit=' + parseInt(this.limit).toString() + '&offset=' + parseInt(this.offset).toString();
+		},
+		page: function() {
+			return Math.ceil(this.offset/this.limit) + 1;
+		},
+		page_max: function() {
+			return Math.ceil(this.total_count/this.limit);
+		},
+		offset_max: function() {
+			return Math.floor(this.total_count/this.limit) * this.limit;
+		},
+		check_count: function() {
+			var count = 0;
+			for (var i = 0; i < this.posts.length; i++) {
+				if(this.posts[i].check) {
+					count++;
+				}
+			}
+			return count;
+		},
+		is_all_check: function() {
+			return this.check_count == this.posts.length;
+		},
 	},
 	methods: {
 		fresh_data: function(){
+			var self = this;
 			$.ajax({
-				url: "{% url 'api:post-list' %}",
+				url: this.url + this.query_str,
 				method: 'GET',
 				headers: {
 					'X-CSRFToken': getCookie('csrftoken'),
@@ -63,21 +138,130 @@ var posts_app = new Vue({
 				data: {
 				},
 				success: function(data){
-					this.previous = data.previous;
-					this.next = data.next;
-					for (var i = 0; i < data.count; i++) {
-						posts_app.posts.push(data.results[i]);
+					window.history.pushState(null, null, window.location.pathname + self.query_str);
+					self.previous = data.previous;
+					self.next = data.next;
+					self.total_count = data.count;
+					self.posts = [];
+					self.tags_set = new Set();
+					for (var i = 0; i < data.results.length; i++) {
+						self.add_post(data.results[i])
 					}
+					self.tags = [...self.tags_set]
 				},
 				error: function(data){
 					console.log(data.responseText);
 				}
 			})
-		}
-	}
+		},
+		add_post: function(post) {
+			post.check = false;
+			for (var i = 0; i < post.tags.length; i++) {
+				this.tags_set.add(post.tags[i]);
+			}
+			this.posts.push(post);
+		},
+		goto_offset: function(offset) {
+			if (offset < 0) {
+				offset = 0;
+			}
+			if (offset > this.offset_max) {
+				offset = this.offset_max;
+			}
+			this.offset = offset;
+			this.fresh_data();
+		},
+		check_all: function(all){
+			var check = !this.is_all_check;
+			if(all!==undefined) {
+				check = all;
+			}
+			for (var i = 0; i < this.posts.length; i++) {
+				this.posts[i].check = check;
+			}
+		},
+		check_this: function(event, post){
+			post.check = !post.check;
+			if(post.check) {
+				this.last_check_post = post;
+			} else {
+				this.last_check_post = null;
+			}
+		},
+		preview_post: function(post) {
+			window.open(post.html_url, "_blank");
+		},
+		limit_option_change: function(value) {
+			this.limit = parseInt($("#limit_select").val());
+			this.fresh_data();
+		},
+		show_post_menu: function(event, post) {
+			//TODO
+		},
+		toggle_check_filter: function(event, text) {
+		},
+		filter_by_select_tags: function() {
+			if (this.select_tags.length > 0) {
+				this.check_all(true);
+				for (var i = 0; i < this.posts.length; i++) {
+					if (this.posts[i].tags.length > 0) {
+						for (var j = 0; j < this.select_tags.length; j++) {
+							if ( $.inArray(this.select_tags[j], this.posts[i].tags) < 0) {
+								this.posts[i].check = false;
+							}
+						}
+					} else {
+						this.posts[i].check =false;
+					}
+				}
+			} else {
+				this.check_all(false);
+			}
+		},
+	},
 })
+Array.prototype.remove = function() {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+};
+function getParameterByName(name, url) {
+	if (!url) {
+	  url = window.location.href;
+	}
+	name = name.replace(/[\[\]]/g, "\\$&");
+	var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+		results = regex.exec(url);
+	if (!results) return null;
+	if (!results[2]) return '';
+	return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 $(function(){
+	var limit = getParameterByName('limit');
+	if(limit) {
+		posts_app.limit = parseInt(limit);
+	}
+	var offset = getParameterByName('offset');
+	if(offset) {
+		posts_app.offset = parseInt(offset);
+	}
+	// get data
 	posts_app.fresh_data();
+	// bind contextmenu
+	// if (document.addEventListener) { // IE >= 9; other browsers
+	// 	document.addEventListener('contextmenu', function(e) {
+	// 		e.preventDefault();
+	// 	}, false);
+	// } else { // IE < 9
+	// 	document.attachEvent('oncontextmenu', function() {
+	// 	window.event.returnValue = false;
+	// 	});
+	// }
 })
 </script>
 {% endblock %}

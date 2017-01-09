@@ -32,7 +32,8 @@ p {
 
 
 {% block content %}
-<div class="row content-row">
+<div class="row">
+<div class="content-row">
 	<h1>{{ post.title }}</h1>
 	<br>
 	<p class="last-modified-time pull-right">编辑于： <script>document.write(moment('{{ post.last_modified_time | date:"c" }}').format('lll'));</script></p>
@@ -42,20 +43,24 @@ p {
 	{# 出错文章【自动创建post文件的脚本】 #}
 	{% if post.content_type == 'm' %}
 	<div id="content"></div>
-	<textarea id="content-source" hidden="true">{{ post.content | safe }}</textarea>
+	<textarea id="content-source" hidden="true">{{ post.content }}</textarea>
 	{% elif post.content_type == 'h' %}
 	<div id="content">{{ post.content }}</div>
 	{% else %}
-	
+	<p>Unknown content type.</p>
+	<pre>{{ post.content }}</pre>
 	{% endif %}
-	<hr>
+	<hr style="margin-top: 50px;">
+</div>
 </div>
 {% endblock %}
 
 {% block jsext %}
 <script>
+{% if post.content_type == 'm' %}
 $(function() {
 	$("#content").html(marked($("#content-source").text()));
 });
+{% endif %}
 </script>
 {% endblock %}

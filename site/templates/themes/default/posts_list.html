@@ -1,1 +1,103 @@
 {% extends './base.html' %}
+
+
+{% block title %}主页{% endblock %}
+
+
+{% block cssext %}
+<style>
+#select_tags a, #remain_tags a {
+	border-bottom: 1px solid #d2d2d2;
+	font-size: larger;
+	margin-right: 10px;
+}
+#select_tags a {
+	border-bottom: none;
+}
+#clear_tags {
+	border: 0;
+	/*border-bottom: 0;*/
+    color: #797979;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<br>
+<div id="select_tags">
+	{% if select_tags %}
+	<a href="javascript:clear_tags();" id="clear_tags">Clear</a>
+	{% endif %}
+	{% for tag in select_tags %}
+	<a href="javascript:remove_tag('{{ tag }}');">{{ tag }}</a>
+	{% endfor %}
+</div>
+<hr>
+<div id="remain_tags">
+	{% for tag in remain_tags %}
+	<a href="javascript:select_tag('{{ tag }}');">{{ tag }}</a>
+	{% endfor %}
+</div>
+<hr>
+<div class="row">
+	<ul>
+		{% for post in posts %}
+		<li>
+			<h3><a href="{% url 'posts_detail' post.slug %}">{{ post.title }}</a></h3>
+			<span class="text-muted"><script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script></span>
+		</li>
+		{% endfor %}
+	</ul>
+</div>
+{% endblock %}
+
+
+{% block jsext %}
+<script>
+function getParameterByName(name, url) {
+	if (!url) {
+	  url = window.location.href;
+	}
+	name = name.replace(/[\[\]]/g, "\\$&");
+	var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+		results = regex.exec(url);
+	if (!results) return null;
+	if (!results[2]) return '';
+	return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+function get_current_tags() {
+
+	var search_tags = getParameterByName('tags');
+	if (search_tags) {
+		search_tags = search_tags.split(',');
+		return search_tags;
+	} else {
+		return [];
+	}
+}
+function remove_tag(tag){
+	var search_tags = get_current_tags();
+	var query_string = '?tags=';
+	for (var i = 0; i < search_tags.length; i++) {
+		if(search_tags[i] != '' && search_tags[i] != tag) {
+			query_string += search_tags[i] + ','
+		}
+	}
+	window.location = location.pathname + query_string;
+}
+function select_tag(tag){
+	var search_tags = get_current_tags();
+	var query_string = '?tags=';
+	for (var i = 0; i < search_tags.length; i++) {
+		if(search_tags[i] != '') {
+			query_string += search_tags[i] + ','
+		}
+	}
+	query_string += tag
+	window.location = location.pathname + query_string;
+}
+function clear_tags(){
+	window.location = location.pathname + '?tags='
+}
+</script>
+{% endblock %}
