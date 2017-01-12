@@ -6,15 +6,44 @@ from django.contrib.sites.models import Site
 from . import models
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from taggit.models import Tag
+import json
 
 # Create your views here.
 def render_theme(request, page_name, ctx=None):
 	site = get_current_site(request)
 	blog = site.blog
+	navs = '''[
+  {
+    "name": "技术",
+    "url": "/posts/?tags=技术"
+  },
+  {
+    "name": "教程",
+    "sub": [
+      {
+        "name": "计算机入门系列",
+        "url": "/pages/computer-introduction"
+      },
+      {
+        "name": "Django系列",
+        "url": "/pages/django-intro"
+      }
+    ]
+  },
+  {
+    "name": "微吐槽",
+    "url": "/posts/?tags=tweet"
+  },
+  {
+    "name": "关于",
+    "url": "/about"
+  }
+]'''
 	render_page = 'themes/default/' + page_name
 	if not ctx:
 		ctx = {}
 	ctx['blog'] = blog
+	ctx['navs'] = json.loads(navs)
 	return render(request, render_page, ctx)
 
 

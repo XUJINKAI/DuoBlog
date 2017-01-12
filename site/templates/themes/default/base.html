@@ -24,7 +24,12 @@
 
 <style type="text/css">
 body {
-  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif !important;
+ 	font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif !important;
+ 	border-radius: 0 !important;
+}
+
+.btn {
+	border-radius: 0;
 }
 
 .main-content {
@@ -64,9 +69,13 @@ ul.navbar-right {
   border-color: rgba(205, 205, 205, 0.34);
 }
 
+.navbar-nav>li>.dropdown-menu {
+	border-radius: 0;
+}
+
 /* 小屏幕时nav继续横着排列 */
 .navbar-nav>li {
-    float: left;
+	float: left;
 }
 
 /* sticky footer */
@@ -76,21 +85,24 @@ html {
 }
 body {
   /* Margin bottom by footer height */
-  margin-bottom: 50px;
+  margin-bottom: 70px;
 }
 .footer {
   position: absolute;
   bottom: 0;
   width: 100%;
   /* Set the fixed height of the footer here */
-  height: 50px;
-  background-color: #f5f5f5;
+  height: 45px;
+  /*background-color: #f9f9f9;*/
 }
 
 /* footer inside */
+.footer div {
+	border-top: 1px solid rgba(0, 0, 0, 0.21);
+}
 p.text-muted {
   font-size: 14px;
-  margin-top: 16px;
+  margin-top: 13px;
 }
 
 .staff_btn {
@@ -106,18 +118,35 @@ p.text-muted {
 		<div class="wrapper">
 		<header>
 		<nav class="container" role="navigation" style="margin-top: 20px; margin-bottom: 0;">
-			 <ul class="nav navbar-nav" style="margin: 5px 0 0 5px;">
+			<ul class="nav navbar-nav" style="margin: 5px 0 0 5px;">
 				<a href="/"><span style="font-size: 47px; font-weight: bold; color: #585858;">{{ blog.name }}</span></a>
-			 </ul>
-					<ul class="nav navbar-nav navbar-right">
-						{% if request.user.is_superuser %}
-						<li><a href="{% url 'manage:index' %}"><i class="fa fa-wrench staff_btn"></i></a></li>
-						<li><a href="{% url 'my_page' 'create' %}"><i class="fa fa-plus staff_btn" aria-hidden="true"></i></a></li>
-						<li><a href="{% url 'my_page' 'draft' %}" class="staff_btn">草稿箱</a></li>
-						{% endif %}
-						<li><a href="{% url 'index' %}">首页</a></li>
-						<li><a href="{% url 'posts_list' %}">存档</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				{% if request.user.is_superuser %}
+				<li><a href="{% url 'manage:index' %}"><i class="fa fa-wrench staff_btn"></i></a></li>
+				<li><a href="{% url 'my_page' 'create' %}"><i class="fa fa-plus staff_btn" aria-hidden="true"></i></a></li>
+				<li><a href="{% url 'my_page' 'draft' %}" class="staff_btn">草稿箱</a></li>
+				{% endif %}
+				<li><a href="{% url 'index' %}">首页</a></li>
+				{% if navs %}
+					{% for nav in navs %}
+						{% if nav.sub %}
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+						{{ nav.name }} <span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu">
+						{% for nav_sub in nav.sub %}
+						<li><a href="{{ nav_sub.url }}">{{ nav_sub.name }}</a></li>
+						{% endfor %}
 					</ul>
+				</li>
+						{% else %}
+				<li><a href="{{ nav.url }}">{{ nav.name }}</a></li>
+						{% endif %}
+					{% endfor %}
+				{% endif %}
+			</ul>
 		</nav>
 		</header>
 			<div class="main-content container">
@@ -127,7 +156,7 @@ p.text-muted {
 				<div class="container">
 					<p class="text-muted">© 2016 {{ blog.name }}. All Rights Reserved.
 					<span class="pull-right">
-						<i><a href="#" class="text-muted">Powered by MultBlog.</a></i>
+						<i><a href="http://xujinkai.net" class="text-muted">Powered by MultBlog.</a></i>
 						{% if request.user.is_authenticated %}
 						<span class="text-muted" style="margin-right: 8px;">Login as {{ request.user.username }}</span>
 						<span style="margin-right: 8px;"><a href="JavaScript:void(0);" onclick="account_logout();" class="staff_btn">登出</a></span>
@@ -137,6 +166,7 @@ p.text-muted {
 						{% if request.user.is_superuser %}
 						<span><a href="{% url 'manage:index' %}" class="staff_btn">管理</a></span>
 						{% endif %}
+						<span><a href="/" class="staff_btn" style="margin-left: 8px;"><i class="fa fa-rss" aria-hidden="true"></i> 订阅</a></span>
 					</span>
 					</p>
 				</div>
@@ -145,7 +175,7 @@ p.text-muted {
 		<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
 		<script src="//cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
 		<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
-		<!-- <script src="//cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script> -->
+		<script src="//cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
 		
 		<!-- marked -->
 		<script src="//cdn.bootcss.com/marked/0.3.6/marked.min.js"></script>

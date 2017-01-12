@@ -11,12 +11,13 @@ def get_random_id(length):
 
 
 def handle_uploaded_file(f):
+	raise Exception('//TODO')
 	# //TODO
 	url = os.path.join(settings.STATIC_URL, 'img', str(f))
 	if not settings.DEBUG:
 		raise Exception('//TODO why following not work?')
 	# file_path = os.path.join(settings.BASE_DIR, url)
-	file_path = settings.BASE_DIR + url
+	file_path = os.path.join(settings.USER_DATA_DIR, 'uploads', str(f))
 	with open(file_path, 'wb+') as destination:
 		for chunk in f.chunks():
 			destination.write(chunk)

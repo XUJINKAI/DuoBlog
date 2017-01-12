@@ -44,8 +44,8 @@ class Blog(models.Model):
 	theme = models.CharField(max_length=16, default='default')
 
 	default_editor = models.CharField(max_length=1, choices=POST_CONTENT_TYPE, default='m')
-	posts_url_prefix = models.CharField(max_length=12, default='posts')
-	pages_url_prefix = models.CharField(max_length=12, default='pages')
+	posts_url_prefix = models.CharField(max_length=12, default='posts', help_text='//TODO')
+	pages_url_prefix = models.CharField(max_length=12, default='pages', help_text='//TODO')
 
 	google_analytics_id = models.CharField(max_length=16, null=True, blank=True)
 	comments = models.CharField(max_length=1, choices=BLOG_COMMENTS, default='a')

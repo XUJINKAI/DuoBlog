@@ -15,6 +15,8 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# all user data saved here
+USER_DATA_DIR = os.path.join(BASE_DIR, 'data')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -25,7 +27,7 @@ SECRET_KEY = 'a0l*+xp2a)_svomnw4an2ge6mx&k6p+amzr1g#f3(z%_siqikr'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# if DEMO, anyone can access admin, but can't make any change
+# //TODO
 DEMO = False
 
 ALLOWED_HOSTS = ['*']
@@ -45,7 +47,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'rest_framework',
-    'rest_framework_swagger',
+    # 'rest_framework_swagger',
     'crispy_forms',
     'taggit',
     'django_comments',
@@ -95,7 +97,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(USER_DATA_DIR, 'db.sqlite3'),
     }
 }
 
@@ -139,6 +141,7 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
+    os.path.join(USER_DATA_DIR, "uploads"),
 ]
 
 

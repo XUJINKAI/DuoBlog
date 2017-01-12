@@ -3,6 +3,10 @@ python -m virtualenv venv
 venv\Scripts\activate
 pip install django
 django-admin startproject config
+#requirement auto
+pip install pipreqs
+pipreqs /path/to/project
+
 #requirement
 pip install django-allauth
 pip install djangorestframework
@@ -36,3 +40,6 @@ python manage.py makemigrations
 python manage.py migrate
 
 python manage.py createsuperuser
+
+# docker
+sudo docker build -f Dockerfile -t tango .

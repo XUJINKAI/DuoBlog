@@ -12,7 +12,9 @@ from blog.shortcuts import get_current_blog
 from accounts import models as account_models
 
 from ..serializers.posts import PostListSerializer, PostCreateSerializer, \
-					PostDetailSerializer, PostUpdateSerializer
+					PostDetailSerializer, PostUpdateSerializer, \
+					PostListSerializer_Superuser, \
+					PostCreateSerializer_Superuser, PostUpdateSerializer_Superuser
 from ..filters import MBooleanFilter
 from ..permissions import PostPermission
 
@@ -37,15 +39,24 @@ class PostViewSet(viewsets.ModelViewSet):
 	filter_class = PostFilter
 
 	def get_serializer_class(self):
-		# print(self.request.POST)
-		return {
-			'list': PostListSerializer,
-			'retrieve': PostDetailSerializer,
-			'create': PostCreateSerializer,
-			'update': PostUpdateSerializer,
-			'partial_update': PostUpdateSerializer,
-			'metadata': PostCreateSerializer,
-		}[self.action]
+		if(self.request.user.is_superuser):
+			return {
+				'list': PostListSerializer_Superuser,
+				'retrieve': PostDetailSerializer,
+				'update': PostUpdateSerializer_Superuser,
+				'partial_update': PostUpdateSerializer_Superuser,
+				'create': PostCreateSerializer_Superuser,
+				'metadata': PostCreateSerializer_Superuser,
+			}[self.action]
+		else:
+			return {
+				'list': PostListSerializer,
+				'retrieve': PostDetailSerializer,
+				'update': PostUpdateSerializer,
+				'partial_update': PostUpdateSerializer,
+				'create': PostCreateSerializer,
+				'metadata': PostCreateSerializer,
+			}[self.action]
 
 	def get_queryset(self):
 		return blog_models.Post.objects.accessible_queryset(self.request)

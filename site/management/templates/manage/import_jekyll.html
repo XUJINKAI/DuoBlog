@@ -214,5 +214,30 @@ var start_import_data = function(){
 	}
 	alert('done, see console if error happened.');
 }
+
+$.ajax({
+			url: "{% url 'api:post-list' %}",
+			method: 'POST',
+			headers: {
+				'X-CSRFToken': getCookie('csrftoken'),
+			},
+			dataType: 'json',
+			data: {
+				'title': 'testdddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+				'content': 'testtesttesttesttesttesttest',
+				'content_type': 'm',
+				'status': 'p',
+				'comments': true,
+				'sticky': false,
+				'tags': JSON.stringify(['test']),
+				'last_modified_time': '2017-01-01T10:04:04.502967Z',
+			},
+			success: function(data){
+				console.log(data);
+			},
+			error: function(data){
+				console.log(data.responseText);
+			}
+		})
 </script>
 {% endblock %}

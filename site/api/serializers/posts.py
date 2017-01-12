@@ -15,8 +15,26 @@ class PostAuthorSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('username', )
 
 
-class PostViewSerializer(serializers.HyperlinkedModelSerializer):
-	# author = PostAuthorSerializer(read_only=True)
+
+# view
+
+class PostListSerializer(serializers.ModelSerializer):
+	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='slug', read_only=True)
+	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
+	tags = TagListSerializerField(format_string=True, read_only=True)
+
+	class Meta:
+		model = blog_models.Post
+		fields = (
+			'slug', 'api_url', 'html_url', \
+			'create_time', 'last_modified_time', \
+			'views_count', 'modified_count', \
+			'tags', 'comments', 'sticky', 'status', \
+			'title', 'content_type', \
+			)
+
+
+class PostDetailSerializer(serializers.ModelSerializer):
 	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='slug', read_only=True)
 	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
 	tags = TagListSerializerField(format_string=True, read_only=True)
@@ -30,7 +48,20 @@ class PostViewSerializer(serializers.HyperlinkedModelSerializer):
 			'tags', 'comments', 'sticky', 'status', \
 			'title', 'content_type', 'content', \
 			)
-		read_only_fields = (
+
+
+
+# view-superuser
+
+class PostListSerializer_Superuser(serializers.ModelSerializer):
+	# author = PostAuthorSerializer(read_only=True)
+	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='slug', read_only=True)
+	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
+	tags = TagListSerializerField(format_string=True, read_only=True)
+
+	class Meta:
+		model = blog_models.Post
+		fields = (
 			'slug', 'api_url', 'html_url', \
 			'create_time', 'last_modified_time', \
 			'views_count', 'modified_count', \
@@ -40,16 +71,9 @@ class PostViewSerializer(serializers.HyperlinkedModelSerializer):
 
 
 
-class PostListSerializer(PostViewSerializer):
-	class Meta(PostViewSerializer.Meta):
-		extra_kwargs = {'content': {'write_only': True}}
-
-class PostDetailSerializer(PostViewSerializer):
-	class Meta(PostViewSerializer.Meta):
-		pass
 
 
-
+# create-update
 
 class PostCreateSerializer(TaggitSerializer, serializers.ModelSerializer):
 	tags = TagListSerializerField()
@@ -61,7 +85,15 @@ class PostCreateSerializer(TaggitSerializer, serializers.ModelSerializer):
 			'status', 'tags', 'comments', 'sticky', \
 			)
 
-class PostUpdateSerializer(TaggitSerializer, serializers.ModelSerializer):
+class PostUpdateSerializer(PostCreateSerializer):
+	class Meta(PostCreateSerializer.Meta):
+		pass
+
+
+
+# create-update superuser
+
+class PostCreateSerializer_Superuser(TaggitSerializer, serializers.ModelSerializer):
 	tags = TagListSerializerField()
 
 	class Meta:
@@ -69,4 +101,9 @@ class PostUpdateSerializer(TaggitSerializer, serializers.ModelSerializer):
 		fields = (
 			'slug', 'title', 'content', 'content_type', \
 			'status', 'tags', 'comments', 'sticky', \
+			'create_time', \
 			)
+
+class PostUpdateSerializer_Superuser(PostCreateSerializer_Superuser):
+	class Meta(PostCreateSerializer_Superuser.Meta):
+		pass
