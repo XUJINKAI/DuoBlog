@@ -54,7 +54,7 @@ def blog_index(request):
 		page = request.GET.get('page', 1)
 		posts = models.Post.objects.accessible_queryset(request)
 		paginator = Paginator(posts, PAGE_SIZE)
-		tags = Tag.objects.all()
+		tags = set(tag.name for post in posts for tag in post.tags.all())
 		try:
 			pagi_posts = paginator.page(page)
 		except PageNotAnInteger:

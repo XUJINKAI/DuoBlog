@@ -1,6 +1,9 @@
 {% extends './base.html' %}
+{% load flatpages %}
+{% get_flatpages as flatpages %}
 
-{% block title %}{% endblock %}
+
+{% block title %}Pages{% endblock %}
 
 
 {% block css %}
@@ -9,7 +12,15 @@
 
 {% block content %}
 <div class="row">
-	
+	<br>
+	<div>
+		<a href="{% url 'manage:page_create' %}" class="btn btn-primary">Create New Page</a>
+	</div>
+	<ul>
+		{% for page in flatpages %}
+			<li><a href="{{ page.url }}">{{ page.title }}</a></li>
+		{% endfor %}
+	</ul>
 </div>
 {% endblock %}
 

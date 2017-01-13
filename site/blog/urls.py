@@ -10,7 +10,6 @@ urlpatterns = [
 	url(r'^posts/(?P<slug>(?!/).*)/$', views.posts_detail, name='posts_detail'),
 	# custom pages, for theme self
 	url(r'^my/(?P<page>(?!/).*)/$', views.my_page, name='my_page'),
-	# about/, pages/...
-	url(r'^about/$', flat_views.flatpage, {'url': '/about/'}, name='about'),
-	url(r'^(?=pages/)(?P<url>(?!/).*)/$', flat_views.flatpage, name='pages'),
+	# about/..., pages/...
+	url(r'^(?=pages/|about/)(?P<url>(?!/).*)/$', flat_views.flatpage, name='pages'),
 ]

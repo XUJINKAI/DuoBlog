@@ -55,22 +55,11 @@
 	<div id="posts_app">
 		<div v-bind:class="{full_screen_wrapper: is_fullscreen}">
 			<div v-bind:class="{full_screen_content: is_fullscreen}">
-				<div id="operation_div">
-					<button class="btn btn-danger">Delete</button>
-					<span>Tags:</span>
-					<button class="btn btn-primary">Add</button>
-					<button class="btn btn-info">Remove</button>
-					<span>Blog</span>
-					<span>Comments</span>
-					<span>Sticky</span>
-					<span>Status</span>
-					<button class="btn btn-default">edit</button>
-					<button v-on:click="is_fullscreen=!is_fullscreen" class="pull-right">FullScreen</button>
-				</div>
+				<a v-on:click="is_fullscreen=!is_fullscreen" class="pull-right"><i class="fa fa-arrows-alt" aria-hidden="true"></i></a>
 				<div id="selector_div">
 					<span>${ page }/${ page_max }</span>
-					<button class="btn btn-default" v-on:click='goto_offset(offset-limit)'>Previous</button>
-					<button class="btn btn-default" v-on:click='goto_offset(offset+limit)'>Next</button>
+					<button class="btn-default" v-on:click='goto_offset(offset-limit)'>Previous</button>
+					<button class="btn-default" v-on:click='goto_offset(offset+limit)'>Next</button>
 					<select v-on:change="limit_option_change();" id="limit_select">
 						<option>20</option>
 						<option>50</option>
@@ -78,14 +67,23 @@
 						<option>All</option>
 					</select>
 					<div class="tags_filter">
-						<select v-model="select_tags" multiple size="3" v-on:change="filter_by_select_tags();">
-							<option v-for='tag in tags' v-on:click="toggle_check_filter($event, tag);">${ tag }</option>
-						</select>
+						<button v-for='tag in tags' v-on:click="toggle_check_filter($event, tag);">${ tag }</button>
 					</div>
+				</div>
+				<div id="operation_div">
+					<span>Select ${ check_count }/${ posts.length }</span>
+					<button class="btn-danger" v-on:click="delete_select_posts();">Delete</button>
+					<span>Tags:</span>
+					<button class="btn-primary">Add</button>
+					<button class="btn-info">Remove</button>
+					<span>Blog</span>
+					<span>Comments</span>
+					<span>Sticky</span>
+					<span>Status</span>
+					<button class="btn-default">edit</button>
 				</div>
 				<div class="row">
 					<div class="col-md-12">
-						<p>Select ${ check_count }</p>
 						<table style="width:100%">
 							<thead>
 								<tr>
@@ -102,8 +100,8 @@
 									<th>Modified</th>
 								</tr>
 							</thead>
-							<tr v-for='post in posts' v-on:click="check_this($event, post);" v-bind:class='{post_item_selected: post.check, post_item: !post.check}'>
-								<th><input type="checkbox" name="post.title" v-bind:checked="post.check" v-on:click="check_this($event, post);"></th>
+							<tr v-for='post in posts' v-on:click="check_post($event, post, true);" v-bind:class='{post_item_selected: post.check, post_item: !post.check}'>
+								<th><input type="checkbox" name="post.title" v-bind:checked="post.check" v-on:click="check_post($event, post);"></th>
 								<th><a class="post_title" href="javascript:void(0);">${ post.title }</a></th>
 								<th><span v-for='tag in post.tags'><a href="javascript:void(0);">${ tag }, </a></span></th> 
 								<th>${ post.blog }</th>
@@ -141,7 +139,7 @@ var posts_app = new Vue({
 		tags: [],
 		select_tags: [],
 		tags_set: new Set(),
-		last_check_post: null,
+		last_checked_post: null,
 		is_fullscreen: false,
 	},
 	computed: {
@@ -168,6 +166,15 @@ var posts_app = new Vue({
 		},
 		is_all_check: function() {
 			return this.check_count == this.posts.length;
+		},
+		checked_slugs: function(){
+			var slugs = [];
+			for (var i = 0; i < this.posts.length; i++) {
+				if(this.posts[i].check) {
+					slugs.push(this.posts[i].slug)
+				}
+			}
+			return slugs;
 		},
 	},
 	methods: {
@@ -199,6 +206,27 @@ var posts_app = new Vue({
 				}
 			})
 		},
+		delete_select_posts: function(){
+			var self = this;
+			$.ajax({
+				url: this.url,
+				method: 'DELETE',
+				headers: {
+					'X-CSRFToken': getCookie('csrftoken'),
+				},
+				dataType: 'json',
+				data: {
+					'delete_slugs': JSON.stringify(self.checked_slugs),
+				},
+				success: function(data){
+					self.fresh_data();
+				},
+				error: function(data){
+					console.log(data.responseText);
+					alert(data.responseText);
+				}
+			})
+		},
 		add_post: function(post) {
 			post.check = false;
 			for (var i = 0; i < post.tags.length; i++) {
@@ -225,13 +253,15 @@ var posts_app = new Vue({
 				this.posts[i].check = check;
 			}
 		},
-		check_this: function(event, post){
-			this.check_all(false);
+		check_post: function(event, post, uncheck_others){
+			if(uncheck_others===true) {
+				this.check_all(false);
+			}
 			post.check = !post.check;
 			if(post.check) {
-				this.last_check_post = post;
+				this.last_checked_post = post;
 			} else {
-				this.last_check_post = null;
+				this.last_checked_post = null;
 			}
 		},
 		preview_post: function(post) {

@@ -83,11 +83,37 @@ class PostsView(ManageContextMixin, generic.TemplateView):
 posts_view = PostsView.as_view()
 
 
+
+# pages
+
 class PagesView(ManageContextMixin, generic.TemplateView):
 	template_name = 'manage/pages.html'
 
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+
+		return context
+
 pages_view = PagesView.as_view()
 
+
+class PagesCreateView(ManageContextMixin, generic.TemplateView):
+	template_name = 'manage/pages_create.html'
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['blogs'] = models.Blog.objects.all()
+		return context
+
+	def post(self, request):
+		print(request.POST)
+		return HttpResponse('ok')
+
+pages_create_view = PagesCreateView.as_view()
+
+
+
+# comment
 
 class CommentsView(ManageContextMixin, generic.TemplateView):
 	template_name = 'manage/comments.html'

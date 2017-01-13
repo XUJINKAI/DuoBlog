@@ -22,6 +22,8 @@ GET:	posts/<p>
 PUT:	posts/<p>
 DELETE:	posts/<p>
 
+DELETE: posts/	{delete_slugs: ['', '', ...]}
+
 GET:	comments/		?post_slug, 
 POST:	comments/		?post_slug, 
 
