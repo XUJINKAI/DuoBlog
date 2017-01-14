@@ -5,7 +5,6 @@ from crispy_forms.layout import Layout, Submit
 from crispy_forms.bootstrap import InlineCheckboxes
 
 from django.contrib.sites.models import Site
-from django.contrib.flatpages.models import FlatPage
 from blog import models
 from accounts import models as accounts_models
 
@@ -24,3 +23,10 @@ class BlogForm(forms.ModelForm):
 		self.helper.label_class = 'col-md-4'
 		self.helper.field_class = 'col-md-8'
 		self.helper.add_input(Submit('submit', 'Save'))
+
+
+class PageForm(forms.ModelForm):
+
+	class Meta:
+		model = models.Page
+		fields = '__all__'

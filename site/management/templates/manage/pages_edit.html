@@ -1,0 +1,109 @@
+{% extends './base.html' %}
+
+{% block title %}Edit Page{% endblock %}
+
+
+{% block css %}
+<link href="//cdn.bootcss.com/wangeditor/2.1.20/css/wangEditor.min.css" rel="stylesheet">
+<style>
+#page_content_div {
+	width: 100%;
+	min-height: 350px;
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+	<div id="page_edit_form">
+		<a href='{% url "manage:pages" %}'><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</a>
+		<div class="form-group">
+			<div class="form-radio">
+    			<label for="blog">Blog </label>
+    			<br>
+    			{% for blog in blogs %}
+				<input type="radio" id="blog_{{blog.pk}}" value="{{ blog.pk }}" v-model='blog_id'>
+				<label for="blog_{{blog.pk}}">{{ blog.name }}</label>
+				{% endfor %}
+			</div>
+    	</div>
+		<div class="form-group form-inline">
+			<label class="" for="inlineFormCustomSelect">URL </label>
+			<select class="form-control" name="url_prefix" v-model='url_prefix'>
+				<option value="pages">/pages/</option>
+				<option value="about">/about/</option>
+			</select>
+			<input type="input" class="form-control" value="/" v-model='url_post'>
+		</div>
+		<div class="form-group">
+			<label class="mr-sm-2" for="inlineFormCustomSelect">Title</label>
+			<input type="input" class="form-control" name="title" v-bind:value="title" v-model="title">
+		</div>
+		<div class="form-group">
+			<label class="mr-sm-2" for="inlineFormCustomSelect">Content</label>
+			<div id="page_content_div" name="content">{{ page.content | safe }}</div>
+		</div>
+		<div class="form-check">
+			<label class="form-check-label">
+				<input type="checkbox" class="form-check-input" name="comments" v-bind:checked="comments" v-model='comments'> Comments
+			</label>
+		</div>
+		<a class="btn btn-primary" href="javascript:void(0);" v-on:click="save_page();">Save</a>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block js %}
+<script src="//cdn.bootcss.com/wangeditor/2.1.20/js/wangEditor.min.js"></script>
+<script>
+var page_app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#page_edit_form',
+	data: {
+		blog_id: '{{ page.blog.pk }}',
+		url_prefix: '{{ url_prefix }}',
+		url_post: '{{ url_post }}',
+		title: '{{ page.title }}',
+		comments: '{{ page.comments }}',
+	},
+	computed: {
+		url: function(){
+			return this.url_prefix.replace(/^\/*(.*?)\/*$/, '$1') + '/' + this.url_post.replace(/^\/*(.*?)\/*$/, '$1');
+		}
+	},
+	methods: {
+		save_page: function() {
+			post_data("{% if page %}{% url 'manage:page_edit' page.pk %}{% else %}{% url 'manage:page_edit' %}{% endif %}", {
+				blog: this.blog_id,
+				url: this.url,
+				title: this.title,
+				content: html_editor.$txt.html(),
+				comments: this.comments,
+			}).success(function(data){
+				window.location = '{% url "manage:pages" %}';
+			}).error(function(data){
+				alert(data.responseText);
+			})
+		}
+	}
+});
+//
+var html_editor = null;
+var edit_post = function(){
+	if(html_editor) return;
+	html_editor = new wangEditor('page_content_div');
+	html_editor.config.jsFilter = false;
+	html_editor.config.uploadImgUrl = '/api/img/';
+	html_editor.config.uploadHeaders = {
+		'X-CSRFToken': getCookie('csrftoken'),
+	};
+	html_editor.config.uploadImgFileName = 'file'
+	html_editor.onchange = function(){
+	};
+	html_editor.create();
+};
+edit_post();
+</script>
+{% endblock %}

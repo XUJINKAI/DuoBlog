@@ -1,7 +1,5 @@
 from django.db import models
 from django.db.models import Q, F
-from django.contrib.sites.models import Site
-from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
 from django.utils.html import escape, strip_tags
 from django.template.defaultfilters import slugify
@@ -12,6 +10,7 @@ import datetime
 from taggit.managers import TaggableManager
 
 from . import managers
+from . import shortcuts
 
 # Create your models here.
 BLOG_COMMENTS = (
@@ -34,7 +33,6 @@ def get_random_id(length):
 	return get_random_string(length=length, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789')
 
 class Blog(models.Model):
-	site = models.OneToOneField(Site, on_delete=models.CASCADE, to_field='id')
 	domain = models.CharField(max_length=100, unique=True, \
 		help_text="Only this domain can access this blog")
 	name = models.CharField(max_length=50)
@@ -44,8 +42,6 @@ class Blog(models.Model):
 	theme = models.CharField(max_length=16, default='default')
 
 	default_editor = models.CharField(max_length=1, choices=POST_CONTENT_TYPE, default='m')
-	posts_url_prefix = models.CharField(max_length=12, default='posts', help_text='//TODO')
-	pages_url_prefix = models.CharField(max_length=12, default='pages', help_text='//TODO')
 
 	google_analytics_id = models.CharField(max_length=16, null=True, blank=True)
 	comments = models.CharField(max_length=1, choices=BLOG_COMMENTS, default='a')
@@ -58,40 +54,17 @@ class Blog(models.Model):
 		return self.domain
 
 	def save(self, *args, **kwargs):
-		site = self.related_site
-		site.domain = self.domain
-		site.name = self.name
-		site.save()
+		shortcuts.clear_cache()
 		super().save(*args, **kwargs)
-
-	@property
-	def related_site(self):
-		return self.site
 
 	@classmethod
 	def create_new(cls):
 		domain = get_random_id(8)
 		name = get_random_id(8)
-		site = Site.objects.create(domain=domain, name=name)
-		### blog will be create automatic cause signal connect site_post_save()
-		### blog = Blog.objects.create(site=site, domain=domain, name=name)
-		### NO need to create blog AGAIN
+		blog = Blog.objects.create(domain=domain, name=name)
 		return site.blog
 
-	@staticmethod
-	def get_or_create_by_site(site):
-		if hasattr(site, 'blog'):
-			return site.blog
-		else:
-			return Blog.objects.create(site=site, domain=site.domain, name=site.name)
 
-
-# when create Site(), auto create related Blog()
-def site_post_save(instance, create=None, raw=None, **kwargs):
-	if not hasattr(instance, 'blog'):
-		Blog.objects.create(site=instance, domain=instance.domain, name=instance.name)
-
-post_save.connect(site_post_save, sender=Site)
 
 
 class Post(models.Model):
@@ -138,3 +111,23 @@ class Post(models.Model):
 	@staticmethod
 	def get_auto_slug():
 		return slugify(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '-' + get_random_id(4))
+
+
+class Page(models.Model):
+	blog = models.ForeignKey(Blog)
+	url = models.CharField(max_length=128)
+
+	title = models.CharField(max_length=70)
+	content = models.TextField()
+	comments = models.BooleanField(default=False)
+
+	def __str__(self):
+		return self.title
+
+	def save(self, *args, **kwargs):
+		self.url = self.url.strip('/')
+		if self.pk is None:
+			find = Page.objects.filter(blog=self.blog, url=self.url)
+			if len(find) > 0:
+				raise Exception('already exists.')
+		super(Page, self).save(*args, **kwargs)

@@ -12,8 +12,8 @@
 <div class="row">
 	<br>
 	<ul class="nav nav-tabs" id="nav_site_tab">
-		{% for site in sites %}
-		<li{% if site_pk == site.pk %} class='active'{% endif %}><a href="{% url 'manage:blogs' site.pk %}">{{ site.domain }}</a></li>
+		{% for blog in blogs %}
+		<li{% if blog_pk == blog.pk %} class='active'{% endif %}><a href="{% url 'manage:blogs' blog.pk %}">{{ blog.domain }}</a></li>
 		{% endfor %}
 		<form action="{% url 'manage:blog_create' %}" method="POST">
 			{% csrf_token %}
@@ -43,7 +43,7 @@
 var delete_blog = function(pk){
 	if(prompt('This will delete blog {{ blog.name }}, please input your blog domain {{ blog.domain }} to confirm:') == '{{ blog.domain }}') {
 		$.ajax({
-			url: "{% url 'manage:blog_delete' blog.site.id %}",
+			url: "{% url 'manage:blog_delete' blog.id %}",
 			method: 'POST',
 			headers: {
 				'X-CSRFToken': getCookie('csrftoken'),

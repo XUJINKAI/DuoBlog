@@ -5,10 +5,12 @@
 
 {% block cssext %}
 <style>
-.content-row {
-	max-width: 800px;
+.row {
 	margin-left: auto;
 	margin-right: auto;
+	max-width: 800px;
+}
+.content-row {
 	font-size: 20px;
 }
 #content {
@@ -33,34 +35,60 @@ p {
 
 {% block content %}
 <div class="row">
-<div class="content-row">
-	<h1>{{ post.title }}</h1>
-	<br>
-	<p class="last-modified-time pull-right">编辑于： <script>document.write(moment('{{ post.last_modified_time | date:"c" }}').format('lll'));</script></p>
-	<p class="tags"><i>Tags: {{ tags_href_string | safe }}</i></p>
-	<br>
-	{# //TODO 下面的textarea换成div会出错，可能是与raw content里的标签发生作用 #}
-	{# 出错文章【自动创建post文件的脚本】 #}
-	{% if post.content_type == 'm' %}
-	<div id="content"></div>
-	<textarea id="content-source" hidden="true">{{ post.content }}</textarea>
-	{% elif post.content_type == 'h' %}
-	<div id="content">{{ post.content }}</div>
-	{% else %}
-	<p>Unknown content type.</p>
-	<pre>{{ post.content }}</pre>
-	{% endif %}
-	<hr style="margin-top: 50px;">
-</div>
+	<div class="content-row">
+		<h1>{{ post.title }}</h1>
+		<br>
+		<p class="last-modified-time pull-right">编辑于： <script>document.write(moment('{{ post.last_modified_time | date:"c" }}').format('lll'));</script></p>
+		<p class="tags"><i>Tags: {{ tags_href_string | safe }}</i></p>
+		<br>
+		{# //TODO 下面的textarea换成div会出错，可能是与raw content里的标签发生作用 #}
+		{# 出错文章【自动创建post文件的脚本】 #}
+		{% if post.content_type == 'm' %}
+		<div id="content"><h1>loading....</h1></div>
+		<textarea id="content-source" hidden="true">{{ post.content }}</textarea>
+		{% elif post.content_type == 'h' %}
+		<div id="content">{{ post.content }}</div>
+		{% else %}
+		<p>Unknown content type.</p>
+		<pre>{{ post.content }}</pre>
+		{% endif %}
+	</div>
+	<hr>
+	<div>
+		<p>
+			<span>本页链接：
+				<a href="//{{ blog.domain }}{% url 'posts_detail' post.slug %}" id="current_url">{{ blog.domain }}{% url 'posts_detail' post.slug %}</a>
+				<a href="javascript:void(0);" class="pull-right" id="qrcode_text">二维码</a>
+				<div id="qrcode" class="pull-right" style="display: none; padding: 20px; background-color: white; z-index: 1000;"></div>
+			</span>
+		</p>
+	</div>
+	<hr>
+	{% load comments %}
+	<div id="comments_content">
+		{% render_comment_form for post %}
+		{% render_comment_list for post %}
+	</div>
+	<hr>
 </div>
 {% endblock %}
 
 {% block jsext %}
+<script src="//cdn.bootcss.com/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
 <script>
 {% if post.content_type == 'm' %}
 $(function() {
 	$("#content").html(marked($("#content-source").text()));
 });
 {% endif %}
+$('#qrcode').qrcode(location.protocol+$("#current_url").attr('href'));
+$("#qrcode_text").hover(function(){
+	$('#qrcode').css('display', '');
+	$('#qrcode').css('position', 'fixed');
+	$('#qrcode').css('top', '0');
+	$('#qrcode').css('left', '0');
+}, function(){
+	$('#qrcode').css('display', 'none');
+});
 </script>
 {% endblock %}

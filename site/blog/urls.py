@@ -1,5 +1,4 @@
 from django.conf.urls import url, include
-from django.contrib.flatpages import views as flat_views
 from . import views
 
 
@@ -11,5 +10,5 @@ urlpatterns = [
 	# custom pages, for theme self
 	url(r'^my/(?P<page>(?!/).*)/$', views.my_page, name='my_page'),
 	# about/..., pages/...
-	url(r'^(?=pages/|about/)(?P<url>(?!/).*)/$', flat_views.flatpage, name='pages'),
+	url(r'^(?=pages/|about/)(?P<url>.*)/$', views.page_view, name='pages'),
 ]

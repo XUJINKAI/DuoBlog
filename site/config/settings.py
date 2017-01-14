@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'django.contrib.flatpages',
     'allauth',
     'allauth.account',
     'rest_framework',
@@ -65,7 +64,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     # global permission
     'management.middleware.RequirePermissionMiddleware',
 ]
@@ -162,8 +160,7 @@ REST_FRAMEWORK = {
 }
 
 
-### Get SITE_ID by request hostname, not in setting.py
-### SITE_ID = 2
+SITE_ID = 1
 
 
 AUTH_USER_MODEL = 'accounts.User'

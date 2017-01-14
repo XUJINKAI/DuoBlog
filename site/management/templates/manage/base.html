@@ -167,6 +167,25 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+function ajax_data(method, url, data, success, error, complete) {
+    return $.ajax({
+        url: url,
+        method: method,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        data: data,
+        success: success,
+        error: error,
+        complete: complete,
+    })
+}
+function post_data(url, data, success, error, complete) {
+    return ajax_data('POST', url, data, success, error, complete);
+}
+function delete_data(url, data, success, error, complete) {
+    return ajax_data('DELETE', url, data, success, error, complete);
+}
 var account_logout = function(){
     $.ajax({
         url: "{% url 'account_logout' %}",
