@@ -6,6 +6,7 @@ from django.template.defaultfilters import slugify
 from django.utils.crypto import get_random_string
 from django.db.models.signals import post_save
 
+import json
 import datetime
 from taggit.managers import TaggableManager
 
@@ -29,6 +30,17 @@ POST_CONTENT_TYPE = (
 	)
 POST_TITLE_TRUNC = 32
 
+def DEFAULT_NAVS():
+	return json.dumps([
+		{'name': 'Work', 'url': '/posts/?tags=work'},
+		{'name': 'Life', 'url': '#', 'sub': [
+				{'name': 'Movie', 'url': '/posts/?tags=movie'},
+				{'name': 'Anime', 'url': '/posts/?tags=anime'},
+			]},
+		{'name': 'Diary', 'url': '/posts/?tags=diary'},
+		])
+
+
 def get_random_id(length):
 	return get_random_string(length=length, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789')
 
@@ -37,7 +49,7 @@ class Blog(models.Model):
 		help_text="Only this domain can access this blog")
 	name = models.CharField(max_length=50)
 
-	desc = models.CharField(max_length=140, default='', blank=True)
+	desc = models.CharField(max_length=140, default='this is my new blog via MultBlog', blank=True)
 	navs = models.CharField(max_length=1024, default='', blank=True)
 	theme = models.CharField(max_length=16, default='default')
 
@@ -60,8 +72,7 @@ class Blog(models.Model):
 	@classmethod
 	def create_new(cls):
 		domain = get_random_id(8)
-		name = get_random_id(8)
-		blog = Blog.objects.create(domain=domain, name=name)
+		blog = Blog.objects.create(domain=domain, name='MultBlog', navs=DEFAULT_NAVS())
 		return blog
 
 
