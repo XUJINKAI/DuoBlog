@@ -14,38 +14,17 @@ from .shortcuts import get_current_blog
 # Create your views here.
 def render_theme(request, page_name, ctx=None):
 	blog = get_current_blog(request)
-	navs = '''[
-  {
-    "name": "技术",
-    "url": "/posts/?tags=技术"
-  },
-  {
-    "name": "教程",
-    "sub": [
-      {
-        "name": "计算机入门系列",
-        "url": "/pages/computer-introduction"
-      },
-      {
-        "name": "Django系列",
-        "url": "/pages/django-intro"
-      }
-    ]
-  },
-  {
-    "name": "微吐槽",
-    "url": "/posts/?tags=tweet"
-  },
-  {
-    "name": "关于",
-    "url": "/about"
-  }
-]'''
-	render_page = 'themes/default/' + page_name
+	render_page = 'themes/%s/%s' % (blog.theme, page_name)
 	if not ctx:
 		ctx = {}
 	ctx['blog'] = blog
-	ctx['navs'] = json.loads(navs)
+	try:
+		if blog.navs is '':
+			ctx['navs'] = []
+		else:
+			ctx['navs'] = json.loads(blog.navs)
+	except:
+		ctx['navs'] = []
 	return render(request, render_page, ctx)
 
 

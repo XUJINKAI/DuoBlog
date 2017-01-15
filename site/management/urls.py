@@ -15,6 +15,7 @@ urlpatterns = [
 	url(r'^blogs/$', views.blogs_view, name='blogs'),
 	url(r'^blogs/(?P<blog_pk>\d+)/$', views.blogs_view, name='blogs'),
 	url(r'^blogs/(?P<blog_pk>\d+)/delete/$', views.blogs_delete_view, name='blog_delete'),
+	url(r'^blogs/(?P<blog_pk>\d+)/navs$', views.blogs_navs_view, name='blog_navs'),
 	url(r'^blogs/create/$', views.blogs_create_view, name='blog_create'),
 	url(r'^about/$', views.manage_view, {'page': 'about'}, name='about'),
 	url(r'^import_jekyll/$', views.manage_view, {'page': 'import_jekyll'}, name='import_jekyll'),

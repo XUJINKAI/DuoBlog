@@ -5,6 +5,19 @@
 
 
 {% block css %}
+<style type="text/css">
+.item {
+	cursor: pointer;
+}
+.item ul {
+	padding-left: 1em;
+	line-height: 1.5em;
+	list-style-type: dot;
+}
+.item input {
+	width: 100%;
+}
+</style>
 {% endblock %}
 
 
@@ -23,23 +36,143 @@
 </div>
 <br>
 <div class="row">
-	<div style="max-width: 500px;" class="col-md-8">
+	<div style="max-width: 600px;" class="col-md-8">
 	{% crispy form %}
 	</div>
-	<div style="" class="col-md-4">
-		<div style="" class="col-md-2"></div>
+	<div style="" class="col-md-4 col-md-push-1">
 		<p>id: {{ blog.pk }}</p>
+		<p>posts: {{ blog_posts }}</p>
 		<hr>
-		<ul>
-			<button class="btn btn-danger" onclick="delete_blog({{ site_pk }});">Delete this Blog</button>
+		<ul id="navs_app">
+			<item class="item" :model="navs">
+			</item>
 		</ul>
+		<button class="btn btn-primary" onclick="save_navs({{ blog_pk }});">Save Navs</button>
+		<button class="btn btn-default" onclick="navs_app.reset();">Reset</button>
+		<a href="javascript:navs_app.clear()">clear</a>
+		<hr>
+		<button class="btn btn-danger" onclick="delete_blog({{ blog_pk }});">Delete this Blog</button>
 	</div>
 </div>
 {% endblock %}
 
 
 {% block js %}
+<script type="text/x-template" id="item-template">
+	<li>
+		<div
+			:class=""
+			v-if='!isRoot'
+			v-bind:title='model.url'
+		>
+			<span @click="Toggle">${ model.name }</span>&nbsp;&nbsp;&nbsp;&nbsp;
+			<span @click="deleteItem" v-if='!isRoot'>[-]</span>
+			<span @click="addChild" v-if='!isRoot'>[+]</span>
+			<span @click="MoveUp" v-if='!isRoot'>[↑]</span>
+			<span @click="MoveDown" v-if='!isRoot'>[↓]</span>
+		</div>
+		<form v-if='edit'>
+			<input type="" name="" v-model='model.name' placeholder="Title">
+			<input type="" name="" v-model='model.url' v-if="!hasSubItems" placeholder="URL">
+		</form>
+		<ul v-show="hasSubItems || isRoot">
+			<item
+				class="item"
+				v-for="model in model.sub"
+				:model="model">
+			</item>
+			<li class="add" @click="addChild">+</li>
+		</ul>
+	</li>
+</script>
 <script>
+Vue.component('item', {
+	delimiters: ['${', '}'],
+	template: '#item-template',
+	props: {
+		model: Object
+	},
+	data: function () {
+		return {
+			edit: false,
+		}
+	},
+	computed: {
+		isFolder: function () {
+			return this.model.sub;
+		},
+		hasSubItems: function () {
+			return this.model.sub && this.model.sub.length;
+		},
+		isRoot: function() {
+			return this.$parent.$parent==undefined;
+		}
+	},
+	methods: {
+		Toggle: function() {
+			this.edit = !this.edit;
+		},
+		addChild: function() {
+			if (!this.isFolder) {
+				Vue.set(this.model, 'sub', []);
+			}
+			this.model.sub.push({
+				name: 'new nav',
+				url: '/posts/?tags=',
+				sub: [],
+			})
+		},
+		deleteItem: function(){
+			this.$parent.model.sub.remove(this.model);
+		},
+		MoveUp:function() {
+			var idx = $.inArray(this.model, this.$parent.model.sub);
+			this.$parent.model.sub.move(idx, idx - 1);
+		},
+		MoveDown:function() {
+			var idx = $.inArray(this.model, this.$parent.model.sub);
+			this.$parent.model.sub.move(idx, idx + 1);
+		},
+	}
+})
+var NAVS_DATA = '{{ blog.navs | safe }}';
+var navs_app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#navs_app',
+	data: {
+		navs: Object,
+	},
+	methods: {
+		parse_json: function(json) {
+			if(json!=='') {
+				this.navs = {name: 'root', sub: JSON.parse(json)}
+			}
+			else {
+				this.navs = {name: 'root', sub: []}
+			}
+		},
+		to_json: function(){
+			return JSON.stringify(navs_app.navs.sub);
+		},
+		reset: function(){
+			this.parse_json(NAVS_DATA);
+		},
+		clear: function(){
+			this.parse_json('');
+		}
+	}
+});
+navs_app.reset();
+//
+var save_navs = function(pk) {
+	post_data("{% url 'manage:blog_navs' blog.pk %}", {
+		navs_json: navs_app.to_json()
+	}).success(function(){
+		alert('saved');
+	}).error(function(data){
+		alert(data.responseText);
+	})
+}
 var delete_blog = function(pk){
 	if(prompt('This will delete blog {{ blog.name }}, please input your blog domain {{ blog.domain }} to confirm:') == '{{ blog.domain }}') {
 		$.ajax({

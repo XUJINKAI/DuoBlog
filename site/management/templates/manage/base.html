@@ -186,6 +186,32 @@ function post_data(url, data, success, error, complete) {
 function delete_data(url, data, success, error, complete) {
     return ajax_data('DELETE', url, data, success, error, complete);
 }
+//
+Array.prototype.remove = function() {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+};
+Array.prototype.move = function (old_index, new_index) {
+    if(old_index<0 || old_index>=this.length 
+        || new_index<0 || new_index>=this.length){
+        return this;
+    }
+    if (new_index >= this.length) {
+        var k = new_index - this.length;
+        while ((k--) + 1) {
+            this.push(undefined);
+        }
+    }
+    this.splice(new_index, 0, this.splice(old_index, 1)[0]);
+    return this; // for testing purposes
+};
+//
 var account_logout = function(){
     $.ajax({
         url: "{% url 'account_logout' %}",

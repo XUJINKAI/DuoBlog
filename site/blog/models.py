@@ -62,7 +62,7 @@ class Blog(models.Model):
 		domain = get_random_id(8)
 		name = get_random_id(8)
 		blog = Blog.objects.create(domain=domain, name=name)
-		return site.blog
+		return blog
 
 
 

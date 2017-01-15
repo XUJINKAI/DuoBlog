@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse, HttpRespons
 from django.conf import settings
 from django.views.decorators.http import require_http_methods
 
+import json
 from . import forms
 from accounts import models as accounts_models
 from blog import models
@@ -149,6 +150,7 @@ def blogs_view(request, blog_pk=None):
 	context['form'] = form
 	context['blog'] = blog
 	context['blog_pk'] = blog.id
+	context['blog_posts'] = models.Post.objects.filter(blog=blog).count()
 	return render(request, 'manage/blogs.html', context)
 
 @require_http_methods(['POST'])
@@ -160,4 +162,11 @@ def blogs_create_view(request):
 def blogs_delete_view(request, blog_pk):
 	blog = models.Blog.objects.get(pk=blog_pk)
 	blog.delete()
+	return HttpResponseRedirect(reverse('manage:blogs'))
+
+@require_http_methods(['POST'])
+def blogs_navs_view(request, blog_pk):
+	blog = models.Blog.objects.get(pk=blog_pk)
+	blog.navs = request.POST.get('navs_json', '')
+	blog.save()
 	return HttpResponseRedirect(reverse('manage:blogs'))

@@ -1,0 +1,128 @@
+{% extends './base.html' %}
+
+
+{% block title %}主页{% endblock %}
+
+
+{% block cssext %}
+<style>
+.post_time {
+	font-weight: lighter;
+	font-size: 14px;
+	color: #777;
+}
+#tags_div {
+	/*padding: 10px;*/
+}
+ul {
+	list-style: none;
+}
+#clear_tags {
+	border: 0;
+	/*border-bottom: 0;*/
+	color: #797979;
+}
+.tags_ul {
+	padding: 0;
+}
+.tags_ul li {
+	float: left;
+}
+.tags_ul li a {
+	color: #1285e8;
+	/*font-weight: bolder;*/
+}
+.tags_ul li a.non_overlap_tag {
+	color: rgba(66, 153, 216, 0.74);
+	font-weight: lighter;
+}
+.tags_ul li a.selected_tag {
+	color: #c7c7c7;
+	text-decoration: underline;
+	font-weight: normal;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<p><h4><i>存档</i></h4></p>
+<hr>
+<div class="row">
+	<div class="col-md-9">
+		<ul class="posts_ul" style="padding: 0;">
+			{% for post in posts %}
+			<li>
+				<h3>
+					<a href="{% url 'posts_detail' post.slug %}">{{ post.title }}</a>
+					<span class="post_time"><script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script></span>
+				</h3>
+			</li>
+			{% endfor %}
+		</ul>
+	</div>
+	<div class="col-md-3">
+		<div id="time_div">
+			<p style="padding-left: 12px;">Time://TODO</p>
+		</div>
+		<hr>
+		<div id="tags_div">
+			<a href="javascript:clear_tags();" id="clear_tags" style="float: right;">Clear</a>
+			<p style="padding-left: 12px;">Tags:</p>
+			<ul class="tags_ul">
+				{% for tag in all_tags %}
+				<li><a class='btn{% if tag.selected %} selected_tag{% endif %}{% if not tag.overlap %} non_overlap_tag{% endif %}' href="javascript:toggle_tag('{{ tag.name }}');" data-count="{{ tag.count }}">{{ tag.name }}</a></li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block jsext %}
+<script>
+function getParameterByName(name, url) {
+	if (!url) {
+	  url = window.location.href;
+	}
+	name = name.replace(/[\[\]]/g, "\\$&");
+	var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+		results = regex.exec(url);
+	if (!results) return null;
+	if (!results[2]) return '';
+	return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+function get_current_tags() {
+
+	var search_tags = getParameterByName('tags');
+	if (search_tags) {
+		search_tags = search_tags.split(',');
+		return search_tags;
+	} else {
+		return [];
+	}
+}
+function toggle_tag(tag){
+	var search_tags = get_current_tags();
+	var query_string = '?tags=';
+	if($.inArray(tag, search_tags) >= 0) {
+		for (var i = 0; i < search_tags.length; i++) {
+			if(search_tags[i] != '' && search_tags[i] != tag) {
+				query_string += search_tags[i] + ','
+			}
+		}
+	} else {
+		for (var i = 0; i < search_tags.length; i++) {
+			if(search_tags[i] != '') {
+				query_string += search_tags[i] + ','
+			}
+		}
+		query_string += tag
+	}
+	window.location = location.pathname + query_string;
+}
+function clear_tags(){
+	window.location = location.pathname + '?tags='
+}
+</script>
+{% endblock %}
