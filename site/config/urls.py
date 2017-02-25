@@ -21,6 +21,7 @@ from django.contrib import admin
 urlpatterns = [
     url('', include('blog.urls')),
     url(r'^comments/', include('django_comments.urls')),
+    url(r'^note/', include('note.urls')),
     url(r'^manage/', include('management.urls')),
     url(r'^api/', include('api.urls')),
     url(r'^account/', include('accounts.urls')),

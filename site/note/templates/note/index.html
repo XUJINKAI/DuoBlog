@@ -1,0 +1,167 @@
+{% extends './base.html' %}
+
+
+{% block css %}
+<style type="text/css">
+#note_wrapper {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+#note_header {
+	left: 0;
+	top: 0;
+	height: 30px;
+}
+#note_body {
+	height: 100%;
+	width: 100%;
+}
+#note_left {
+	height: 100%;
+	min-width: 200px;
+	float: left;
+}
+#note_right {
+	height: 100%;
+}
+</style>
+{% endblock %}
+
+
+{% block js %}
+<script type="text/x-template" id="note-blogs-template">
+	<div>
+		<div>
+		${ model.name } 
+		| <a :href="model.url" target="_blank">open</a> 
+		| <a href='javascript:void(0);' v-on:click='btn_click($event, "setting")'>setting</a>
+		</div>
+		<ul>
+			<li><a href='javascript:void(0);' v-on:click='btn_click($event, "posts")'>博文 (${ model.post_count })</a></li>
+			<li>草稿 (${ model.draft_count })</li>
+			<li>废纸篓(${ model.trash_count })</li>
+			<li>导航</li>
+			<li>评论 (${ model.comment_count })</li>
+		</ul>
+	</div>
+</script>
+<script>
+Vue.component('note-blogs', {
+	delimiters: ['${', '}'],
+	template: '#note-blogs-template',
+	data: function(){
+		return {
+
+		};
+	},
+	props: {
+		model: Object
+	},
+	methods: {
+		btn_click: function(event, name){
+			this.$emit('click', event, name);
+		}
+	}
+});
+</script>
+
+
+<script type="text/x-template" id="note-posts-template">
+	<div>
+		note-posts
+	</div>
+</script>
+<script>
+Vue.component('note-posts', {
+	delimiters: ['${', '}'],
+	template: '#note-posts-template',
+	data: function(){
+		return {
+
+		};
+	},
+	props: {
+		model: Object
+	},
+});
+</script>
+
+
+<script type="text/x-template" id="note-blog-setting-template">
+	<div>
+		note-blog-setting
+	</div>
+</script>
+<script>
+Vue.component('note-blog-setting', {
+	delimiters: ['${', '}'],
+	template: '#note-blog-setting-template',
+	data: function(){
+		return {
+
+		};
+	},
+	props: {
+		model: Object
+	},
+});
+</script>
+
+
+<script>
+var note_app = new Vue({
+	delimiters: ['${', '}'],
+	el: '#note_wrapper',
+	data: {
+		blogs: [],
+		right_view: 'note-posts',
+	},
+	methods: {
+		load_blog_list: function(){
+			this.create_new_blog();
+		},
+
+		create_new_blog: function(){
+			this.blogs.push({
+				name: 'BlogA',
+				url: 'http://google.com',
+				post_count: 0,
+				draft_count: 2,
+				trash_count: 0,
+				comment_count: 0,
+			});
+		},
+		blogs_btn_click: function(event, name){
+			var view = {
+				setting: 'note-blog-setting',
+				posts: 'note-posts',
+			}
+			this.right_view = view[name];
+		},
+	}
+})
+note_app.load_blog_list();
+</script>
+{% endblock %}
+{% block content %}
+<div id="note_wrapper">
+	<div id="note_header">
+		header
+	</div>
+	<div id="note_body">
+		<div id="note_left">
+			<div v-bind:model='blogs'>
+				<note-blogs v-for='blog in blogs' :model='blog' v-on:click='blogs_btn_click'></note-blogs>
+			</div>
+			<span @click='create_new_blog'>新建</span>
+		</div>
+		<div id="note_right">
+			<component v-bind:is="right_view">
+			</component>
+		</div>
+	</div>
+</div>
+{% endblock %}
