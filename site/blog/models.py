@@ -20,13 +20,14 @@ BLOG_COMMENTS = (
 	('x', 'Close'),
 	('d', 'disqus'),
 	)
+POST_CONTENT_TYPE = (
+	('m', 'markdown'),
+	('h', 'html'),
+	)
 POST_STATUS = (
 	('p', 'public'),
 	('d', 'draft'),
-	)
-POST_CONTENT_TYPE = (
-	('m', 'marked.js'),
-	('h', 'html'),
+	('t', 'trash'),
 	)
 POST_TITLE_TRUNC = 32
 
@@ -49,18 +50,21 @@ class Blog(models.Model):
 		help_text="Only this domain can access this blog")
 	name = models.CharField(max_length=50)
 
-	desc = models.CharField(max_length=140, default='this is my new blog via MultBlog', blank=True)
-	navs = models.CharField(max_length=1024, default='', blank=True)
 	theme = models.CharField(max_length=16, default='default')
-
 	default_editor = models.CharField(max_length=1, choices=POST_CONTENT_TYPE, default='m')
-
-	google_analytics_id = models.CharField(max_length=16, null=True, blank=True)
-	comments = models.CharField(max_length=1, choices=BLOG_COMMENTS, default='a')
-	disqus_id = models.CharField(max_length=32, null=True, blank=True)
-
 	rss = models.BooleanField(default=True)
 	sitemap = models.BooleanField(default=True)
+	comments = models.CharField(max_length=1, choices=BLOG_COMMENTS, default='a')
+
+	google_analytics_id = models.CharField(max_length=16, null=True, blank=True)
+	disqus_id = models.CharField(max_length=32, null=True, blank=True)
+
+	desc = models.CharField(max_length=140, default='this is my new blog via MultBlog', blank=True)
+	navs = models.CharField(max_length=1024, default='', blank=True)
+	'''
+	html_header
+	html_tail
+	'''
 
 	def __str__(self):
 		return self.domain

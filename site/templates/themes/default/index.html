@@ -62,8 +62,6 @@
 		</ul>
 	</div>
 	<div class="col-md-3">
-		<a href="{% url 'posts_list' %}" style="margin: 10px;">存档列表</a>
-		<hr>
 		<ul class="tags_div">
 		{% for tag in tags %}
 			<li><a class='btn' href='{% url "posts_list" %}?tags={{tag}}'>{{ tag }}</a></li>

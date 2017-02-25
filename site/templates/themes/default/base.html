@@ -123,11 +123,10 @@ p.text-muted {
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				{% if request.user.is_superuser %}
-				<li><a href="{% url 'manage:index' %}"><i class="fa fa-wrench staff_btn"></i></a></li>
-				<li><a href="{% url 'my_page' 'create' %}"><i class="fa fa-plus staff_btn" aria-hidden="true"></i></a></li>
-				<li><a href="{% url 'my_page' 'draft' %}" class="staff_btn">草稿箱</a></li>
+				<li><a href="{% url 'manage:blogs' blog.pk %}"><i class="fa fa-wrench staff_btn"></i></a></li>
 				{% endif %}
 				<li><a href="{% url 'index' %}">首页</a></li>
+				<li><a href="{% url 'posts_list' %}">存档</a></li>
 				{% if navs %}
 					{% for nav in navs %}
 						{% if nav.sub %}
