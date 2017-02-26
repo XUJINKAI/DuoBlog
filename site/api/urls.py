@@ -1,5 +1,6 @@
 from django.conf.urls import url, include
 from rest_framework import routers
+from .views.blogs import BlogViewSet
 from .views.posts import PostViewSet
 from .views.comments import CommentViewSet
 from .views.img import img_view
@@ -8,6 +9,7 @@ from .views.img import img_view
 app_name = 'api'
 
 router = routers.DefaultRouter()
+router.register(r'blogs', BlogViewSet)
 router.register(r'posts', PostViewSet)
 # router.register(r'comments', CommentViewSet)
 

@@ -3,25 +3,46 @@
 
 
 {% block css %}
-<link rel="stylesheet" type="text/css" href="{% static 'js/note/index.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/note/index.css' %}">
+<style>
+</style>
 {% endblock %}
 
 
 {% block js %}
+<script src="{% static 'js/common/common.js' %}"></script>
+<script>
+var account_logout = function(){
+	$.ajax({
+		url: "{% url 'account_logout' %}",
+		method: 'POST',
+		headers: {
+			'X-CSRFToken': getCookie('csrftoken'),
+		},
+		complete: function() {
+			window.location = '{% url "index" %}';
+		}
+	})
+}
+</script>
+<script src="//cdn.bootcss.com/lodash.js/4.17.4/lodash.min.js"></script>
 <script src="//cdn.bootcss.com/wangeditor/2.1.20/js/wangEditor.min.js"></script>
+
+
+
 <script type="text/x-template" id="note-blogs-template">
 	<div>
 		<div>
-		<span v-on:click="show=!show">${ model.name }</span>
-		<a :href="model.url" target="_blank" class="pull-right">open</a>
+		<span v-on:click='btn_click($event, "setting")'>${ model.name }</span>
+		<a :href="'//' + model.url" target="_blank" class="pull-right">open</a>
 		</div>
 		<ul v-show='show'>
 			<li v-on:click='btn_click($event, "posts")'>博文 (${ model.post_count })</li>
 			<li>草稿 (${ model.draft_count })</li>
 			<li>废纸篓(${ model.trash_count })</li>
-			<li>导航</li>
 			<li>评论 (${ model.comment_count })</li>
-			<li v-on:click='btn_click($event, "setting")'>设置</li>
+			<li>导航</li>
+			<!-- <li v-on:click='btn_click($event, "setting")'>设置</li> -->
 		</ul>
 	</div>
 </script>
@@ -39,7 +60,7 @@ Vue.component('note-blogs', {
 	},
 	methods: {
 		btn_click: function(event, name){
-			this.$emit('click', event, name, this.model.blog_pk);
+			this.$emit('click', event, name, this.model);
 		}
 	}
 });
@@ -49,7 +70,7 @@ Vue.component('note-blogs', {
 
 <script type="text/x-template" id="note-blog-setting-template">
 	<div>
-		note-blog-setting ${blog_pk}
+		note-blog-setting ${ blog.pk }
 	</div>
 </script>
 <script>
@@ -62,7 +83,7 @@ Vue.component('note-blog-setting', {
 		};
 	},
 	props: {
-		blog_pk: Number,
+		blog: Object,
 	},
 });
 </script>
@@ -73,24 +94,23 @@ Vue.component('note-blog-setting', {
 	<div class="note-posts">
 		<div class="posts-tags">
 			<ul>
-				<li>Clear</li>
-				<li v-for='tag in tags'>
-					${ tag }
-					<input type="checkbox" name="" class="pull-right">
+				<span v-on:click='clear_select_tags'>Clear</span>
+				<li v-for='obj in tags'>
+					<input type="checkbox" :id="obj.name" :value='obj' v-model='selected_tags'>
+					<span :for='obj.name' v-on:click='select_tag(obj);'>${ obj.name } ${ obj.count }</span>
 				</li>
 			</ul>
 		</div>
 		<div class="posts-list">
 			Title | Create | Modified , DESC
 			<ul>
-				<li v-for='post in posts' v-on:click='select_post(post)'>
-				${ post.title }
+				<li v-for='post in posts' v-on:click='select_post(post)' class="post-item">
+					<p>${ post.title }</p>
+					<!-- <span>${ post.last_modified_time }</span> -->
 				</li>
 			</ul>
 		</div>
-		<div class="posts-content">
-			<note-post-editor :model='selected'></note-post-editor>
-		</div>
+		<note-post-detail :model='selected_post' class="posts-content"></note-post-detail>
 	</div>
 </script>
 <script>
@@ -98,57 +118,115 @@ Vue.component('note-posts', {
 	delimiters: ['${', '}'],
 	template: '#note-posts-template',
 	data: function(){
+		var self = this;
+		get_data('{% url "api:post-list" %}', {
+
+		}, function(data){
+			self.raw_data = data;
+			self.parse_raw_data();
+		})
 		return {
 			raw_data: '',
-			tags: ['a', 'bd', 'skdljf'],
-			posts: [
-				{
-					post_pk: 1,
-					url: 'http://google.com',
-					title: 'what',
-					comment_count: 3,
-				},
-				{
-					post_pk: 1,
-					url: 'http://google.com',
-					title: 'this',
-					comment_count: 3,
-				},
-			],
-			selected: {},
+			tags: [],
+			selected_tags: [],
+			selected_post: {},
 		};
 	},
+	computed: {
+		posts: function(){
+			if(this.selected_tags.length==0) {
+				return this.raw_data;
+			} else {
+				var self = this;
+				return _.filter(self.raw_data, function(post){
+					var flag = true;
+					_.forEach(self.selected_tags, function(t){
+						if(!_.includes(post.tags, t.name)) {
+							flag = false;
+						}
+					});
+					return flag;
+				});
+			}
+		}
+	},
+	watch: {
+		selected_tags: function(){
+			// var s = '';
+			// _.forEach(this.selected_tags, function(item){
+			// 	if(item) s += item.name + ', ';
+			// });
+			// log(s);
+		}
+	},
 	props: {
-		blog_pk: Number,
+		blog: {
+			type: Object,
+			required: true,
+		}
 	},
 	methods: {
+		parse_raw_data: function(){
+			var tags_list = [];
+			_.forEach(this.raw_data, function(post){
+				tags_list = _.concat(tags_list, post.tags)
+			});
+			var tags_count = _.countBy(tags_list);
+			var tags_coll = [];
+			_.forEach(tags_count, function(value, key){
+				tags_coll.push({
+					name: key,
+					count: value,
+				})
+			})
+			this.tags = _.orderBy(tags_coll, ['count', 'name'], ['desc', 'asc'])
+			this.selected_post = {};
+		},
 		select_post: function(post){
-			this.selected = post;
-		}
+			this.selected_post = post;
+		},
+		clear_select_tags: function(){
+			this.selected_tags = [];
+		},
+		select_tag: function(obj){
+			this.clear_select_tags();
+			this.selected_tags = [obj];
+		},
 	}
 });
 </script>
 
 
-<script type="text/x-template" id="note-post-editor-template">
-	<div>
-		${ model.title }
-		${ model.url }
+<script src="//cdn.bootcss.com/marked/0.3.6/marked.min.js"></script>
+<script type="text/x-template" id="note-post-detail-template">
+	<div v-show='ddata.slug'>
+		<p>${ ddata.title }</p>
+		<p>${ ddata.slug }</p>
+		<p v-if='ddata.content_type == "h"'>${ ddata.content }</p>
+		<p v-else-if='ddata.content_type == "m"'>${ ddata.content }</p>
+		<p v-else>Error Type.</p>
 	</div>
 </script>
 <script>
-Vue.component('note-post-editor', {
+Vue.component('note-post-detail', {
 	delimiters: ['${', '}'],
-	template: '#note-post-editor-template',
+	template: '#note-post-detail-template',
 	data: function(){
 		return {
-			content: '',
-			content_type: '',
+			ddata: {},
 		};
 	},
 	props: {
 		model: Object,
 	},
+	watch: {
+		model: function(){
+			var self = this;
+			get_data(this.model.api_url, {}, function(data){
+				self.ddata = data;
+			})
+		}
+	}
 });
 </script>
 
@@ -160,36 +238,31 @@ var note_app = new Vue({
 	el: '#note_wrapper',
 	data: {
 		blogs: [],
-		right_view_bpk: '',
+		right_view_blog: '',
 		right_view: '',
 	},
 	methods: {
 		load_blog_list: function(){
-			this.create_new_blog();
+			var self = this;
+			get_data('{% url "api:blog-list" %}', {}, function(data) {
+				self.blogs = data;
+				self.blogs_btn_click(null, 'posts', self.blogs[0]);
+			})
 		},
 		create_new_blog: function(){
-			this.blogs.push({
-				blog_pk: 42,
-				name: 'BlogA',
-				url: 'http://google.com',
-				post_count: 10,
-				draft_count: 2,
-				trash_count: 5,
-				comment_count: 100,
-			});
+			log('//TODO')
 		},
-		blogs_btn_click: function(event, name, blog_pk){
+		blogs_btn_click: function(event, name, blog){
 			var view = {
 				setting: 'note-blog-setting',
 				posts: 'note-posts',
 			}
-			this.right_view_bpk = blog_pk;
+			this.right_view_blog = blog;
 			this.right_view = view[name];
 		},
 	},
 	created: function(){
 		this.load_blog_list();
-		this.blogs_btn_click(null, 'posts', 42);
 	}
 })
 </script>
@@ -198,17 +271,18 @@ var note_app = new Vue({
 <div id="note_wrapper">
 	<div id="note_header">
 		Blog | search
-		<span class="pull-right">Admin | Account</span>
+		<span class="pull-right">
+			<a href='{% url "manage:index" %}'>Admin</a> | Account</span>
 	</div>
 	<div id="note_body">
 		<div id="note_left">
 			<div v-bind:model='blogs'>
 				<note-blogs v-for='blog in blogs' :model='blog' v-on:click='blogs_btn_click'></note-blogs>
 			</div>
-			<span @click='create_new_blog'>新建</span>
+			<span v-on:click='create_new_blog'>新建</span>
 		</div>
 		<div id="note_right">
-			<component v-bind:is="right_view" v-bind:blog_pk='right_view_bpk'>
+			<component :is="right_view" :blog='right_view_blog'>
 			</component>
 		</div>
 	</div>

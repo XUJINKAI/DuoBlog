@@ -75,10 +75,19 @@ class Blog(models.Model):
 
 	@classmethod
 	def create_new(cls):
-		domain = get_random_id(8)
-		blog = Blog.objects.create(domain=domain, name='MultBlog', navs=DEFAULT_NAVS())
+		domain = get_random_id(8) + '.com'
+		name = 'MultBlog+' + get_random_id(3)
+		blog = Blog.objects.create(domain=domain, name=name, navs=DEFAULT_NAVS())
 		return blog
 
+	def post_count(self):
+		return Post.objects.filter(blog=self, status='p').count()
+	def draft_count(self):
+		return Post.objects.filter(blog=self, status='d').count()
+	def trash_count(self):
+		return Post.objects.filter(blog=self, status='t').count()
+	def comment_count(self):
+		return 0
 
 
 
