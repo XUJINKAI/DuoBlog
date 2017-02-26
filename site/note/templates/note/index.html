@@ -1,50 +1,27 @@
 {% extends './base.html' %}
+{% load staticfiles %}
 
 
 {% block css %}
-<style type="text/css">
-#note_wrapper {
-	position: fixed;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-}
-#note_header {
-	left: 0;
-	top: 0;
-	height: 30px;
-}
-#note_body {
-	height: 100%;
-	width: 100%;
-}
-#note_left {
-	height: 100%;
-	min-width: 200px;
-	float: left;
-}
-#note_right {
-	height: 100%;
-}
-</style>
+<link rel="stylesheet" type="text/css" href="{% static 'js/note/index.css' %}">
 {% endblock %}
 
 
 {% block js %}
+<script src="//cdn.bootcss.com/wangeditor/2.1.20/js/wangEditor.min.js"></script>
 <script type="text/x-template" id="note-blogs-template">
 	<div>
 		<div>
-		${ model.name } 
-		| <a :href="model.url" target="_blank">open</a> 
-		| <a href='javascript:void(0);' v-on:click='btn_click($event, "setting")'>setting</a>
+		<span v-on:click="show=!show">${ model.name }</span>
+		<a :href="model.url" target="_blank" class="pull-right">open</a>
 		</div>
-		<ul>
-			<li><a href='javascript:void(0);' v-on:click='btn_click($event, "posts")'>博文 (${ model.post_count })</a></li>
+		<ul v-show='show'>
+			<li v-on:click='btn_click($event, "posts")'>博文 (${ model.post_count })</li>
 			<li>草稿 (${ model.draft_count })</li>
 			<li>废纸篓(${ model.trash_count })</li>
 			<li>导航</li>
 			<li>评论 (${ model.comment_count })</li>
+			<li v-on:click='btn_click($event, "setting")'>设置</li>
 		</ul>
 	</div>
 </script>
@@ -54,7 +31,7 @@ Vue.component('note-blogs', {
 	template: '#note-blogs-template',
 	data: function(){
 		return {
-
+			show: true,
 		};
 	},
 	props: {
@@ -62,37 +39,17 @@ Vue.component('note-blogs', {
 	},
 	methods: {
 		btn_click: function(event, name){
-			this.$emit('click', event, name);
+			this.$emit('click', event, name, this.model.blog_pk);
 		}
 	}
 });
 </script>
 
 
-<script type="text/x-template" id="note-posts-template">
-	<div>
-		note-posts
-	</div>
-</script>
-<script>
-Vue.component('note-posts', {
-	delimiters: ['${', '}'],
-	template: '#note-posts-template',
-	data: function(){
-		return {
-
-		};
-	},
-	props: {
-		model: Object
-	},
-});
-</script>
-
 
 <script type="text/x-template" id="note-blog-setting-template">
 	<div>
-		note-blog-setting
+		note-blog-setting ${blog_pk}
 	</div>
 </script>
 <script>
@@ -105,51 +62,143 @@ Vue.component('note-blog-setting', {
 		};
 	},
 	props: {
-		model: Object
+		blog_pk: Number,
+	},
+});
+</script>
+
+
+
+<script type="text/x-template" id="note-posts-template">
+	<div class="note-posts">
+		<div class="posts-tags">
+			<ul>
+				<li>Clear</li>
+				<li v-for='tag in tags'>
+					${ tag }
+					<input type="checkbox" name="" class="pull-right">
+				</li>
+			</ul>
+		</div>
+		<div class="posts-list">
+			Title | Create | Modified , DESC
+			<ul>
+				<li v-for='post in posts' v-on:click='select_post(post)'>
+				${ post.title }
+				</li>
+			</ul>
+		</div>
+		<div class="posts-content">
+			<note-post-editor :model='selected'></note-post-editor>
+		</div>
+	</div>
+</script>
+<script>
+Vue.component('note-posts', {
+	delimiters: ['${', '}'],
+	template: '#note-posts-template',
+	data: function(){
+		return {
+			raw_data: '',
+			tags: ['a', 'bd', 'skdljf'],
+			posts: [
+				{
+					post_pk: 1,
+					url: 'http://google.com',
+					title: 'what',
+					comment_count: 3,
+				},
+				{
+					post_pk: 1,
+					url: 'http://google.com',
+					title: 'this',
+					comment_count: 3,
+				},
+			],
+			selected: {},
+		};
+	},
+	props: {
+		blog_pk: Number,
+	},
+	methods: {
+		select_post: function(post){
+			this.selected = post;
+		}
+	}
+});
+</script>
+
+
+<script type="text/x-template" id="note-post-editor-template">
+	<div>
+		${ model.title }
+		${ model.url }
+	</div>
+</script>
+<script>
+Vue.component('note-post-editor', {
+	delimiters: ['${', '}'],
+	template: '#note-post-editor-template',
+	data: function(){
+		return {
+			content: '',
+			content_type: '',
+		};
+	},
+	props: {
+		model: Object,
 	},
 });
 </script>
 
 
 <script>
+// var DEBUG = true;
 var note_app = new Vue({
 	delimiters: ['${', '}'],
 	el: '#note_wrapper',
 	data: {
 		blogs: [],
-		right_view: 'note-posts',
+		right_view_bpk: '',
+		right_view: '',
 	},
 	methods: {
 		load_blog_list: function(){
 			this.create_new_blog();
 		},
-
 		create_new_blog: function(){
 			this.blogs.push({
+				blog_pk: 42,
 				name: 'BlogA',
 				url: 'http://google.com',
-				post_count: 0,
+				post_count: 10,
 				draft_count: 2,
-				trash_count: 0,
-				comment_count: 0,
+				trash_count: 5,
+				comment_count: 100,
 			});
 		},
-		blogs_btn_click: function(event, name){
+		blogs_btn_click: function(event, name, blog_pk){
 			var view = {
 				setting: 'note-blog-setting',
 				posts: 'note-posts',
 			}
+			this.right_view_bpk = blog_pk;
 			this.right_view = view[name];
 		},
+	},
+	created: function(){
+		this.load_blog_list();
+		this.blogs_btn_click(null, 'posts', 42);
 	}
 })
-note_app.load_blog_list();
 </script>
 {% endblock %}
 {% block content %}
 <div id="note_wrapper">
 	<div id="note_header">
-		header
+		Blog | search
+		<span class="pull-right">Admin | Account</span>
 	</div>
 	<div id="note_body">
 		<div id="note_left">
@@ -159,7 +208,7 @@ note_app.load_blog_list();
 			<span @click='create_new_blog'>新建</span>
 		</div>
 		<div id="note_right">
-			<component v-bind:is="right_view">
+			<component v-bind:is="right_view" v-bind:blog_pk='right_view_bpk'>
 			</component>
 		</div>
 	</div>
