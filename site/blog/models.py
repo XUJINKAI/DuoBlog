@@ -133,6 +133,13 @@ class Post(models.Model):
 			self.modified_count = F('modified_count') + 1
 		super(Post, self).save(*args, **kwargs)
 
+	def delete(self, *args, **kwargs):
+		if self.status in ['p', 'd']:
+			self.status = 't'
+			self.save()
+		else:
+			super(Post, self).delete(*args, **kwargs)
+
 	@staticmethod
 	def get_auto_slug():
 		return slugify(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '-' + get_random_id(4))

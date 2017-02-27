@@ -21,7 +21,8 @@ function log(msg) {
 
 //ajax
 function ajax_data(method, url, data, success, error, complete) {
-	log(method + ': ' + url);
+	if(!method || !url) return;
+	log(method + ': ' + url + ', {parameter}↓↓↓');
 	log(data)
 	return $.ajax({
 		url: url,
@@ -31,9 +32,16 @@ function ajax_data(method, url, data, success, error, complete) {
 		},
 		dataType: 'json',
 		data: data,
-		success: success,
-		error: error,
-		complete: complete,
+		success: function(data) {
+			if(success) { success(data); }
+		},
+		error: function(data) {
+			log(data.responseText);
+			if(error) { error(data); }
+		},
+		complete: function(data) {
+			if(complete) { complete(data); }
+		},
 	})
 }
 function get_data(url, data, success, error, complete) {

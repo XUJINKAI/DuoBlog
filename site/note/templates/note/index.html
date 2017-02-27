@@ -66,10 +66,10 @@ var account_logout = function(){
 		</div>
 		<ul v-show='show'>
 			<li v-on:click='btn_click($event, "posts")'>博文 (${ model.post_count })</li>
-			<li>草稿 (${ model.draft_count })</li>
-			<li>废纸篓(${ model.trash_count })</li>
-			<li>评论 (${ model.comment_count })</li>
-			<li>导航</li>
+			<li v-on:click='btn_click($event, "draft")'>草稿 (${ model.draft_count })</li>
+			<li v-on:click='btn_click($event, "trash")'>废纸篓(${ model.trash_count })</li>
+			<li v-on:click='btn_click($event, "comment")'>评论 (${ model.comment_count })</li>
+			<li v-on:click='btn_click($event, "navs")'>导航</li>
 			<!-- <li v-on:click='btn_click($event, "setting")'>设置</li> -->
 		</ul>
 	</div>
@@ -118,6 +118,50 @@ Vue.component('note-blog-setting', {
 </script>
 
 
+
+
+
+<script type="text/x-template" id="note-draft-template">
+	<note-posts class="note-draft box stretch full-height"
+		:blog='blog' :list_type='"draft"'>
+	</note-posts>
+</script>
+<script>
+Vue.component('note-draft', {
+	delimiters: ['${', '}'],
+	template: '#note-draft-template',
+	props: {
+		blog: Object,
+	}
+});
+</script>
+
+
+
+
+
+
+<script type="text/x-template" id="note-trash-template">
+	<note-posts class="note-trash box stretch full-height" 
+		:blog='blog' :list_type='"trash"'>
+	</note-posts>
+</script>
+<script>
+Vue.component('note-trash', {
+	delimiters: ['${', '}'],
+	template: '#note-trash-template',
+	props: {
+		blog: Object,
+	}
+});
+</script>
+
+
+
+
+
+
+
 <style>
 .select_post {
 	background-color: #d9d9d9;
@@ -130,7 +174,7 @@ Vue.component('note-blog-setting', {
 			height: 100%;
 			min-width: 150px;
 			max-width: 150px;">
-			<span v-on:click='clear_select_tags'>Clear</span>
+			<span v-on:click='clear_select_tags'>Clear</span>${query_status}
 			<ul class="">
 				<li v-for='obj in tags'>
 					<input type="checkbox" :id="obj.name" :value='obj' v-model='selected_tags'>
@@ -145,8 +189,8 @@ Vue.component('note-blog-setting', {
 			max-width: 200px;
 		">
 			<div class="box">
-				<span class="stretch">New Markdown</span>
-				<span class="stretch">New HTML</span>
+				<span class="stretch" v-on:click='new_markdown'>New Markdown</span>
+				<span class="stretch" v-on:click='new_html'>New HTML</span>
 			</div>
 			<div class="box" style="justify-content: space-between;">
 				<span :class='{bolder: order_by=="title"}'>Title <span v-if='order_by=="title"'>${ order_asc?'↑':'↓'}</span></span>
@@ -199,6 +243,11 @@ Vue.component('note-posts', {
 					return flag;
 				});
 			}
+		},
+		query_status: function(){
+			if(this.list_type=='draft') return 'd';
+			else if(this.list_type=='trash') return 't';
+			return 'p';
 		}
 	},
 	watch: {
@@ -208,21 +257,27 @@ Vue.component('note-posts', {
 			// 	if(item) s += item.name + ', ';
 			// });
 			// log(s);
-		}
+		},
 	},
 	props: {
 		blog: {
 			type: Object,
 			required: true,
-		}
+		},
+		list_type: String,
 	},
 	methods: {
 		reload_data: function(){
 			var self = this;
-			API.post_list(self.blog, function(data){
-				self.raw_data = data;
-				self.parse_raw_data();
-			})
+			setTimeout(function(){
+				API.post_list({
+					blog: self.blog.pk,
+					status: self.query_status,
+				}, function(data){
+					self.raw_data = data;
+					self.parse_raw_data();
+				})
+			}, 0);
 		},
 		parse_raw_data: function(){
 			var tags_list = [];
@@ -240,6 +295,20 @@ Vue.component('note-posts', {
 			this.tags = _.orderBy(tags_coll, ['count', 'name'], ['desc', 'asc'])
 			this.selected_post = {};
 		},
+		create_new_post: function(type) {
+			API.post_new({
+				status: 'p',
+				content: 'your new post',
+				content_type: type,
+				tags: [],
+			})
+		},
+		new_markdown: function(){
+			this.create_new_post('m');
+		},
+		new_html: function(){
+			this.create_new_post('h');
+		},
 		select_post: function(post){
 			this.selected_post = post;
 		},
@@ -251,14 +320,9 @@ Vue.component('note-posts', {
 			this.selected_tags = [obj];
 		},
 	},
-	created: function(){
-		var self = this;
-		BUS.$on('reload_posts', function(blog){
-			self.reload_data();
-		})
-	}
 });
 </script>
+
 
 
 <style>
@@ -268,7 +332,7 @@ Vue.component('note-posts', {
 }
 </style>
 <script type="text/x-template" id="note-post-detail-template">
-	<div v-show='post' class="box-col">
+	<div v-if='post' class="box-col">
 		<div class="box">
 			<div class="stretch box-col">
 				<input type="input" v-model='post.title' class='post_detail_title border0'></p>
@@ -349,13 +413,15 @@ Vue.component('note-post-detail', {
 	methods: {
 		reload: function(){
 			var self = this;
-			get_data(self.model.api_url, {}, function(data){
-				self.post = data;
-				// watch:post RUN first, and then this timeout function
-				setTimeout(function(){
-					self.changed = false;
-				}, 0)
-			});
+			if(self.model.api_url) {
+				get_data(self.model.api_url, {}, function(data){
+					self.post = data;
+					// watch:post RUN first, and then this timeout function
+					setTimeout(function(){
+						self.changed = false;
+					}, 0)
+				});
+			}
 		},
 		save: function(callback){
 			var self = this;
@@ -665,11 +731,15 @@ var note_app = new Vue({
 		},
 		blogs_btn_click: function(event, name, blog){
 			var view = {
-				setting: 'note-blog-setting',
+				blog: 'note-blog-setting',
 				posts: 'note-posts',
+				draft: 'note-draft',
+				trash: 'note-trash',
+				comment: 'note-comments',
+				navs: 'note-navs',
 			}
-			this.right_view_blog = blog;
 			this.right_view = view[name];
+			this.right_view_blog = blog;
 		},
 	},
 	created: function(){
@@ -714,15 +784,13 @@ var note_app = new Vue({
 </style>
 <script>
 var API = {
-	post_list: function(blog, callback) {
-		get_data('{% url "api:post-list" %}', {
-
-		}, function(data){
+	post_list: function(filter, callback) {
+		get_data('{% url "api:post-list" %}', filter, function(data){
 			callback(data);
 		})
 	},
-	post_update: function(post, callback) {
-		put_data(post.api_url, {
+	post_parameter: function(post){
+		return _.omitBy({
 			slug: post.slug,
 			title: post.title,
 			content: post.content,
@@ -731,7 +799,15 @@ var API = {
 			tags: JSON.stringify(post.tags),
 			comments: post.comments,
 			sticky: post.sticky,
-		}, function(data){
+		}, _.isNil)
+	},
+	post_new: function(post, callback){
+		post_data('{% url "api:post-list" %}', API.post_parameter(post), function(data){
+			callback(data);
+		})
+	},
+	post_update: function(post, callback) {
+		put_data(post.api_url, API.post_parameter(post), function(data){
 			callback(data);
 		})
 	},

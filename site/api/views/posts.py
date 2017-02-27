@@ -21,15 +21,16 @@ import json
 
 
 class PostFilter(rest_filter.FilterSet):
+	blog = django_filters.NumberFilter(name='blog__pk')
 	content_type = MBooleanFilter(name='content_type')
 	author = django_filters.CharFilter(name='author__username')
-	public = MBooleanFilter(name='status')
+	status = MBooleanFilter(name='status')
 	sticky = MBooleanFilter(name='sticky')
 	comments = MBooleanFilter(name='comments')
 
 	class Meta:
 		model = blog_models.Post
-		fields = ['slug', 'content_type', 'author', 'public', 'sticky', 'comments']
+		fields = ['blog', 'slug', 'content_type', 'author', 'status', 'sticky', 'comments']
 
 
 class PostViewSet(viewsets.ModelViewSet):
