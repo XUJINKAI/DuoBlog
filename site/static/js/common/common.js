@@ -14,12 +14,15 @@ function getCookie(name) {
 	return cookieValue;
 }
 function log(msg) {
-	console.log(msg);
+	if(typeof(DEBUG)=='boolean'&&DEBUG){
+		console.log(msg);
+	}
 }
 
 //ajax
 function ajax_data(method, url, data, success, error, complete) {
 	log(method + ': ' + url);
+	log(data)
 	return $.ajax({
 		url: url,
 		method: method,
@@ -38,6 +41,9 @@ function get_data(url, data, success, error, complete) {
 }
 function post_data(url, data, success, error, complete) {
 	return ajax_data('POST', url, data, success, error, complete);
+}
+function put_data(url, data, success, error, complete) {
+	return ajax_data('PUT', url, data, success, error, complete);
 }
 function delete_data(url, data, success, error, complete) {
 	return ajax_data('DELETE', url, data, success, error, complete);

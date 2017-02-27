@@ -14,8 +14,10 @@ class BlogListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class BlogDetailSerializer(serializers.HyperlinkedModelSerializer):
-	pk = serializers.IntegerField(read_only=True)
+	api_url = serializers.HyperlinkedIdentityField(view_name='api:blog-detail', lookup_field='pk', read_only=True)
+	url = serializers.CharField(source='domain')
 
 	class Meta:
 		model = BlogModel
-		fields = ('pk', 'domain',)
+		fields = ('pk', 'api_url', 'name', 'url', \
+			'post_count', 'draft_count', 'trash_count', 'comment_count')

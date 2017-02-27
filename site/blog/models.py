@@ -100,6 +100,7 @@ class Post(models.Model):
 	title = models.CharField(max_length=70, blank=True)
 	content = models.TextField()
 	content_type = models.CharField(max_length=1, choices=POST_CONTENT_TYPE)
+	rendered_html = models.TextField(blank=True, null=True)
 
 	tags = TaggableManager(blank=True)
 	# django_comments

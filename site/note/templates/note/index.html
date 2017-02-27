@@ -5,11 +5,41 @@
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/note/index.css' %}">
 <style>
+/* common */
+.box {
+	display: flex;
+}
+.box-col {
+	display: flex;
+	flex-direction: column;
+}
+.y-scroll {
+	overflow-y: auto;
+}
+.stretch {
+	flex-grow: 1;
+}
+.full-height {
+	height: 100%;
+}
+.bolder {
+	font-weight: bolder;
+}
+.border0 {
+	border: 0;
+}
+.margin0 {
+	margin: 0;
+}
+.padding {
+	padding: 0;
+}
 </style>
 {% endblock %}
 
 
 {% block js %}
+<script src="//cdn.bootcss.com/lodash.js/4.17.4/lodash.min.js"></script>
 <script src="{% static 'js/common/common.js' %}"></script>
 <script>
 var account_logout = function(){
@@ -25,8 +55,6 @@ var account_logout = function(){
 	})
 }
 </script>
-<script src="//cdn.bootcss.com/lodash.js/4.17.4/lodash.min.js"></script>
-<script src="//cdn.bootcss.com/wangeditor/2.1.20/js/wangEditor.min.js"></script>
 
 
 
@@ -60,9 +88,10 @@ Vue.component('note-blogs', {
 	},
 	methods: {
 		btn_click: function(event, name){
+			BUS.$emit('reload_posts', this.model);
 			this.$emit('click', event, name, this.model);
 		}
-	}
+	},
 });
 </script>
 
@@ -89,28 +118,54 @@ Vue.component('note-blog-setting', {
 </script>
 
 
-
+<style>
+.select_post {
+	background-color: #d9d9d9;
+}
+</style>
 <script type="text/x-template" id="note-posts-template">
-	<div class="note-posts">
-		<div class="posts-tags">
-			<ul>
-				<span v-on:click='clear_select_tags'>Clear</span>
+	<div class="note-posts box stretch full-height">
+		<div class="posts-tags stretch full-height" 
+		style="
+			height: 100%;
+			min-width: 150px;
+			max-width: 150px;">
+			<span v-on:click='clear_select_tags'>Clear</span>
+			<ul class="">
 				<li v-for='obj in tags'>
 					<input type="checkbox" :id="obj.name" :value='obj' v-model='selected_tags'>
 					<span :for='obj.name' v-on:click='select_tag(obj);'>${ obj.name } ${ obj.count }</span>
 				</li>
 			</ul>
 		</div>
-		<div class="posts-list">
-			Title | Create | Modified , DESC
-			<ul>
-				<li v-for='post in posts' v-on:click='select_post(post)' class="post-item">
+		<div class="posts-list stretch box-col" 
+		style="
+			height: 100%;
+			min-width: 200px;
+			max-width: 200px;
+		">
+			<div class="box">
+				<span class="stretch">New Markdown</span>
+				<span class="stretch">New HTML</span>
+			</div>
+			<div class="box" style="justify-content: space-between;">
+				<span :class='{bolder: order_by=="title"}'>Title <span v-if='order_by=="title"'>${ order_asc?'↑':'↓'}</span></span>
+				<span :class='{bolder: order_by=="create"}'>Create <span v-if='order_by=="create"'>${ order_asc?'↑':'↓'}</span></span>
+				<span :class='{bolder: order_by=="modify"}'>Modify <span v-if='order_by=="modify"'>${ order_asc?'↑':'↓'}</span></span>
+			</div>
+			<ul style="overflow-y: scroll;">
+				<li v-for='post in posts' v-on:click='select_post(post)' class="post-item" :class='{select_post: post==selected_post}' style="height: 70px;">
 					<p>${ post.title }</p>
 					<!-- <span>${ post.last_modified_time }</span> -->
 				</li>
 			</ul>
 		</div>
-		<note-post-detail :model='selected_post' class="posts-content"></note-post-detail>
+		<note-post-detail :model='selected_post' class="posts-content stretch box-col" 
+		style="
+			height: 100%;
+			width: 100%;
+			padding: 0 0 0 20px;
+			"></note-post-detail>
 	</div>
 </script>
 <script>
@@ -118,18 +173,14 @@ Vue.component('note-posts', {
 	delimiters: ['${', '}'],
 	template: '#note-posts-template',
 	data: function(){
-		var self = this;
-		get_data('{% url "api:post-list" %}', {
-
-		}, function(data){
-			self.raw_data = data;
-			self.parse_raw_data();
-		})
+		this.reload_data();
 		return {
 			raw_data: '',
 			tags: [],
 			selected_tags: [],
 			selected_post: {},
+			order_by: 'create',
+			order_asc: false,
 		};
 	},
 	computed: {
@@ -166,6 +217,13 @@ Vue.component('note-posts', {
 		}
 	},
 	methods: {
+		reload_data: function(){
+			var self = this;
+			API.post_list(self.blog, function(data){
+				self.raw_data = data;
+				self.parse_raw_data();
+			})
+		},
 		parse_raw_data: function(){
 			var tags_list = [];
 			_.forEach(this.raw_data, function(post){
@@ -192,19 +250,55 @@ Vue.component('note-posts', {
 			this.clear_select_tags();
 			this.selected_tags = [obj];
 		},
+	},
+	created: function(){
+		var self = this;
+		BUS.$on('reload_posts', function(blog){
+			self.reload_data();
+		})
 	}
 });
 </script>
 
 
-<script src="//cdn.bootcss.com/marked/0.3.6/marked.min.js"></script>
+<style>
+.post_detail_title {
+    font-size: x-large;
+    font-weight: bolder;
+}
+</style>
 <script type="text/x-template" id="note-post-detail-template">
-	<div v-show='ddata.slug'>
-		<p>${ ddata.title }</p>
-		<p>${ ddata.slug }</p>
-		<p v-if='ddata.content_type == "h"'>${ ddata.content }</p>
-		<p v-else-if='ddata.content_type == "m"'>${ ddata.content }</p>
-		<p v-else>Error Type.</p>
+	<div v-show='post' class="box-col">
+		<div class="box">
+			<div class="stretch box-col">
+				<input type="input" v-model='post.title' class='post_detail_title border0'></p>
+				<p class="box"><strong>URL</strong><span>: /posts/</span>
+					<input type="text" v-model='post.slug' class="border0 stretch" placeholder="<auto>" /></p>
+				<div class="stretch">
+					<strong>Tags: </strong>
+					<span v-for='tag in post.tags'>${ tag } X, </span>
+					<input type="text" name="" placeholder="Add Tag" class="border0" style="width: 10em;">
+				</div>
+			</div>
+			<div style="flex: 0 1 100px">
+				<button v-on:click='save_publish'>publish</button>
+				<button v-on:click='save_draft'>draft</button>
+				<button v-on:click='save_delete'>delete</button>
+			</div>
+			<div style="flex: 0 1 200px">
+				<p>创建 ${ create_time }</p>
+				<p>修改 ${ last_modified_time }</p>
+				<p>
+					<input type="checkbox" v-model='post.sticky'>
+					<span v-on:click='post.sticky=!post.sticky'>Sticky</span>
+				</p>
+				<p>
+					<input type="checkbox" v-model='post.comments'>
+					<span v-on:click='post.comments=!post.comments'>Comments</span>
+				</p>
+			</div>
+		</div>
+		<note-post-editor :model='post' style='flex: 1; overflow: overlay; padding-top: 1.2em;'></note-post-editor>
 	</div>
 </script>
 <script>
@@ -213,7 +307,287 @@ Vue.component('note-post-detail', {
 	template: '#note-post-detail-template',
 	data: function(){
 		return {
-			ddata: {},
+			changed: false,
+			post: '',
+		};
+	},
+	props: {
+		model: Object,
+	},
+	computed: {
+		create_time: function(){
+			return moment(this.post.create_time).format(BUS.time_format);
+		},
+		last_modified_time: function(){
+			return moment(this.post.last_modified_time).format(BUS.time_format);
+		},
+	},
+	watch: {
+		model: function(val, oldVal){
+			var self = this;
+			if(this.changed) {
+				this.save(function(){
+					//TODO 如何从修改数据倒回去←更新列表
+					// oldVal.title = 'abccccccccccccc';
+					self.reload();
+				});
+			} else {
+				this.reload();
+			}
+		},
+		post: {
+			deep: true,
+			handler: function(val, oldVal){
+				this.changed = true;
+			},
+		},
+		changed: function(){
+			BUS.post_changed = this.changed;
+			log('note-post-detail.changed: ' + this.changed);
+		},
+	},
+	methods: {
+		reload: function(){
+			var self = this;
+			get_data(self.model.api_url, {}, function(data){
+				self.post = data;
+				// watch:post RUN first, and then this timeout function
+				setTimeout(function(){
+					self.changed = false;
+				}, 0)
+			});
+		},
+		save: function(callback){
+			var self = this;
+			API.post_update(this.post, function(){
+				self.changed = false;
+				if(callback) callback();
+			})
+		},
+		save_publish: function() {
+			this.post.status = 'p';
+			this.save();
+		},
+		save_draft: function() {
+			this.post.status = 'd';
+			this.save();
+		},
+		save_delete: function() {
+			API.post_delete(this.post, function(){
+				self.changed = false;
+			})
+		}
+	}
+
+});
+</script>
+
+
+
+<script type="text/x-template" id="note-post-editor-template">
+	<div id="note-post-editor" v-if='model'>
+		<note-post-editor-html v-if='model.content_type == "h"' :model='model'></note-post-editor-html>
+		<note-post-editor-md v-else-if='model.content_type == "m"' :model='model'></note-post-editor-md>
+		<p v-else>Error Type.</p>
+	</div>
+</script>
+<script>
+Vue.component('note-post-editor', {
+	delimiters: ['${', '}'],
+	template: '#note-post-editor-template',
+	data: function(){
+		return {
+		};
+	},
+	watch: {
+		'model.content': function(){
+			this.content_changed();
+		}
+	},
+	props: {
+		model: Object,
+	},
+	methods: {
+		content_changed: function(){
+			this.$emit('editor_content_changed');
+		}
+	}
+});
+</script>
+
+
+
+<script>
+$.getScript('http://cdn.bootcss.com/marked/0.3.6/marked.min.js');
+var RENDER_MARKDOWN = function(md){
+	var render = function() {
+		return marked(md);
+	}
+	if(typeof(marked)=='undefined') {
+		log('//MAKE RENDER MARKDOWN ASYNC.')
+	}
+	return render();
+}
+</script>
+<script src='{% static "/js/common/markdown_editor.js" %}'></script>
+
+<style>
+.full_screen {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	padding: 20px;
+	background-color: white;
+}
+</style>
+<script type="text/x-template" id="note-post-editor-md-template">
+	<div class="box-col" style="flex: 1; overflow: overlay; height: 100%;" :class='{full_screen: is_full_screen}'>
+		<div style="">
+			<span v-on:click='show("editor")' :class="{bolder: show_editor&&!show_html}">Markdown</span>
+			<span v-on:click='show("split")' :class="{bolder: show_editor&&show_html}">Split</span>
+			<span v-on:click='show("html")' :class="{bolder: !show_editor&&show_html}">Rendered</span>
+			<span v-on:click='full_screen' style="float: right;">full-screen</span>
+		</div>
+		<div class="stretch box" style="padding-top: 1em;">
+			<textarea v-if='show_editor' id="editor-md-textarea" 
+				class='stretch y-scroll'
+				style="
+				flex: 1;
+				resize: none;
+				overflow-y: scroll;
+				" 
+				v-on:keydown.tab.prevent="insert_tab"
+				v-model='model.content'>
+			</textarea>
+			<div style="flex-basis: 2em;" v-if='show_editor&&show_html'></div>
+			<div v-if='show_html'
+				style="
+				flex: 1;
+				overflow-wrap: break-word;
+    			overflow-y: scroll;
+				" 
+				v-html='rendered_html'></div>
+		</div>
+	</div>
+</script>
+<script>
+Vue.component('note-post-editor-md', {
+	delimiters: ['${', '}'],
+	template: '#note-post-editor-md-template',
+	data: function(){
+		return {
+			show_editor: true,
+			show_html: true,
+			is_full_screen: false,
+		};
+	},
+	props: {
+		model: Object,
+	},
+	watch: {
+		'model.content': function(){
+			// log('md change');
+		}
+	},
+	computed: {
+		rendered_html: function(){
+			return this.render(this.model.content);
+		}
+	},
+	methods: {
+		render: function(md){
+			return RENDER_MARKDOWN(md);
+		},
+		insert_tab: function(){
+			var el = document.getElementById('editor-md-textarea');
+			var val = el.value,
+                start = el.selectionStart,
+                end = el.selectionEnd;
+
+            // set textarea value to: text before caret + tab + text after caret
+            el.value = val.substring(0, start) + '\t' + val.substring(end);
+
+            // put caret at right position again
+            el.selectionStart = el.selectionEnd = start + 1;
+		},
+		show: function(type) {
+			if(type=='editor') {
+				this.show_editor = true;
+				this.show_html = false;
+			} else if (type=='split') {
+				this.show_editor = true;
+				this.show_html = true;
+			} else {
+				this.show_editor = false;
+				this.show_html = true;
+			}
+		},
+		full_screen: function(){
+			this.is_full_screen = !this.is_full_screen;
+		}
+	},
+});
+</script>
+
+
+
+
+<script>
+var EDIT_HTML = function(id, change) {
+	log('EDIT_HTML: init html editor')
+	var edit = function() {
+		var html_editor = new wangEditor(id);
+		html_editor.config.jsFilter = false;
+		html_editor.config.uploadImgUrl = '/api/img/';
+		html_editor.config.uploadHeaders = {
+			'X-CSRFToken': getCookie('csrftoken'),
+		};
+		html_editor.config.uploadImgFileName = 'file'
+		html_editor.onchange = function(){
+			change(html_editor);
+		}
+		html_editor.create();
+		return html_editor;
+	}
+	if(typeof(wangEditor)=='undefined') {
+		var get_css = function(css) {
+			$('head').append('<link rel="stylesheet" href="' + css + '" type="text/css" />');
+		}
+		get_css('//cdn.bootcss.com/wangeditor/2.1.20/css/wangEditor.min.css');
+		$.getScript('//cdn.bootcss.com/wangeditor/2.1.20/js/wangEditor.min.js', function(){
+			edit();
+		});
+	} else {
+		edit();
+	}
+}
+
+</script>
+
+<script src='{% static "/js/common/html_editor.js" %}'></script>
+<style>
+.wangEditor-container {
+	height: 100%;
+}
+.wangEditor-txt {
+	height: 100%;
+}
+</style>
+<script type="text/x-template" id="note-post-editor-html-template">
+	<div style="height: 100%;">
+		<div id="note-post-editor-html-container">
+		</div>
+	</div>
+</script>
+<script>
+Vue.component('note-post-editor-html', {
+	delimiters: ['${', '}'],
+	template: '#note-post-editor-html-template',
+	data: function(){
+		return {
+			editor: null,
 		};
 	},
 	props: {
@@ -221,18 +595,52 @@ Vue.component('note-post-detail', {
 	},
 	watch: {
 		model: function(){
-			var self = this;
-			get_data(this.model.api_url, {}, function(data){
-				self.ddata = data;
-			})
+			this.reload();
 		}
+	},
+	methods: {
+		reload: function(){
+			if(this.editor) {
+				this.editor.$txt.html(this.model.content);
+			} else {
+				$("#note-post-editor-html-container").html(this.model.content);
+			}
+		}
+	},
+	mounted: function(){
+		var self = this;
+		EDIT_HTML('note-post-editor-html-container', function(editor){
+			self.model.content = editor.$txt.html();
+			self.editor = editor;
+		});
+		this.reload();
 	}
 });
 </script>
 
 
+
 <script>
-// var DEBUG = true;
+var DEBUG = true;
+var BUS = new Vue({
+	data: {
+		time_format: 'YYYY-MM-DD HH:mm:ss',
+		post_changed: false,
+	},
+	computed: {
+		ask_quit: function(){
+			return this.post_changed;
+		}
+	},
+	created: function(){
+		var self = this;
+		window.onbeforeunload = function(event) {
+			if(self.ask_quit) {
+				return "确定退出吗";
+			}
+		}
+	}
+});
 var note_app = new Vue({
 	delimiters: ['${', '}'],
 	el: '#note_wrapper',
@@ -250,7 +658,10 @@ var note_app = new Vue({
 			})
 		},
 		create_new_blog: function(){
-			log('//TODO')
+			this.blogs.push({
+				name: 'XXXX',
+				url: 'abc.com',
+			})
 		},
 		blogs_btn_click: function(event, name, blog){
 			var view = {
@@ -268,23 +679,67 @@ var note_app = new Vue({
 </script>
 {% endblock %}
 {% block content %}
-<div id="note_wrapper">
-	<div id="note_header">
+<div id="note_wrapper" class="box-col">
+	<div id="note_header" class="stretch">
 		Blog | search
 		<span class="pull-right">
 			<a href='{% url "manage:index" %}'>Admin</a> | Account</span>
 	</div>
-	<div id="note_body">
-		<div id="note_left">
+	<div id="note_body" class="stretch box">
+		<div id="note_left" class="y-scroll">
 			<div v-bind:model='blogs'>
 				<note-blogs v-for='blog in blogs' :model='blog' v-on:click='blogs_btn_click'></note-blogs>
 			</div>
 			<span v-on:click='create_new_blog'>新建</span>
 		</div>
-		<div id="note_right">
+		<div id="note_right" class="stretch">
 			<component :is="right_view" :blog='right_view_blog'>
 			</component>
 		</div>
 	</div>
 </div>
+<style>
+#note_wrapper {
+	padding: 10px;
+	height: 100vh;
+}
+#note_header {
+	min-height: 50px;
+	max-height: 50px;
+}
+#note_left {
+	min-width: 140px;
+	max-width: 140px;
+}
+</style>
+<script>
+var API = {
+	post_list: function(blog, callback) {
+		get_data('{% url "api:post-list" %}', {
+
+		}, function(data){
+			callback(data);
+		})
+	},
+	post_update: function(post, callback) {
+		put_data(post.api_url, {
+			slug: post.slug,
+			title: post.title,
+			content: post.content,
+			content_type: post.content_type,
+			status: post.status,
+			tags: JSON.stringify(post.tags),
+			comments: post.comments,
+			sticky: post.sticky,
+		}, function(data){
+			callback(data);
+		})
+	},
+	post_delete: function(post, callback) {
+		delete_data(post.api_url, {}, function(data){
+			callback(data);
+		})
+	}
+};
+</script>
 {% endblock %}
