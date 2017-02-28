@@ -28,3 +28,6 @@ class PostManager(models.Manager):
 	def blog_queryset(self, request, **kwargs):
 		current_blog = get_current_blog(request)
 		return self.filter(blog=current_blog, status='p')
+
+	# def api_queryset(self, request, **kwargs):
+	# 	

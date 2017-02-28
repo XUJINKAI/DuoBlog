@@ -38,8 +38,9 @@
 {% endblock %}
 
 
-{% block js %}
-<script src="//cdn.bootcss.com/lodash.js/4.17.4/lodash.min.js"></script>
+
+
+{% block js_vue %}
 <script src="{% static 'js/common/common.js' %}"></script>
 <script>
 var account_logout = function(){
@@ -58,20 +59,12 @@ var account_logout = function(){
 
 
 
+
+
 <script type="text/x-template" id="note-blogs-template">
 	<div>
-		<div>
-		<span v-on:click='btn_click($event, "setting")'>${ model.name }</span>
-		<a :href="'//' + model.url" target="_blank" class="pull-right">open</a>
-		</div>
-		<ul v-show='show'>
-			<li v-on:click='btn_click($event, "posts")'>博文 (${ model.post_count })</li>
-			<li v-on:click='btn_click($event, "draft")'>草稿 (${ model.draft_count })</li>
-			<li v-on:click='btn_click($event, "trash")'>废纸篓(${ model.trash_count })</li>
-			<li v-on:click='btn_click($event, "comment")'>评论 (${ model.comment_count })</li>
-			<li v-on:click='btn_click($event, "navs")'>导航</li>
-			<!-- <li v-on:click='btn_click($event, "setting")'>设置</li> -->
-		</ul>
+		<note-blog-item v-for='blog in blogs' :blog=blog></note-blog-item>
+		<span v-on:click='create'>新建</span>
 	</div>
 </script>
 <script>
@@ -80,20 +73,78 @@ Vue.component('note-blogs', {
 	template: '#note-blogs-template',
 	data: function(){
 		return {
-			show: true,
+		};
+	},
+	computed: {
+		blogs: function(){
+			return BUS.blog_list;
+		},
+	},
+	methods: {
+		create: function(){
+			BUS.create_new_blog();
+		},
+	}
+});
+</script>
+
+
+
+
+
+<style>
+.blog_title_clicked {
+	background-color: red;
+}
+.blog_btn_clicked {
+	background-color: pink;
+}
+</style>
+<script type="text/x-template" id="note-blog-item-template">
+	<div>
+		<div>
+			<span v-on:click='btn_click("setting")' :class="{blog_title_clicked: btn_clicked('setting')}">${ blog.name }</span>
+			<a :href="'//' + blog.url" target="_blank" class="pull-right">open</a>
+		</div>
+		<ul>
+			<li v-on:click='btn_click("posts")' :class="{blog_btn_clicked: btn_clicked('posts')}">博文 (${ blog.post_count })</li>
+			<li v-on:click='btn_click("draft")' :class="{blog_btn_clicked: btn_clicked('draft')}">草稿 (${ blog.draft_count })</li>
+			<li v-on:click='btn_click("trash")' :class="{blog_btn_clicked: btn_clicked('trash')}">废纸篓(${ blog.trash_count })</li>
+			<li v-on:click='btn_click("comment")' :class="{blog_btn_clicked: btn_clicked('comment')}">评论 (${ blog.comment_count })</li>
+			<li v-on:click='btn_click("navs")' :class="{blog_btn_clicked: btn_clicked('navs')}">导航</li>
+		</ul>
+	</div>
+</script>
+<script>
+Vue.component('note-blog-item', {
+	delimiters: ['${', '}'],
+	template: '#note-blog-item-template',
+	data: function(){
+		return {
 		};
 	},
 	props: {
-		model: Object
+		blog: Object,
+	},
+	computed: {
+		blogs: function(){
+			return BUS.blog_list;
+		},
 	},
 	methods: {
-		btn_click: function(event, name){
-			BUS.$emit('reload_posts', this.model);
-			this.$emit('click', event, name, this.model);
-		}
+		btn_click: function(name){
+			BUS.select_blog_function(this.blog, name);
+		},
+		btn_clicked: function(name){
+			return BUS.current_blog==this.blog&&BUS.current_blog_btn==name;
+		},
 	},
 });
 </script>
+
+
+
+
 
 
 
@@ -112,6 +163,37 @@ Vue.component('note-blog-setting', {
 		};
 	},
 	props: {
+	},
+	computed: {
+		blog: function(){
+			return BUS.current_blog;
+		}
+	},
+});
+</script>
+
+
+
+
+
+<script type="text/x-template" id="note-blog-navs-template">
+	<div>
+		<ul>
+			<navs-item class="navs-item" :model="navs">
+			</navs-item>
+		</ul>
+	</div>
+</script>
+<script>
+Vue.component('note-blog-navs', {
+	delimiters: ['${', '}'],
+	template: '#note-blog-navs-template',
+	data: function(){
+		return {
+			navs: {},
+		};
+	},
+	props: {
 		blog: Object,
 	},
 });
@@ -121,40 +203,85 @@ Vue.component('note-blog-setting', {
 
 
 
-<script type="text/x-template" id="note-draft-template">
-	<note-posts class="note-draft box stretch full-height"
-		:blog='blog' :list_type='"draft"'>
-	</note-posts>
+<script type="text/x-template" id="navs-item-template">
+	<li>
+		<div
+			:class=""
+			v-if='!isRoot'
+			v-bind:title='model.url'
+		>
+			<span @click="Toggle">${ model.name }</span>&nbsp;&nbsp;&nbsp;&nbsp;
+			<span @click="deleteItem" v-if='!isRoot'>[-]</span>
+			<span @click="addChild" v-if='!isRoot'>[+]</span>
+			<span @click="MoveUp" v-if='!isRoot'>[↑]</span>
+			<span @click="MoveDown" v-if='!isRoot'>[↓]</span>
+		</div>
+		<form v-if='edit'>
+			<input type="" name="" v-model='model.name' placeholder="Title">
+			<input type="" name="" v-model='model.url' v-if="!hasSubItems" placeholder="URL">
+		</form>
+		<ul v-show="hasSubItems || isRoot">
+			<navs-item
+				class="item"
+				v-for="model in model.sub"
+				:model="model">
+			</navs-item>
+			<li class="add" @click="addChild">+</li>
+		</ul>
+	</li>
 </script>
 <script>
-Vue.component('note-draft', {
+Vue.component('navs-item', {
 	delimiters: ['${', '}'],
-	template: '#note-draft-template',
+	template: '#navs-item-template',
 	props: {
-		blog: Object,
+		model: Object
+	},
+	data: function () {
+		return {
+			edit: false,
+		}
+	},
+	computed: {
+		isFolder: function () {
+			return this.model.sub;
+		},
+		hasSubItems: function () {
+			return this.model.sub && this.model.sub.length;
+		},
+		isRoot: function() {
+			return this.$parent.$parent==undefined;
+		}
+	},
+	methods: {
+		Toggle: function() {
+			this.edit = !this.edit;
+		},
+		addChild: function() {
+			if (!this.isFolder) {
+				Vue.set(this.model, 'sub', []);
+			}
+			this.model.sub.push({
+				name: 'new nav',
+				url: '/posts/?tags=',
+				sub: [],
+			})
+		},
+		deleteItem: function(){
+			this.$parent.model.sub.remove(this.model);
+		},
+		MoveUp:function() {
+			var idx = $.inArray(this.model, this.$parent.model.sub);
+			this.$parent.model.sub.move(idx, idx - 1);
+		},
+		MoveDown:function() {
+			var idx = $.inArray(this.model, this.$parent.model.sub);
+			this.$parent.model.sub.move(idx, idx + 1);
+		},
 	}
-});
+})
 </script>
 
-
-
-
-
-
-<script type="text/x-template" id="note-trash-template">
-	<note-posts class="note-trash box stretch full-height" 
-		:blog='blog' :list_type='"trash"'>
-	</note-posts>
-</script>
-<script>
-Vue.component('note-trash', {
-	delimiters: ['${', '}'],
-	template: '#note-trash-template',
-	props: {
-		blog: Object,
-	}
-});
-</script>
 
 
 
@@ -174,7 +301,7 @@ Vue.component('note-trash', {
 			height: 100%;
 			min-width: 150px;
 			max-width: 150px;">
-			<span v-on:click='clear_select_tags'>Clear</span>${query_status}
+			<span v-on:click='clear_select_tags'>Clear</span>
 			<ul class="">
 				<li v-for='obj in tags'>
 					<input type="checkbox" :id="obj.name" :value='obj' v-model='selected_tags'>
@@ -204,12 +331,14 @@ Vue.component('note-trash', {
 				</li>
 			</ul>
 		</div>
-		<note-post-detail :model='selected_post' class="posts-content stretch box-col" 
+		<div class="posts-content stretch box-col" 
 		style="
 			height: 100%;
 			width: 100%;
 			padding: 0 0 0 20px;
-			"></note-post-detail>
+			">
+			<note-post-detail></note-post-detail>
+		</div>
 	</div>
 </script>
 <script>
@@ -217,17 +346,22 @@ Vue.component('note-posts', {
 	delimiters: ['${', '}'],
 	template: '#note-posts-template',
 	data: function(){
-		this.reload_data();
 		return {
-			raw_data: '',
-			tags: [],
 			selected_tags: [],
-			selected_post: {},
 			order_by: 'create',
 			order_asc: false,
 		};
 	},
 	computed: {
+		raw_data: function(){
+			return BUS.post_list;
+		},
+		blog: function(){
+			return BUS.current_blog;
+		},
+		selected_post: function(){
+			return BUS.current_post;
+		},
 		posts: function(){
 			if(this.selected_tags.length==0) {
 				return this.raw_data;
@@ -244,42 +378,7 @@ Vue.component('note-posts', {
 				});
 			}
 		},
-		query_status: function(){
-			if(this.list_type=='draft') return 'd';
-			else if(this.list_type=='trash') return 't';
-			return 'p';
-		}
-	},
-	watch: {
-		selected_tags: function(){
-			// var s = '';
-			// _.forEach(this.selected_tags, function(item){
-			// 	if(item) s += item.name + ', ';
-			// });
-			// log(s);
-		},
-	},
-	props: {
-		blog: {
-			type: Object,
-			required: true,
-		},
-		list_type: String,
-	},
-	methods: {
-		reload_data: function(){
-			var self = this;
-			setTimeout(function(){
-				API.post_list({
-					blog: self.blog.pk,
-					status: self.query_status,
-				}, function(data){
-					self.raw_data = data;
-					self.parse_raw_data();
-				})
-			}, 0);
-		},
-		parse_raw_data: function(){
+		tags: function(){
 			var tags_list = [];
 			_.forEach(this.raw_data, function(post){
 				tags_list = _.concat(tags_list, post.tags)
@@ -292,26 +391,23 @@ Vue.component('note-posts', {
 					count: value,
 				})
 			})
-			this.tags = _.orderBy(tags_coll, ['count', 'name'], ['desc', 'asc'])
-			this.selected_post = {};
+			return _.orderBy(tags_coll, ['count', 'name'], ['desc', 'asc'])
 		},
+	},
+	props: {
+	},
+	methods: {
 		create_new_post: function(type) {
-			API.post_new({
-				status: 'p',
-				content: 'your new post',
-				rendered_html: 'your new html post',
-				content_type: type,
-				tags: [],
-			})
+			BUS.create_new_post(type);
+		},
+		select_post: function(post){
+			BUS.select_post(post);
 		},
 		new_markdown: function(){
 			this.create_new_post('m');
 		},
 		new_html: function(){
 			this.create_new_post('h');
-		},
-		select_post: function(post){
-			this.selected_post = post;
 		},
 		clear_select_tags: function(){
 			this.selected_tags = [];
@@ -348,7 +444,7 @@ Vue.component('note-posts', {
 			<div style="flex: 0 1 100px">
 				<button v-on:click='save_publish'>publish</button>
 				<button v-on:click='save_draft'>draft</button>
-				<button v-on:click='save_delete'>delete</button>
+				<button v-on:click='delete_current'>delete</button>
 			</div>
 			<div style="flex: 0 1 200px">
 				<p>创建 ${ create_time }</p>
@@ -372,14 +468,12 @@ Vue.component('note-post-detail', {
 	template: '#note-post-detail-template',
 	data: function(){
 		return {
-			changed: false,
-			post: '',
 		};
 	},
-	props: {
-		model: Object,
-	},
 	computed: {
+		post: function(){
+			return BUS.post_detail;
+		},
 		create_time: function(){
 			return moment(this.post.create_time).format(BUS.time_format);
 		},
@@ -387,63 +481,19 @@ Vue.component('note-post-detail', {
 			return moment(this.post.last_modified_time).format(BUS.time_format);
 		},
 	},
-	watch: {
-		model: function(val, oldVal){
-			var self = this;
-			if(this.changed) {
-				this.save(function(){
-					//TODO 如何从修改数据倒回去←更新列表
-					// oldVal.title = 'abccccccccccccc';
-					self.reload();
-				});
-			} else {
-				this.reload();
-			}
-		},
-		post: {
-			deep: true,
-			handler: function(val, oldVal){
-				this.changed = true;
-			},
-		},
-		changed: function(){
-			BUS.post_changed = this.changed;
-			log('note-post-detail.changed: ' + this.changed);
-		},
-	},
 	methods: {
 		reload: function(){
-			var self = this;
-			if(self.model.api_url) {
-				get_data(self.model.api_url, {}, function(data){
-					self.post = data;
-					// watch:post RUN first, and then this timeout function
-					setTimeout(function(){
-						self.changed = false;
-					}, 0)
-				});
-			}
+			BUS.reload_post_detail();
 		},
-		save: function(callback){
-			var self = this;
-			API.post_update(this.post, function(){
-				self.changed = false;
-				if(callback) callback();
-			})
+		delete_current: function() {
+			BUS.delete_post_detail();
 		},
 		save_publish: function() {
-			this.post.status = 'p';
-			this.save();
+			BUS.save_post_detail_public();
 		},
 		save_draft: function() {
-			this.post.status = 'd';
-			this.save();
+			BUS.save_post_detail_draft();
 		},
-		save_delete: function() {
-			API.post_delete(this.post, function(){
-				self.changed = false;
-			})
-		}
 	}
 
 });
@@ -683,64 +733,36 @@ Vue.component('note-post-editor-html', {
 
 
 <script>
-var DEBUG = true;
-var BUS = new Vue({
-	data: {
-		time_format: 'YYYY-MM-DD HH:mm:ss',
-		post_changed: false,
-	},
-	computed: {
-		ask_quit: function(){
-			return this.post_changed;
-		}
-	},
-	created: function(){
-		var self = this;
-		window.onbeforeunload = function(event) {
-			if(self.ask_quit) {
-				return "确定退出吗";
-			}
-		}
-	}
-});
-var note_app = new Vue({
+var app = new Vue({
 	delimiters: ['${', '}'],
 	el: '#note_wrapper',
 	data: {
-		blogs: [],
-		right_view_blog: '',
-		right_view: '',
+	},
+	computed: {
+		blogs: function(){
+			return BUS.blog_list;
+		},
+		show_posts: function(){
+			return !(typeof(BUS.current_blog_btn_status)=='undefined');
+		},
+		show_comment: function(){
+			return BUS.current_blog_btn=='comment';
+		},
+		show_navs: function(){
+			return BUS.current_blog_btn=='navs';
+		},
+		show_setting: function(){
+			return BUS.current_blog_btn=='setting';
+		},
 	},
 	methods: {
 		load_blog_list: function(){
-			var self = this;
-			get_data('{% url "api:blog-list" %}', {}, function(data) {
-				self.blogs = data;
-				self.blogs_btn_click(null, 'posts', self.blogs[0]);
-			})
-		},
-		create_new_blog: function(){
-			this.blogs.push({
-				name: 'XXXX',
-				url: 'abc.com',
-			})
-		},
-		blogs_btn_click: function(event, name, blog){
-			var view = {
-				blog: 'note-blog-setting',
-				posts: 'note-posts',
-				draft: 'note-draft',
-				trash: 'note-trash',
-				comment: 'note-comments',
-				navs: 'note-navs',
-			}
-			this.right_view = view[name];
-			this.right_view_blog = blog;
+			BUS.reload_blog_list();
 		},
 	},
 	created: function(){
 		this.load_blog_list();
-	}
+	},
 })
 </script>
 {% endblock %}
@@ -753,14 +775,13 @@ var note_app = new Vue({
 	</div>
 	<div id="note_body" class="stretch box">
 		<div id="note_left" class="y-scroll">
-			<div v-bind:model='blogs'>
-				<note-blogs v-for='blog in blogs' :model='blog' v-on:click='blogs_btn_click'></note-blogs>
-			</div>
-			<span v-on:click='create_new_blog'>新建</span>
+			<note-blogs></note-blogs>
 		</div>
 		<div id="note_right" class="stretch">
-			<component :is="right_view" :blog='right_view_blog'>
-			</component>
+			<note-posts v-if='show_posts'></note-posts>
+			<note-comments v-if='show_comment'></note-comments>
+			<note-blog-navs v-if='show_navs'></note-blog-navs>
+			<note-blog-setting v-if='show_setting'></note-blog-setting>
 		</div>
 	</div>
 </div>
@@ -778,12 +799,18 @@ var note_app = new Vue({
 	max-width: 140px;
 }
 </style>
+{% endblock %}
+
+
+
+
+{% block js_API %}
 <script>
 var API = {
-	post_list: function(filter, callback) {
-		get_data('{% url "api:post-list" %}', filter, function(data){
+	blog_list: function(callback) {
+		get_data('{% url "api:blog-list" %}', {}, function(data) {
 			if(callback) callback(data);
-		})
+		});
 	},
 	post_parameter: function(post){
 		return _.omitBy({
@@ -797,6 +824,20 @@ var API = {
 			comments: post.comments,
 			sticky: post.sticky,
 		}, _.isNil)
+	},
+	post_list: function(filter, callback) {
+		get_data('{% url "api:post-list" %}', filter, function(data){
+			if(callback) callback(data);
+		})
+	},
+	post_detail: function(post, callback) {
+		if(post.api_url) {
+			get_data(post.api_url, {}, function(data){
+				if(callback) callback(data);
+			})
+		} else {
+			callback();
+		}
 	},
 	post_new: function(post, callback){
 		post_data('{% url "api:post-list" %}', API.post_parameter(post), function(data){
@@ -812,7 +853,183 @@ var API = {
 		delete_data(post.api_url, {}, function(data){
 			if(callback) callback(data);
 		})
-	}
+	},
 };
+</script>
+{% endblock %}
+
+
+
+
+
+{% block js_BUS %}
+<div id="BUS"></div>
+<script>
+var DEBUG = true;
+var BUS = new Vue({
+	el: '#BUS',
+	data: {
+		_blog_list: [],
+		_blog__pk: -1,
+		_blog__btn: 'posts',
+
+		_post_list: [],
+		_post__slug: '',
+
+		_post_detail: {},
+		_post_changed: false,
+	},
+	computed: {
+		time_format: function(){
+			return 'YYYY-MM-DD HH:mm:ss';
+		},
+
+		blog_list: function(){
+			return this.$data._blog_list;
+		},
+		current_blog: function(){
+			var f = _(this.blog_list).find(['pk', this.$data._blog__pk]);
+			if( ! f) {
+				f = this.blog_list[0];
+				this.$data._blog__pk = f.pk;
+				this.reload_post_list();
+			}
+			return f;
+		},
+		current_blog_btn: function(){
+			return this.$data._blog__btn;
+		},
+		current_blog_btn_status: function(){
+			var l = {
+				posts: 'p',
+				draft: 'd',
+				trash: 't',
+			}
+			return l[this.current_blog_btn];
+		},
+
+		post_list: function(){
+			return this.$data._post_list;
+		},
+		current_post: function(){
+			var f = _(this.post_list).find(['slug', this.$data._post__slug]);
+			if ( ! f) {
+				return {};
+			}
+			return f;
+		},
+
+		post_detail: function(){
+			return this.$data._post_detail;
+		},
+
+		post_changed: function(){
+			return this.$data._post_changed && this.post_detail;
+		},
+		ask_quit: function(){
+			return this.post_changed;
+		},
+	},
+	watch: {
+		post_detail: {
+			deep: true,
+			handler: function(val, oldVal){
+				this.$data._post_changed = true;
+			},
+		},
+		post_changed: function(){
+			log('BUS.post_changed = '+this.$data._post_changed);
+		},
+	},
+	methods: {
+		reload_blog_list: function(){
+			var self = this;
+			API.blog_list(function(data){
+				self.$data._blog_list = data;
+			})
+		},
+		select_blog_function: function(blog, btn){
+			this.$data._blog__pk = blog.pk;
+			this.$data._blog__btn = btn;
+			this.reload_post_list();
+			this.$data._post_detail = null;
+		},
+		create_new_blog: function(){
+			log('//TODO')
+		},
+
+		reload_post_list: function(){
+			var self = this;
+			API.post_list({
+				pk: self.current_blog.pk,
+				status: self.current_blog_btn_status,
+			}, function(data){
+				self.$data._post_list = data;
+			})
+		},
+		select_post: function(post){
+			this.$data._post__slug = post.slug;
+			this.reload_post_detail();
+		},
+		create_new_post: function(type){
+			var self = this;
+			API.post_new({
+				status: 'p',
+				content: 'your new post',
+				rendered_html: 'your new html post',
+				content_type: type,
+				tags: [],
+			}, function(data){
+				self.reload_blog_list();
+				self.reload_post_list();
+				self.$data._post__slug = data.slug;
+				self.$data.current_post = data;
+				self.reload_post_detail();
+			})
+		},
+
+		reload_post_detail: function(){
+			var self = this;
+			API.post_detail(this.current_post, function(data){
+				self.$data._post_detail = data;
+				setTimeout(function(){
+					self.$data._post_changed = false;
+				}, 0);
+			})
+		},
+		save_post_detail: function(type){
+			var self = this;
+			self.post_detail.status = type;
+			API.post_update(self.post_detail, function(){
+				self.$data._post_changed = false;
+				self.reload_blog_list();
+				self.reload_post_list();
+			})
+		},
+		save_post_detail_public: function(){
+			this.save_post_detail('p');
+		},
+		save_post_detail_draft: function(){
+			this.save_post_detail('d');
+		},
+		delete_post_detail: function(){
+			var self = this;
+			API.post_delete(this.post_detail, function(){
+				self.reload_blog_list();
+				self.reload_post_list();
+				self.$data._post__slug = -1;
+				self.$data._post_detail = null
+			});
+		},
+	},
+	created: function(){
+		var self = this;
+		window.onbeforeunload = function(event) {
+			if(self.ask_quit) {
+				return "确定退出吗";
+			}
+		}
+	}
+});
 </script>
 {% endblock %}
