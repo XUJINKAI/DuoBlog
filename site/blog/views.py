@@ -34,7 +34,7 @@ def blog_index(request):
 	if not blog:
 		return HttpResponseRedirect(reverse('manage:index'))
 	page = request.GET.get('page', 1)
-	posts = models.Post.objects.accessible_queryset(request)
+	posts = models.Post.objects.blog_queryset(request)
 	paginator = Paginator(posts, PAGE_SIZE)
 	tags = set(tag.name for post in posts for tag in post.tags.all())
 	try:
@@ -51,7 +51,7 @@ def blog_index(request):
 
 
 def posts_detail(request, slug):
-	post = models.Post.objects.accessible_queryset(request).filter(slug=slug).first()
+	post = models.Post.objects.blog_queryset(request).filter(slug=slug).first()
 	if not post:
 		raise Http404
 	tags_href_string = ', '.join(['<a href="%s?tags=%s">%s</a>' \
@@ -65,7 +65,7 @@ def posts_detail(request, slug):
 
 def posts_list(request):
 	search_tags = [x for x in request.GET.get('tags', '').split(',') if x]
-	all_posts = models.Post.objects.accessible_queryset(request)
+	all_posts = models.Post.objects.blog_queryset(request)
 	if search_tags:
 		qs = all_posts
 		for tag in search_tags:

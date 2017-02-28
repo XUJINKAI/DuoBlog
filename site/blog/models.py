@@ -98,9 +98,9 @@ class Post(models.Model):
 
 	author = models.ForeignKey(settings.AUTH_USER_MODEL)
 	title = models.CharField(max_length=70, blank=True)
-	content = models.TextField()
+	content = models.TextField(default='')
 	content_type = models.CharField(max_length=1, choices=POST_CONTENT_TYPE)
-	rendered_html = models.TextField(blank=True, null=True)
+	rendered_html = models.TextField()
 
 	tags = TaggableManager(blank=True)
 	# django_comments
@@ -128,6 +128,8 @@ class Post(models.Model):
 		if self.slug.isspace() or self.slug is '':
 			self.slug = self.get_auto_slug()
 		self.last_modified_time = datetime.datetime.now()
+		if self.content_type == 'h':
+			self.content = ''
 		# F() expressions can only be used to update, not to insert.
 		if self.pk is not None:
 			self.modified_count = F('modified_count') + 1

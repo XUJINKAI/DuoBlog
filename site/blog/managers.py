@@ -8,6 +8,8 @@ class PostManager(models.Manager):
 		'''
 		return queryset by blog, user
 		'''
+		print('//////////////////////////////////////////////////废弃: accessible_queryset')
+
 		all_blogs = kwargs.get('all_blogs', False)
 		queryset = self.all()
 
@@ -21,3 +23,8 @@ class PostManager(models.Manager):
 			queryset = queryset.filter(status='p')
 
 		return queryset
+
+
+	def blog_queryset(self, request, **kwargs):
+		current_blog = get_current_blog(request)
+		return self.filter(blog=current_blog, status='p')
