@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import HttpResponseRedirect, Http404
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from taggit.models import Tag
 from django.core.exceptions import MultipleObjectsReturned
 
@@ -29,23 +28,37 @@ def render_theme(request, page_name, ctx=None):
 
 
 def blog_index(request):
-	PAGE_SIZE = 5
+	PAGE_SIZE = 10
+	PAGE = int(request.GET.get('page', 1))
+
 	blog = get_current_blog(request)
 	if not blog:
 		return HttpResponseRedirect(reverse('manage:index'))
-	page = request.GET.get('page', 1)
-	posts = models.Post.objects.blog_queryset(request)
-	paginator = Paginator(posts, PAGE_SIZE)
-	tags = set(tag.name for post in posts for tag in post.tags.all())
-	try:
-		pagi_posts = paginator.page(page)
-	except PageNotAnInteger:
-		pagi_posts = paginator.page(1)
-	except EmptyPage:
-		pagi_posts = paginator.page(paginator.num_pages)
+	queryset = models.Post.objects.blog_queryset(request)
+	sticky_posts = queryset.filter(sticky=True)
+	all_posts = queryset.filter(sticky=False)
+
+	MAX_PAGE = (all_posts.count() - 1) // PAGE_SIZE + 1
+	NEXT_PAGE = PAGE + 1
+	if NEXT_PAGE > MAX_PAGE:
+		NEXT_PAGE = MAX_PAGE
+	PREV_PAGE = PAGE - 1
+	if PREV_PAGE < 1:
+		PREV_PAGE = 1
+
+	next_page_url = '?page=%d' % (NEXT_PAGE,) if PAGE not in [MAX_PAGE] else False
+	prev_page_url = '?page=%d' % (PREV_PAGE,) if PREV_PAGE not in [PAGE] else '/' if PAGE not in [1] else False
+
+	START = (PAGE - 1)* PAGE_SIZE + 1
+	posts = all_posts[START : (START + PAGE_SIZE)]
+	tags = set(tag.name for post in queryset for tag in post.tags.all())
 	context = {
-		'posts': pagi_posts,
+		'sticky_posts': sticky_posts,
+		'posts': posts,
 		'tags': tags,
+		'current_page': PAGE,
+		'prev_page_url': prev_page_url,
+		'next_page_url': next_page_url,
 	}
 	return render_theme(request, 'index.html', context)
 

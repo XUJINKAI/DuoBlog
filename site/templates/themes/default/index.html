@@ -12,19 +12,22 @@
 	list-style: none;
 	padding: 1px 0 0 1px;
 }
-.paginator_div {
-	list-style: none;
-	margin: 0;
-	padding: 0;
+.content_div li {
+	margin-bottom: 25px;
 }
-.paginator_div li {
-	float: left;
-}
-.paginator {
-	/*font-size: larger;*/
-}
-.paginator_current {
+.sticky_posts_tag {
 	color: red;
+}
+a:hover,
+a:focus {
+	text-decoration: none;
+}
+.post_abstract:hover,
+.post_abstract:focus,
+.post_abstract
+{
+	color: black;
+	text-decoration: none;
 }
 .tags_div {
 	list-style: none;
@@ -33,6 +36,18 @@
 }
 .tags_div li {
 	float: left;
+}
+.page-div {
+	padding-top: 5px;
+	padding-right: 20px;
+}
+.page-button {
+	font-size: 1.6em;
+	border-radius: 3px;
+	border-color: black;
+	padding: 5px 19px;
+    background-color: #fff;
+    border: 1px solid #ddd;
 }
 </style>
 {% endblock%}
@@ -46,20 +61,31 @@
 {% endif %}
 <div class="row">
 	<div class="col-md-9">
-		<ul class="paginator_div">
-		{% for page in posts.paginator.page_range %}
-			<li><a class='btn paginator{% if page == posts.number %} paginator_current{% endif %}' href='?page={{ page }}' title='{{ page }}'>{{ page }}</a></li>
-		{% endfor %}
-		</ul>
 		<ul class="content_div">
-			{% for post in posts %}
+			{% if current_page == 1 %}
+			{% for post in sticky_posts %}
 			<li>
-				<h3><a href="{% url 'posts_detail' post.slug %}">{{ post.title }}</a></h3>
-				<span class="text-muted"><script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script></span>
-				<p><i>{{ post.rendered_html | truncatechars_html:200 | striptags }}</i></p>
+				<h3><span class="sticky_posts_tag">[Sticky]</span> <a href="{% url 'posts_detail' post.slug %}">{{ post.title }}</a></h3>
 			</li>
 			{% endfor %}
+			{% endif %}
+			{% for post in posts %}
+			<li><a href="{% url 'posts_detail' post.slug %}">
+				<h3>{{ post.title }}
+				<span class="text-muted" style="font-size: 0.6em;"><script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script></span>
+				</h3>
+				<p class="post_abstract">{{ post.rendered_html | truncatechars_html:250 | striptags }}</p>
+			</a></li>
+			{% endfor %}
 		</ul>
+		<div class="page-div">
+			{% if next_page_url %}
+			<a href="{{ next_page_url }}" class="page-button">← Older</a>
+			{% endif %}
+			{% if prev_page_url %}
+			<a href="{{ prev_page_url }}" class="page-button pull-right">Newer →</a>
+			{% endif %}
+		</div>
 	</div>
 	<div class="col-md-3">
 		<ul class="tags_div">

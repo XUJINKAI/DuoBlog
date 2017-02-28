@@ -299,6 +299,7 @@ Vue.component('note-posts', {
 			API.post_new({
 				status: 'p',
 				content: 'your new post',
+				rendered_html: 'your new html post',
 				content_type: type,
 				tags: [],
 			})
@@ -781,7 +782,7 @@ var note_app = new Vue({
 var API = {
 	post_list: function(filter, callback) {
 		get_data('{% url "api:post-list" %}', filter, function(data){
-			callback(data);
+			if(callback) callback(data);
 		})
 	},
 	post_parameter: function(post){
@@ -799,17 +800,17 @@ var API = {
 	},
 	post_new: function(post, callback){
 		post_data('{% url "api:post-list" %}', API.post_parameter(post), function(data){
-			callback(data);
+			if(callback) callback(data);
 		})
 	},
 	post_update: function(post, callback) {
 		put_data(post.api_url, API.post_parameter(post), function(data){
-			callback(data);
+			if(callback) callback(data);
 		})
 	},
 	post_delete: function(post, callback) {
 		delete_data(post.api_url, {}, function(data){
-			callback(data);
+			if(callback) callback(data);
 		})
 	}
 };
