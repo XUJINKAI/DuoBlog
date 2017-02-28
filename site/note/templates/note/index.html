@@ -657,10 +657,12 @@ Vue.component('note-posts', {
 			<div class="stretch box-col">
 				<input type="input" v-model='post.title' class='post_detail_title border0'></p>
 				<p class="box"><strong>URL</strong><span>: /posts/</span>
-					<input type="text" v-model='post.slug' class="border0 stretch" placeholder="<auto>" /></p>
+					<input type="text" v-model='post.slug' class="border0 stretch" placeholder="<auto>" style='width: 30em;'/>
+					<a :href="post.html_url" target="_blank">Open</a>
+				</p>
 				<div class="stretch">
 					<strong>Tags: </strong>
-					<span v-for='tag in post.tags'>${ tag } X, </span>
+					<span v-for='tag in post.tags'>${ tag } <i class="fa fa-times" aria-hidden="true"></i>, </span>
 					<input type="text" name="" placeholder="Add Tag" class="border0" style="width: 10em;">
 				</div>
 			</div>
@@ -1222,20 +1224,32 @@ var BUS = new Vue({
 
 		reload_post_detail: function(){
 			var self = this;
-			API.post_detail(this.current_post, function(data){
-				self.$data._post_detail = data;
-				setTimeout(function(){
-					self.$data._post_changed = false;
-				}, 0);
-			})
+			var handler = function(){
+				API.post_detail(self.current_post, function(data){
+					self.$data._post_detail = data;
+					setTimeout(function(){
+						self.$data._post_changed = false;
+					}, 0);
+				})
+			}
+			if(self.post_changed) {
+				self.save_post_detail(false, function(){
+					handler();
+				})
+			} else {
+				handler();
+			}
 		},
-		save_post_detail: function(type){
+		save_post_detail: function(type, callback){
 			var self = this;
-			self.post_detail.status = type;
+			if(type) {
+				self.post_detail.status = type;
+			}
 			API.post_update(self.post_detail, function(){
 				self.$data._post_changed = false;
 				self.reload_blog_list();
 				self.reload_post_list();
+				if(callback) callback();
 			})
 		},
 		save_post_detail_public: function(){

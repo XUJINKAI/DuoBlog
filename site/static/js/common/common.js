@@ -53,6 +53,9 @@ function post_data(url, data, success, error, complete) {
 function put_data(url, data, success, error, complete) {
 	return ajax_data('PUT', url, data, success, error, complete);
 }
+function patch_data(url, data, success, error, complete) {
+	return ajax_data('PATCH', url, data, success, error, complete);
+}
 function delete_data(url, data, success, error, complete) {
 	return ajax_data('DELETE', url, data, success, error, complete);
 }
