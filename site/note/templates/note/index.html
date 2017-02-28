@@ -16,6 +16,9 @@
 .y-scroll {
 	overflow-y: auto;
 }
+.y-center {
+	align-items: center;
+}
 .stretch {
 	flex-grow: 1;
 }
@@ -33,6 +36,15 @@
 }
 .padding {
 	padding: 0;
+}
+/**/
+body {
+	overflow: hidden;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
 }
 </style>
 {% endblock %}
@@ -60,12 +72,24 @@ var account_logout = function(){
 
 
 
-
+<style>
+#note-blogs-list-container {
+	height: 100%;
+}
+#note-blogs-list {
+	height: 100%;
+	overflow: auto;
+	padding-right: 15px;
+	border-right: dashed 1px;
+}
+</style>
 <script type="text/x-template" id="note-blogs-template">
-	<div>
+<div id='note-blogs-list-container'>
+	<div id="note-blogs-list">
 		<note-blog-item v-for='blog in blogs' :blog=blog></note-blog-item>
 		<span v-on:click='create'>新建</span>
 	</div>
+</div>
 </script>
 <script>
 Vue.component('note-blogs', {
@@ -84,6 +108,8 @@ Vue.component('note-blogs', {
 		create: function(){
 			BUS.create_new_blog();
 		},
+	},
+	mounted: function(){
 	}
 });
 </script>
@@ -93,25 +119,43 @@ Vue.component('note-blogs', {
 
 
 <style>
-.blog_title_clicked {
-	background-color: red;
+.note-blog-item {
+	margin-bottom: 10px;
 }
+.blog_title {
+	font-size: 1.1em;
+    font-weight: bolder;
+    text-decoration: underline;
+}
+.blog_title:hover,
+.blot_btn:hover {
+	cursor: pointer;
+}
+.blog_title_clicked,
 .blog_btn_clicked {
-	background-color: pink;
+	background-color: rgba(135, 138, 142, 0.23);
+}
+.blog_btn_ul {
+	list-style-type: none;
+	margin: 0;
+    padding: 0;
+}
+.blog_btn_ul li {
+	padding-left: 20px;
 }
 </style>
 <script type="text/x-template" id="note-blog-item-template">
-	<div>
+	<div class="note-blog-item">
 		<div>
-			<span v-on:click='btn_click("setting")' :class="{blog_title_clicked: btn_clicked('setting')}">${ blog.name }</span>
-			<a :href="'//' + blog.url" target="_blank" class="pull-right">open</a>
+			<span v-on:click='btn_click("setting")' :class="{blog_title_clicked: btn_clicked('setting')}" class="blog_title">${ blog.name }</span>
+			<a :href="'//' + blog.url" target="_blank" style="margin-left: 10px;"><i class="fa fa-external-link" aria-hidden="true"></i></a>
 		</div>
-		<ul>
-			<li v-on:click='btn_click("posts")' :class="{blog_btn_clicked: btn_clicked('posts')}">博文 (${ blog.post_count })</li>
-			<li v-on:click='btn_click("draft")' :class="{blog_btn_clicked: btn_clicked('draft')}">草稿 (${ blog.draft_count })</li>
-			<li v-on:click='btn_click("trash")' :class="{blog_btn_clicked: btn_clicked('trash')}">废纸篓(${ blog.trash_count })</li>
-			<li v-on:click='btn_click("comment")' :class="{blog_btn_clicked: btn_clicked('comment')}">评论 (${ blog.comment_count })</li>
-			<li v-on:click='btn_click("navs")' :class="{blog_btn_clicked: btn_clicked('navs')}">导航</li>
+		<ul class="blog_btn_ul">
+			<li v-on:click='btn_click("posts")' :class="{blog_btn_clicked: btn_clicked('posts')}" class="blot_btn">博文 (${ blog.post_count })</li>
+			<li v-on:click='btn_click("draft")' :class="{blog_btn_clicked: btn_clicked('draft')}" class="blot_btn">草稿 (${ blog.draft_count })</li>
+			<li v-on:click='btn_click("trash")' :class="{blog_btn_clicked: btn_clicked('trash')}" class="blot_btn">废纸篓(${ blog.trash_count })</li>
+			<li v-on:click='btn_click("comment")' :class="{blog_btn_clicked: btn_clicked('comment')}" class="blot_btn">评论 (${ blog.comment_count })</li>
+			<li v-on:click='btn_click("navs")' :class="{blog_btn_clicked: btn_clicked('navs')}" class="blot_btn">导航</li>
 		</ul>
 	</div>
 </script>
@@ -287,57 +331,218 @@ Vue.component('navs-item', {
 
 
 
+<style>
+.filter-tags-container ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.filter-tags-container ul li {
+	margin-left: 5px;
+}
+.filter-tags-container .clear_tags {
+	margin-left: 10px; 
+	text-decoration: 
+	underline; 
+	color: gray;
+}
+.filter-tags-container ul li,
+.filter-tags-container .clear_tags:hover {
+	cursor: pointer;
+}
+</style>
+<script type="text/x-template" id="filter-tags-template">
+	<div class="filter-tags-container">
+		<span style="font-weight: bolder;">Tags: </span>
+		<span v-on:click='clear_tags' class='clear_tags'>Clear</span>
+		<ul>
+			<li v-for='tag in tags'>
+				<input type="checkbox" :id="tag.name" :value='tag' v-model='selected_tags'>
+				<span :for='tag.name' v-on:click='select_tag(tag);'>${ tag.name } ${ tag.count }</span>
+			</li>
+		</ul>
+	</div>
+</script>
+<script>
+Vue.component('filter-tags', {
+	delimiters: ['${', '}'],
+	template: '#filter-tags-template',
+	data: function(){
+		return {
+			selected_tags: [],
+		}
+	},
+	props: {
+		tags: Array,
+	},
+	methods: {
+		clear_tags: function(){
+			this.selected_tags = [];
+		},
+		select_tag: function(tag){
+			this.clear_tags();
+			this.selected_tags = [tag];
+		},
+	}
+});
+</script>
+
+
+
+
 
 
 <style>
-.select_post {
+.post-list-container {
+	height: 100%;
+}
+.post-list-container .post-order {
+	flex: 0 0 1.6em;
+}
+.post-list-container .post-list {
+	flex: 1;
+	overflow-y: scroll;
+}
+.post-list-container ul.post-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.post-list-container ul.post-list li {
+	height: 100px;
+	border: solid 1px rgba(77, 79, 77, 0.27);
+	margin-bottom: 2px;
+}
+.post-list-container .selected_post {
 	background-color: #d9d9d9;
+}
+.post-list-container .post-list li input {
+	display: none;
+}
+</style>
+<script type="text/x-template" id="post-list-template">
+<div class="post-list-container box-col">
+	<div class="post-order box" style="justify-content: space-between;">
+		<input type="checkbox" v-on:click='select_all' :bind='is_select_all'>
+		<span :class='{bolder: order_by=="title"}'>Title <span v-if='order_by=="title"'>${ order_asc?'↑':'↓'}</span></span>
+		<span :class='{bolder: order_by=="create"}'>Create <span v-if='order_by=="create"'>${ order_asc?'↑':'↓'}</span></span>
+		<span :class='{bolder: order_by=="modify"}'>Modify <span v-if='order_by=="modify"'>${ order_asc?'↑':'↓'}</span></span>
+	</div>
+	<ul class="post-list">
+		<li v-for='post in posts' class="post-item"
+			v-on:click='select_post($event, post)'
+			:class='{selected_post: is_selected(post)}'>
+			<input type="checkbox" value='post' v-model='selected_posts'>
+			<p>${ post.title }</p>
+			<!-- <span>${ post.last_modified_time }</span> -->
+		</li>
+	</ul>
+</div>
+</script>
+<script>
+Vue.component('post-list', {
+	delimiters: ['${', '}'],
+	template: '#post-list-template',
+	data: function(){
+		return {
+			selected_posts: [],
+			order_by: 'create',
+			order_asc: false,
+		}
+	},
+	props: {
+		posts: Array,
+	},
+	computed: {
+		is_select_all: function(){
+			return this.posts.every(this.is_selected);
+		}
+	},
+	methods: {
+		selected_changed: function(){
+			this.$emit('select_changed', this.selected_posts);
+		},
+		is_selected: function(post){
+			return this.selected_posts.includes(post);
+		},
+		select_all: function() {
+			if(this.is_select_all) {
+				this.selected_posts = [];
+			} else {
+				this.selected_posts = this.posts;
+			}
+		},
+		select_post: function(event, post){
+			if(event.ctrlKey) {
+				if(this.is_selected(post)) {
+					this.selected_posts.remove(post);
+				} else {
+					this.selected_posts.push(post);
+				}
+			} else {
+				this.selected_posts = [post];
+			}
+			this.selected_changed();
+		},
+	}
+});
+</script>
+
+
+
+
+<script type="text/x-template" id="note-post-multi-opt-template">
+</script>
+<script>
+Vue.component('note-post-multi-opt', {
+	delimiters: ['${', '}'],
+	template: '#note-post-multi-opt',
+});
+</script>
+
+
+
+
+
+<style>
+.note-posts-container .posts-filter {
+	height: 100%;
+	flex: 0 0 150px;
+}
+.note-posts-container .new-post {
+	flex: 0 0 34px;
+}
+.note-posts-container .new-post button {
+	flex: 1;
+	margin-bottom: 10px;
+}
+.note-posts-container .posts-list {
+	height: 100%;
+	flex: 0 0 200px;
+}
+.note-posts-container .posts-detail {
+	height: 100%;
+	width: 100%;
+	padding: 0 0 0 20px;
+	flex: 1;
 }
 </style>
 <script type="text/x-template" id="note-posts-template">
-	<div class="note-posts box stretch full-height">
-		<div class="posts-tags stretch full-height" 
-		style="
-			height: 100%;
-			min-width: 150px;
-			max-width: 150px;">
-			<span v-on:click='clear_select_tags'>Clear</span>
-			<ul class="">
-				<li v-for='obj in tags'>
-					<input type="checkbox" :id="obj.name" :value='obj' v-model='selected_tags'>
-					<span :for='obj.name' v-on:click='select_tag(obj);'>${ obj.name } ${ obj.count }</span>
-				</li>
-			</ul>
+	<div class="note-posts-container box stretch full-height">
+		<div class="posts-filter stretch full-height">
+			<filter-tags :tags='tags'></filter-tags>
 		</div>
-		<div class="posts-list stretch box-col" 
-		style="
-			height: 100%;
-			min-width: 200px;
-			max-width: 200px;
-		">
-			<div class="box">
-				<span class="stretch" v-on:click='new_markdown'>New Markdown</span>
-				<span class="stretch" v-on:click='new_html'>New HTML</span>
+		<div class="posts-list stretch box-col">
+			<div class="new-post box">
+				<span>New: </span>
+				<button class="stretch" v-on:click='new_markdown'>Markdown</button>
+				<button class="stretch" v-on:click='new_html'>HTML</button>
 			</div>
-			<div class="box" style="justify-content: space-between;">
-				<span :class='{bolder: order_by=="title"}'>Title <span v-if='order_by=="title"'>${ order_asc?'↑':'↓'}</span></span>
-				<span :class='{bolder: order_by=="create"}'>Create <span v-if='order_by=="create"'>${ order_asc?'↑':'↓'}</span></span>
-				<span :class='{bolder: order_by=="modify"}'>Modify <span v-if='order_by=="modify"'>${ order_asc?'↑':'↓'}</span></span>
-			</div>
-			<ul style="overflow-y: scroll;">
-				<li v-for='post in posts' v-on:click='select_post(post)' class="post-item" :class='{select_post: post==selected_post}' style="height: 70px;">
-					<p>${ post.title }</p>
-					<!-- <span>${ post.last_modified_time }</span> -->
-				</li>
-			</ul>
+			<post-list class='post-list-component stretch' :posts='posts' v-on:select_changed='selected_posts_change'></post-list>
 		</div>
-		<div class="posts-content stretch box-col" 
-		style="
-			height: 100%;
-			width: 100%;
-			padding: 0 0 0 20px;
-			">
-			<note-post-detail></note-post-detail>
+		<div class="posts-detail stretch">
+			<note-post-detail v-if='select_one_post'></note-post-detail>
+			<note-post-multi-opt v-if='select_multi_post'></note-post-multi-opt>
 		</div>
 	</div>
 </script>
@@ -393,6 +598,12 @@ Vue.component('note-posts', {
 			})
 			return _.orderBy(tags_coll, ['count', 'name'], ['desc', 'asc'])
 		},
+		select_one_post: function(){
+			return true;
+		},
+		select_multi_post: function(){
+			return false;
+		},
 	},
 	props: {
 	},
@@ -404,17 +615,17 @@ Vue.component('note-posts', {
 			BUS.select_post(post);
 		},
 		new_markdown: function(){
-			this.create_new_post('m');
+			BUS.create_new_post('m');
 		},
 		new_html: function(){
-			this.create_new_post('h');
+			BUS.create_new_post('h');
 		},
-		clear_select_tags: function(){
-			this.selected_tags = [];
-		},
-		select_tag: function(obj){
-			this.clear_select_tags();
-			this.selected_tags = [obj];
+		selected_posts_change: function(posts){
+			if(posts.length == 1) {
+				BUS.select_post(posts[0]);
+			} else {
+				BUS.select_post = [];
+			}
 		},
 	},
 });
@@ -422,14 +633,26 @@ Vue.component('note-posts', {
 
 
 
+
+
+
+
 <style>
+.post-detail-container {
+	height: 100%;
+}
 .post_detail_title {
     font-size: x-large;
     font-weight: bolder;
 }
+.note-post-editor-component {
+	flex: 1;
+	overflow: overlay;
+	margin-top: 1.2em;
+}
 </style>
 <script type="text/x-template" id="note-post-detail-template">
-	<div v-if='post' class="box-col">
+	<div v-if='post' class="post-detail-container box-col">
 		<div class="box">
 			<div class="stretch box-col">
 				<input type="input" v-model='post.title' class='post_detail_title border0'></p>
@@ -450,16 +673,14 @@ Vue.component('note-posts', {
 				<p>创建 ${ create_time }</p>
 				<p>修改 ${ last_modified_time }</p>
 				<p>
+					<input type="checkbox" v-model='post.comments'>
+					<span v-on:click='post.comments=!post.comments'>Comments</span>
 					<input type="checkbox" v-model='post.sticky'>
 					<span v-on:click='post.sticky=!post.sticky'>Sticky</span>
 				</p>
-				<p>
-					<input type="checkbox" v-model='post.comments'>
-					<span v-on:click='post.comments=!post.comments'>Comments</span>
-				</p>
 			</div>
 		</div>
-		<note-post-editor :model='post' style='flex: 1; overflow: overlay; padding-top: 1.2em;'></note-post-editor>
+		<note-post-editor :model='post' class='note-post-editor-component'></note-post-editor>
 	</div>
 </script>
 <script>
@@ -565,7 +786,7 @@ var RENDER_MARKDOWN = function(md){
 			<span v-on:click='show("editor")' :class="{bolder: show_editor&&!show_html}">Markdown</span>
 			<span v-on:click='show("split")' :class="{bolder: show_editor&&show_html}">Split</span>
 			<span v-on:click='show("html")' :class="{bolder: !show_editor&&show_html}">Rendered</span>
-			<span v-on:click='full_screen' style="float: right;">full-screen</span>
+			<span v-on:click='full_screen' style="float: right;"><i class="fa fa-arrows-alt" aria-hidden="true"></i></span>
 		</div>
 		<div class="stretch box" style="padding-top: 1em;">
 			<textarea v-if='show_editor' id="editor-md-textarea" 
@@ -688,7 +909,7 @@ var EDIT_HTML = function(id, change) {
 }
 </style>
 <script type="text/x-template" id="note-post-editor-html-template">
-	<div style="height: 100%;">
+	<div style="height: 100%; overflow: hidden;">
 		<div id="note-post-editor-html-container">
 		</div>
 	</div>
@@ -768,13 +989,16 @@ var app = new Vue({
 {% endblock %}
 {% block content %}
 <div id="note_wrapper" class="box-col">
-	<div id="note_header" class="stretch">
-		Blog | search
-		<span class="pull-right">
-			<a href='{% url "manage:index" %}'>Admin</a> | Account</span>
+	<div id="note_header" class="stretch box y-center">
+		<a href='{% url "note:index" %}' style="font-weight: bolder; color: black;">Note</a>
+		<!-- <input type="" name="" placeholder="Search//TODO" style="margin-left: 20px;"> -->
+		<span style="margin-right: 20px;">
+			<a href='{% url "manage:index" %}' style="margin-right: 20px;"><i class="fa fa-wrench" aria-hidden="true"></i>Admin</a>
+			<a href='{% url "accounts_index" %}'><i class="fa fa-user-circle-o" aria-hidden="true"></i> {{ request.user.username }}</a>
+		</span>
 	</div>
 	<div id="note_body" class="stretch box">
-		<div id="note_left" class="y-scroll">
+		<div id="note_left">
 			<note-blogs></note-blogs>
 		</div>
 		<div id="note_right" class="stretch">
@@ -791,12 +1015,20 @@ var app = new Vue({
 	height: 100vh;
 }
 #note_header {
-	min-height: 50px;
-	max-height: 50px;
+	flex: 0 0 32px;
+	border-bottom: 1px dashed #777777;
+	padding-bottom: 2px;
+	justify-content: space-between;
+}
+#note_body {
+	margin-top: 10px;
 }
 #note_left {
-	min-width: 140px;
-	max-width: 140px;
+	flex: 0 0 180px;
+}
+#note_right {
+	flex: 1;
+	padding-left: 5px;
 }
 </style>
 {% endblock %}
@@ -876,7 +1108,7 @@ var BUS = new Vue({
 		_post_list: [],
 		_post__slug: '',
 
-		_post_detail: {},
+		_post_detail: null,
 		_post_changed: false,
 	},
 	computed: {

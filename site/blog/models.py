@@ -76,7 +76,7 @@ class Blog(models.Model):
 	@classmethod
 	def create_new(cls):
 		domain = get_random_id(8)
-		name = 'MultBlog+' + get_random_id(3)
+		name = 'MultBlog_' + get_random_id(3)
 		blog = Blog.objects.create(domain=domain, name=name, navs=DEFAULT_NAVS())
 		return blog
 
