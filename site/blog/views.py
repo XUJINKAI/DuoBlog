@@ -27,9 +27,38 @@ def render_theme(request, page_name, ctx=None):
 	return render(request, render_page, ctx)
 
 
+def Paginator(page, total_count, page_size):
+	max_page = (total_count - 1) // page_size + 1
+	if max_page < 1:
+		max_page = 1
+
+	if page:
+		page = int(page)
+	else:
+		page = 1
+	if page < 1:
+		page = 1
+
+	if page >= max_page:
+		next_page = False
+	else:
+		next_page = page + 1
+
+	if page <= 1:
+		prev_page = False
+	elif page > max_page:
+		prev_page = max_page
+	else:
+		prev_page = page - 1
+
+	start = (page - 1) * page_size
+	end = start + page_size
+	# print(page, max_page, next_page, prev_page, start, end)
+	return (page, max_page, next_page, prev_page, start, end)
+
+
 def blog_index(request):
 	PAGE_SIZE = 10
-	PAGE = int(request.GET.get('page', 1))
 
 	blog = get_current_blog(request)
 	if not blog:
@@ -38,19 +67,11 @@ def blog_index(request):
 	sticky_posts = queryset.filter(sticky=True)
 	all_posts = queryset.filter(sticky=False)
 
-	MAX_PAGE = (all_posts.count() - 1) // PAGE_SIZE + 1
-	NEXT_PAGE = PAGE + 1
-	if NEXT_PAGE > MAX_PAGE:
-		NEXT_PAGE = MAX_PAGE
-	PREV_PAGE = PAGE - 1
-	if PREV_PAGE < 1:
-		PREV_PAGE = 1
-
-	next_page_url = '?page=%d' % (NEXT_PAGE,) if PAGE not in [MAX_PAGE] else False
-	prev_page_url = '?page=%d' % (PREV_PAGE,) if PREV_PAGE not in [PAGE] else '/' if PAGE not in [1] else False
-
-	START = (PAGE - 1)* PAGE_SIZE
-	posts = all_posts[START : (START + PAGE_SIZE)]
+	PAGE, MAX_PAGE, NEXT_PAGE, PREV_PAGE, START, END = Paginator(request.GET.get('page'), all_posts.count(), PAGE_SIZE)
+	next_page_url = '?page=%d' % (NEXT_PAGE,) if NEXT_PAGE else False
+	prev_page_url = '?page=%d' %(PREV_PAGE) if PREV_PAGE else False
+	prev_page_url = '/' if PREV_PAGE == 1 else prev_page_url
+	posts = all_posts[START : END]
 	tags = set(tag.name for post in queryset for tag in post.tags.all())
 	context = {
 		'sticky_posts': sticky_posts,

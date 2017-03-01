@@ -4,4 +4,9 @@ venv
 *.sqlite
 *.sqlite3
 
+
 site/data/*
+!site/data/uploads
+
+site/data/uploads/*
+!site/data/uploads/favicon.ico
