@@ -3,6 +3,5 @@ venv
 
 *.sqlite
 *.sqlite3
-admin.txt
 
-site/data
+site/data/*

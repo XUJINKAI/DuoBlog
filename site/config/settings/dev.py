@@ -13,8 +13,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # all user data saved here
 USER_DATA_DIR = os.path.join(BASE_DIR, 'data')
 
@@ -136,8 +135,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
+# all url for static has this prefix
 STATIC_URL = '/static/'
+# custom, for uploads
+UPLOADS_URL = '/uploads/'
 
+# search dirs
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
     os.path.join(USER_DATA_DIR, "uploads"),

@@ -1,0 +1,1 @@
+venv\Scripts\activate && cd site && python manage.py runserver 0.0.0.0:80 --settings=config.settings.prod && cmd
