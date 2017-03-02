@@ -1,1 +1,0 @@
-venv\Scripts\activate && cd ./site && python manage.py test && pause

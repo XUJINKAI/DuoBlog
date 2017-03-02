@@ -4,9 +4,14 @@ venv
 *.sqlite
 *.sqlite3
 
+site/static
 
 site/data/*
 !site/data/uploads
+!site/data/themes
 
 site/data/uploads/*
 !site/data/uploads/favicon.ico
+
+site/data/themes/*
+!site/data/themes/README.md

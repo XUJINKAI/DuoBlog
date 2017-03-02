@@ -14,11 +14,16 @@ from . import managers
 from . import shortcuts
 
 # Create your models here.
+BLOG_ACCESS = (
+	('a', 'Anyone'),
+	('l', 'Login'),
+	('x', 'Close'),
+	)
 BLOG_COMMENTS = (
 	('a', 'Anyone'),
 	('l', 'Login'),
 	('x', 'Close'),
-	('d', 'disqus'),
+	('s', 'Custom'),
 	)
 POST_CONTENT_TYPE = (
 	('m', 'markdown'),
@@ -32,6 +37,8 @@ POST_STATUS = (
 POST_TITLE_TRUNC = 32
 
 def DEFAULT_NAVS():
+	return json.dumps([])
+	# example
 	return json.dumps([
 		{'name': 'Work', 'url': '/posts/?tags=work'},
 		{'name': 'Life', 'url': '#', 'sub': [
@@ -46,25 +53,23 @@ def get_random_id(length):
 	return get_random_string(length=length, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789')
 
 class Blog(models.Model):
+	accessibility = models.CharField(max_length=1, choices=BLOG_ACCESS, default='a')
 	domain = models.CharField(max_length=100, unique=True, \
 		help_text="Only this domain can access this blog")
-	name = models.CharField(max_length=50)
 
+	name = models.CharField(max_length=50)
+	desc = models.CharField(max_length=140, default='This is my new blog.', blank=True)
+	navs = models.TextField(default='[]', blank=True)
 	theme = models.CharField(max_length=16, default='default')
-	default_editor = models.CharField(max_length=1, choices=POST_CONTENT_TYPE, default='m')
+
 	rss = models.BooleanField(default=True)
 	sitemap = models.BooleanField(default=True)
 	comments = models.CharField(max_length=1, choices=BLOG_COMMENTS, default='a')
 
-	google_analytics_id = models.CharField(max_length=16, null=True, blank=True)
-	disqus_id = models.CharField(max_length=32, null=True, blank=True)
+	head_html = models.TextField(default='', blank=True)
+	body_html = models.TextField(default='', blank=True)
+	custom_comment_html = models.TextField(default='', blank=True)
 
-	desc = models.CharField(max_length=140, default='this is my new blog via MultBlog', blank=True)
-	navs = models.CharField(max_length=1024, default='', blank=True)
-	'''
-	html_header
-	html_tail
-	'''
 
 	def __str__(self):
 		return self.domain
@@ -123,7 +128,7 @@ class Post(models.Model):
 
 	def save(self, *args, **kwargs):
 		if self.title.isspace() or self.title is '':
-			self.title = strip_tags(self.content)[:POST_TITLE_TRUNC].strip() + '...'
+			self.title = strip_tags(self.rendered_html)[:POST_TITLE_TRUNC].strip() + '...'
 		self.title = self.title.strip()
 		if self.slug.isspace() or self.slug is '':
 			self.slug = self.get_auto_slug()

@@ -13,21 +13,24 @@ from blog import models
 from blog.shortcuts import get_current_blog
 
 
+def note_view(request):
+	return render(request, 'note/index.html')
+
 def get_manage_context():
 	context = {}
 	context['menu'] = (
 		# name, url, submenu
-		('Dashboard', reverse('manage:dashboard'), None),
-		('Posts', reverse('manage:posts'), None),
-		('Pages', reverse('manage:pages'), None),
-		('Comments', reverse('manage:comments'), None),
-		('Blogs', reverse('manage:blogs'), None),
+		('Dashboard', reverse('manage_dashboard'), None),
+		('Posts', reverse('manage_posts'), None),
+		('Pages', reverse('manage_pages'), None),
+		('Comments', reverse('manage_comments'), None),
+		('Blogs', reverse('manage_blogs'), None),
 		('Tools', None, (
-			('Import Jekyll', reverse('manage:import_jekyll'), None),
-			('Export Jekyll', reverse('manage:export_jekyll'), None),
+			('Import Jekyll', reverse('manage_import_jekyll'), None),
+			('Export Jekyll', reverse('manage_export_jekyll'), None),
 			),
 		),
-		('About', reverse('manage:about'), None),
+		('About', reverse('manage_about'), None),
 	)
 	context['blogs'] = models.Blog.objects.all()
 	return context
@@ -54,7 +57,7 @@ def dashboard_view(request):
 	blogs = models.Blog.objects.all()
 	if not blogs:
 		infos.append({
-			'msg': 'No blog exists. <a href="%s">Create</a>' % (reverse('manage:blogs'))
+			'msg': 'No blog exists. <a href="%s">Create</a>' % (reverse('manage_blogs'))
 			})
 	context['infos'] = infos
 	return render(request, 'manage/dashboard.html', context)
@@ -108,7 +111,7 @@ class PagesEditView(ManageContextMixin, generic.TemplateView):
 			form = forms.PageForm(request.POST)
 		if form.is_valid():
 			form.save()
-			return HttpResponseRedirect(reverse('manage:pages'))
+			return HttpResponseRedirect(reverse('manage_pages'))
 		else:
 			return HttpResponseBadRequest('form invalid')
 
@@ -136,14 +139,14 @@ def blogs_view(request, blog_pk=None):
 		blog = models.Blog.objects.first()
 	if not blog:
 		blog = models.Blog.create_new()
-		return HttpResponseRedirect(reverse('manage:blogs', args=[blog.id]))
+		return HttpResponseRedirect(reverse('manage_blogs', args=[blog.id]))
 	context = get_manage_context()
 
 	if request.method == 'POST':
 		form = forms.BlogForm(request.POST, instance=blog)
 		if form.is_valid():
 			form.save()
-			return HttpResponseRedirect(reverse('manage:blogs', args=[blog.id]))
+			return HttpResponseRedirect(reverse('manage_blogs', args=[blog.id]))
 	else:
 		form = forms.BlogForm(instance=blog)
 
@@ -156,17 +159,17 @@ def blogs_view(request, blog_pk=None):
 @require_http_methods(['POST'])
 def blogs_create_view(request):
 	blog = models.Blog.create_new()
-	return HttpResponseRedirect(reverse('manage:blogs', args=[blog.id]))
+	return HttpResponseRedirect(reverse('manage_blogs', args=[blog.id]))
 
 @require_http_methods(['POST'])
 def blogs_delete_view(request, blog_pk):
 	blog = models.Blog.objects.get(pk=blog_pk)
 	blog.delete()
-	return HttpResponseRedirect(reverse('manage:blogs'))
+	return HttpResponseRedirect(reverse('manage_blogs'))
 
 @require_http_methods(['POST'])
 def blogs_navs_view(request, blog_pk):
 	blog = models.Blog.objects.get(pk=blog_pk)
 	blog.navs = request.POST.get('navs_json', '')
 	blog.save()
-	return HttpResponseRedirect(reverse('manage:blogs'))
+	return HttpResponseRedirect(reverse('manage_blogs'))

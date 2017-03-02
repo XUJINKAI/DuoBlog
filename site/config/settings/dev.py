@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'accounts',
     'api',
     'blog',
-    'note',
     'management',
 ]
 
@@ -73,7 +72,6 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -140,11 +138,9 @@ STATIC_URL = '/static/'
 # custom, for uploads
 UPLOADS_URL = '/uploads/'
 
-# search dirs
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-    os.path.join(USER_DATA_DIR, "uploads"),
-]
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+UPLOADS_ROOT = os.path.join(USER_DATA_DIR, "uploads")
+
 
 
 REST_FRAMEWORK = {

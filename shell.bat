@@ -1,1 +1,0 @@
-venv\Scripts\activate && python site/manage.py shell

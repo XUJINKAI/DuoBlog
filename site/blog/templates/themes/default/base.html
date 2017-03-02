@@ -117,17 +117,13 @@ p.text-muted {
 {% block body %}
 		<div class="wrapper">
 		<header>
-		<nav class="" role="navigation" style="margin-bottom: 0; padding: 30px;">
+		<nav class="container" role="navigation" style="margin-top: 20px; margin-bottom: 0;">
 			<ul class="nav navbar-nav" style="margin: 5px 0 0 5px;">
 				<a href="/"><span style="font-size: 47px; font-weight: bold; color: #585858;">{{ blog.name }}</span></a>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-				{% if request.user.is_superuser %}
-				<li><a href="{% url 'manage:index' %}"><i class="fa fa-wrench staff_btn"></i></a></li>
-				<li><a href="{% url 'my_page' 'create' %}"><i class="fa fa-plus staff_btn" aria-hidden="true"></i></a></li>
-				<li><a href="{% url 'my_page' 'draft' %}" class="staff_btn">草稿箱</a></li>
-				{% endif %}
 				<li><a href="{% url 'index' %}">首页</a></li>
+				<li><a href="{% url 'posts_list' %}">存档</a></li>
 				{% if navs %}
 					{% for nav in navs %}
 						{% if nav.sub %}
@@ -164,7 +160,7 @@ p.text-muted {
 						<span><a href="{% url 'account_login' %}">登录</span>
 						{% endif %}
 						{% if request.user.is_superuser %}
-						<span><a href="{% url 'manage:index' %}" class="staff_btn">管理</a></span>
+						<span><a href="{% url 'manage_index' %}" class="staff_btn">管理</a></span>
 						{% endif %}
 						<span><a href="/" class="staff_btn" style="margin-left: 8px;"><i class="fa fa-rss" aria-hidden="true"></i> 订阅</a></span>
 					</span>
