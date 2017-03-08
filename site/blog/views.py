@@ -9,6 +9,7 @@ from collections import Counter
 
 from . import models
 from .shortcuts import get_current_blog
+from .helpers import Paginator
 
 # Create your views here.
 def render_theme(request, page_name, ctx=None):
@@ -25,36 +26,6 @@ def render_theme(request, page_name, ctx=None):
 	except:
 		ctx['navs'] = []
 	return render(request, render_page, ctx)
-
-
-def Paginator(page, total_count, page_size):
-	max_page = (total_count - 1) // page_size + 1
-	if max_page < 1:
-		max_page = 1
-
-	if page:
-		page = int(page)
-	else:
-		page = 1
-	if page < 1:
-		page = 1
-
-	if page >= max_page:
-		next_page = False
-	else:
-		next_page = page + 1
-
-	if page <= 1:
-		prev_page = False
-	elif page > max_page:
-		prev_page = max_page
-	else:
-		prev_page = page - 1
-
-	start = (page - 1) * page_size
-	end = start + page_size
-	# print(page, max_page, next_page, prev_page, start, end)
-	return (page, max_page, next_page, prev_page, start, end)
 
 
 def blog_index(request):
@@ -138,3 +109,9 @@ def page_view(request, url):
 	except:
 		raise Http404
 	return render_theme(request, 'pages_template.html', {'page': page})
+
+
+def favicon(request):
+	blog = get_current_blog(request)
+	ico_path = UPLOADS_DIR, 'favicon', blog.pk ".ico"
+	return ...

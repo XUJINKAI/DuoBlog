@@ -18,10 +18,8 @@ from django.contrib import admin
 
 urlpatterns = [
     url('', include('blog.urls')),
-    url(r'^comments/', include('django_comments.urls')),
-    url(r'^manage/', include('management.urls')),
     url(r'^api/', include('api.urls')),
     url(r'^account/', include('accounts.urls')),
     url(r'^account/', include('allauth.account.urls')),
-    url(r'^admin-ori/', admin.site.urls),
+    url(r'^admin/', admin.site.urls),
 ]

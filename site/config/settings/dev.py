@@ -48,11 +48,9 @@ INSTALLED_APPS = [
     # 'rest_framework_swagger',
     'crispy_forms',
     'taggit',
-    'django_comments',
     'accounts',
     'api',
     'blog',
-    'management',
 ]
 
 MIDDLEWARE = [

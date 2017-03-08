@@ -1,7 +1,17 @@
 API Design:
+要点：
+登录与否，应该只影响权限，尽量与展示的项目无关，避免登录以后就能看到更多项目这种事发生，要看到更多内容应该访问不同的地址。
+
 
 ROOT:
-/blogs/
+
+Admin
+/blogs/			GET
+				POST
+/blogs/<pk>		GET, PUT, DEL
+
+
+Admin
 /posts/
 
 

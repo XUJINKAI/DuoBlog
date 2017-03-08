@@ -18,12 +18,13 @@ BLOG_ACCESS = (
 	('a', 'Anyone'),
 	('l', 'Login'),
 	('x', 'Close'),
+	('p', 'Password'),
 	)
 BLOG_COMMENTS = (
 	('a', 'Anyone'),
 	('l', 'Login'),
 	('x', 'Close'),
-	('s', 'Custom'),
+	('c', 'Custom'),
 	)
 POST_CONTENT_TYPE = (
 	('m', 'markdown'),
@@ -54,6 +55,8 @@ def get_random_id(length):
 
 class Blog(models.Model):
 	accessibility = models.CharField(max_length=1, choices=BLOG_ACCESS, default='a')
+	access_password = models.CharField(max_length=20, default='', null=True, \
+		help_text='Need if accessibility=p')
 	domain = models.CharField(max_length=100, unique=True, \
 		help_text="Only this domain can access this blog")
 
@@ -64,11 +67,17 @@ class Blog(models.Model):
 
 	rss = models.BooleanField(default=True)
 	sitemap = models.BooleanField(default=True)
+	
 	comments = models.CharField(max_length=1, choices=BLOG_COMMENTS, default='a')
+	custom_comment_html = models.TextField(default='', blank=True, \
+		help_text='work if comments=c')
 
-	head_html = models.TextField(default='', blank=True)
-	body_html = models.TextField(default='', blank=True)
-	custom_comment_html = models.TextField(default='', blank=True)
+	head_html = models.TextField(default='', blank=True, \
+		help_text='insert to tail of head')
+	body_html = models.TextField(default='', blank=True, \
+		help_text='insert to tail of body')
+	custom_theme_area_html = models.TextField(default='', blank=True, \
+		help_text='insert to place theme defined')
 
 
 	def __str__(self):
@@ -102,7 +111,7 @@ class Post(models.Model):
 	blog = models.ForeignKey(Blog)
 
 	author = models.ForeignKey(settings.AUTH_USER_MODEL)
-	title = models.CharField(max_length=70, blank=True)
+	title = models.CharField(max_length=70, blank=True, default='')
 	content = models.TextField(default='')
 	content_type = models.CharField(max_length=1, choices=POST_CONTENT_TYPE)
 	rendered_html = models.TextField()
@@ -123,12 +132,17 @@ class Post(models.Model):
 	def __str__(self):
 		return self.title
 
+	def abstract(self):
+		if self.title.isspace() or self.title is '':
+			return strip_tags(self.rendered_html)[:POST_TITLE_TRUNC].strip() + '...'
+		else:
+			return self.title
+
+
 	class Meta:
 		ordering = ['-create_time', '-last_modified_time']
 
 	def save(self, *args, **kwargs):
-		if self.title.isspace() or self.title is '':
-			self.title = strip_tags(self.rendered_html)[:POST_TITLE_TRUNC].strip() + '...'
 		self.title = self.title.strip()
 		if self.slug.isspace() or self.slug is '':
 			self.slug = self.get_auto_slug()
