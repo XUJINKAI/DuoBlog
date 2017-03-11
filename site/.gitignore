@@ -1,0 +1,13 @@
+venv
+
+static
+
+data/*
+!data/uploads
+!data/themes
+
+data/uploads/*
+!data/uploads/favicon.ico
+
+data/themes/*
+!data/themes/README.md
