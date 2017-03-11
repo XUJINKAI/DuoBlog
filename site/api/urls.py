@@ -16,6 +16,12 @@ router.register(r'posts', PostViewSet)
 
 urlpatterns = [
 	url(r'^', include(router.urls)),
+	# session
+	# users
+	# blogs/<pk>/tags	GET
+	# tags				GET
+	# posts/<slug>/comments
+	# comments
 	url(r'^img/', img_view),
 	# url(r'^', include('rest_framework.urls')),
 ]
