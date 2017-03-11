@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import {BUS, API} from './API/BUS'
+import BUS from './API/BUS'
 
 Vue.config.productionTip = false
 window.DEBUG = true;
@@ -18,5 +18,4 @@ window.app = new Vue({
 
 if(DEBUG) {
 	window.BUS = BUS;
-	window.API = API;
 }

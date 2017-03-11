@@ -1,1 +1,1 @@
-venv\Scripts\activate && python site/manage.py runserver 0.0.0.0:80 && cmd
+venv\Scripts\activate && python manage.py runserver 0.0.0.0:80 && cmd

@@ -1,15 +1,13 @@
 <template>
 	<div class="blogs-list">
-		<BlogItem v-for='blog in blogs_list' :blog='blog' :key='blog.pk'></BlogItem>
-		<router-view></router-view>
-		<p>
-			Blogs {{ $route.params.pk }} {{ $route.params }}
-		</p>
+		<BlogNavs :blogs='blogs_list'></BlogNavs>
+		<BlogList></BlogList>
 	</div>
 </template>
 
 <script>
-import BlogItem from './BlogItem'
+import BlogNavs from './Blogs/BlogNavs'
+import BlogList from './Blogs/BlogList'
 
 export default {
 	data: function() {
@@ -22,7 +20,8 @@ export default {
 		}
 	},
 	components: {
-		BlogItem
+		BlogNavs,
+		BlogList,
 	}
 }
 </script>

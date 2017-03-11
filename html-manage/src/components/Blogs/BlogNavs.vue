@@ -1,11 +1,11 @@
 <template>
 	<div>
-		<p @click='click'>{{ blog.name }}</p>
-		<router-link to='/blog/setting'></router-link>
+		<BlogNavsItem v-for='blog in blogs' :blog='blog'></BlogNavsItem>
 	</div>
 </template>
 
 <script>
+import BlogNavsItem from './Blognavs/BlogNavsItem'
 export default {
 	data: function() {
 		return {
@@ -13,7 +13,10 @@ export default {
 		}
 	},
 	props: {
-		blog: Object,
+		blogs: Object,
+	},
+	components: {
+		BlogNavsItem
 	},
 	methods: {
 		click: function(){

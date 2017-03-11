@@ -1,19 +1,17 @@
 <template>
   <div id="app">
-    <div id="header">
-      <a href="javascript: window.location.reload();">Manager</a>
-      <router-link to='/'>Blogs</router-link>
-      <router-link to='/blog/1'>Blogs-1</router-link>
-      <router-link to='/blog/1/posts'>Blogs-1-posts</router-link>
-      <router-link to='/setting'>Setting</router-link>
-    </div>
+    <Navs></Navs>
     <router-view></router-view>
   </div>
 </template>
 
 <script>
+import Navs from '@/components/Navs'
 export default {
   name: 'app',
+  components: {
+    Navs
+  }
 }
 </script>
 

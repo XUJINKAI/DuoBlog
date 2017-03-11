@@ -1,1 +1,1 @@
-venv\Scripts\activate && cd ./site && cmd
+venv\Scripts\activate && cmd
