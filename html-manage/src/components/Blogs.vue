@@ -1,13 +1,13 @@
 <template>
-	<div class="blogs-list">
-		<BlogNavs :blogs='blogs_list'></BlogNavs>
-		<BlogList></BlogList>
+	<div class="wrapper box">
+		<BlogSelector :blogs='blog_list'></BlogSelector>
+		<PostsPanel></PostsPanel>
 	</div>
 </template>
 
 <script>
-import BlogNavs from './Blogs/BlogNavs'
-import BlogList from './Blogs/BlogList'
+import BlogSelector from './Blogs/BlogSelector'
+import PostsPanel from './Blogs/PostsPanel'
 
 export default {
 	data: function() {
@@ -15,20 +15,20 @@ export default {
 		}
 	},
 	computed: {
-		blogs_list: function(){
-			return this.BUS.blogs_list;
+		blog_list: function(){
+			return this.BUS.blog_list;
 		}
 	},
 	components: {
-		BlogNavs,
-		BlogList,
+		BlogSelector,
+		PostsPanel,
 	}
 }
 </script>
 
 <style scoped>
-.blogs-list {
-	display: flex;
-	flex-direction: column;
+.wrapper {
+	height: 100%;
+	margin-top: 10px;
 }
 </style>
