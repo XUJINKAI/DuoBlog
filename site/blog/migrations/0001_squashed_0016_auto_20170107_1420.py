@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import taggit.managers
 
 
 class Migration(migrations.Migration):
@@ -15,7 +14,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('taggit', '0002_auto_20150616_2121'),
         ('sites', '0002_alter_domain_unique'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -38,7 +36,6 @@ class Migration(migrations.Migration):
                 ('visible', models.CharField(choices=[('p', 'public'), ('l', 'login'), ('s', 'staff'), ('d', 'draft')], max_length=1)),
                 ('sticky', models.BooleanField(default=False)),
                 ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('tags', taggit.managers.TaggableManager(blank=True, help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag', verbose_name='Tags')),
             ],
             options={
                 'ordering': ['-last_modified_time'],

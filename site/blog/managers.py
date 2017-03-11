@@ -3,31 +3,30 @@ from .shortcuts import get_current_blog
 
 
 class PostManager(models.Manager):
-	
-	def accessible_queryset(self, request, **kwargs):
-		'''
-		return queryset by blog, user
-		'''
-		print('//////////////////////////////////////////////////废弃: accessible_queryset')
-
-		all_blogs = kwargs.get('all_blogs', False)
-		queryset = self.all()
-
-		# filter by blog
-		if not all_blogs:
-			current_blog = get_current_blog(request)
-			queryset = queryset.filter(blog=current_blog)
-
-		# filter by user
-		if not request.user.is_superuser:
-			queryset = queryset.filter(status='p')
-
-		return queryset
-
 
 	def blog_queryset(self, request, **kwargs):
 		current_blog = get_current_blog(request)
 		return self.filter(blog=current_blog, status='p')
 
-	# def api_queryset(self, request, **kwargs):
-	# 	
+	def api_list_queryset(self, request, **kwargs):
+		'''
+		parameter: blog(pk), status
+		default: current, 'p'
+
+		'''
+		blog_pk = request.GET.get('blog', False)
+		status = request.GET.get('status', 'p')
+
+		if blog_pk:
+			blog = models.Blog.get(pk=blog_pk)
+		else:
+			blog = get_current_blog(request)
+
+		return self.filter(blog=blog, status=status)
+
+
+class TagsManager(models.Manager):
+	pass
+
+class CommentsManager(models.Manager):
+	pass

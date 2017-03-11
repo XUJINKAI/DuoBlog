@@ -45,12 +45,12 @@ class PostViewSet(viewsets.ModelViewSet):
 			'update': PostUpdateSerializer,
 			'partial_update': PostUpdateSerializer,
 			'create': PostCreateSerializer,
-			'metadata': PostCreateSerializer,
+			'metadata': PostListSerializer,
 		}[self.action]
 
 	def get_queryset(self):
-		return blog_models.Post.objects.accessible_queryset(self.request)
-
+		return blog_models.Post.objects.api_list_queryset(self.request)
+		
 
 	def create(self, request, *args, **kwargs):
 		return super().create(request, *args, **kwargs)

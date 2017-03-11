@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import HttpResponseRedirect, Http404
-from taggit.models import Tag
 from django.core.exceptions import MultipleObjectsReturned
 
 import json
@@ -33,7 +32,7 @@ def blog_index(request):
 
 	blog = get_current_blog(request)
 	if not blog:
-		return HttpResponseRedirect(reverse('manage:index'))
+		return HttpResponseRedirect(reverse('manage_index'))
 	queryset = models.Post.objects.blog_queryset(request)
 	sticky_posts = queryset.filter(sticky=True)
 	all_posts = queryset.filter(sticky=False)
@@ -43,7 +42,8 @@ def blog_index(request):
 	prev_page_url = '?page=%d' %(PREV_PAGE) if PREV_PAGE else False
 	prev_page_url = '/' if PREV_PAGE == 1 else prev_page_url
 	posts = all_posts[START : END]
-	tags = set(tag.name for post in queryset for tag in post.tags.all())
+	# tags = set(tag.name for post in queryset for tag in post.tags.all())
+	tags = []
 	context = {
 		'sticky_posts': sticky_posts,
 		'posts': posts,
@@ -59,12 +59,20 @@ def posts_detail(request, slug):
 	post = models.Post.objects.blog_queryset(request).filter(slug=slug).first()
 	if not post:
 		raise Http404
-	tags_href_string = ', '.join(['<a href="%s?tags=%s">%s</a>' \
-			% (reverse('posts_list'), tag.name, tag.name) for tag in post.tags.all()])
+	# tags_href_string = ', '.join(['<a href="%s?tags=%s">%s</a>' \
+	# 		% (reverse('posts_list'), tag.name, tag.name) for tag in post.tags.all()])
+	tags_href_string = ''
+	post_comment = post.comment_enable
+	blog_comment = post.blog.comments
 	context = {
 		'post': post,
 		'tags_href_string': tags_href_string,
+		'custom_comment': post_comment and blog_comment=='c',
+		'anyone_comment': post_comment and blog_comment=='a',
+		'login_comment': post_comment and blog_comment=='l',
 	}
+	if context['custom_comment']:
+		context['custom_comment_html'] = post.blog.custom_comment_html
 	return render_theme(request, 'posts_detail.html', context)
 
 
@@ -111,7 +119,5 @@ def page_view(request, url):
 	return render_theme(request, 'pages_template.html', {'page': page})
 
 
-def favicon(request):
-	blog = get_current_blog(request)
-	ico_path = UPLOADS_DIR, 'favicon', blog.pk ".ico"
-	return ...
+def manage_view(request):
+	return render(request, 'manage/index.html')

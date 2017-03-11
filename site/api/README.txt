@@ -3,6 +3,10 @@ API Design:
 登录与否，应该只影响权限，尽量与展示的项目无关，避免登录以后就能看到更多项目这种事发生，要看到更多内容应该访问不同的地址。
 
 
+URL, GROUP, METHOD, PERMISSION
+/posts/, GUEST, GET, True
+/posts/, GUEST, POST, False
+
 ROOT:
 
 Admin

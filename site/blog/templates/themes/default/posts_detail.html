@@ -23,7 +23,7 @@ h1 {
 p {
 	margin: 0 0 .9em;
 }
-.last-modified-time {
+.update-time {
 	font-size: .8em;
 }
 .tags {
@@ -38,7 +38,7 @@ p {
 	<div class="content-row">
 		<h1>{{ post.title }}</h1>
 		<br>
-		<p class="last-modified-time pull-right">更新于<script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script></p>
+		<p class="update-time pull-right"><script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script>更新</p>
 		<p class="tags"><i>Tags: {{ tags_href_string | safe }}</i></p>
 		<br>
 		<div id="content">{{ post.rendered_html | safe }}</div>
@@ -57,9 +57,9 @@ p {
 	<div>
 		{% if custom_comment %}
 		{{ custom_comment_html }}  c
-		{% else if anyone_comment %}
+		{% elif anyone_comment %}
 		{% include './comment_anyone.html' %}  a
-		{% else if login_comment %}
+		{% elif login_comment %}
 		{% include './comment_login.html'%}  l
 		{% endif %}
 	</div>

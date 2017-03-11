@@ -1,10 +1,7 @@
 gunicorn
+six==1.10.0
 Django==1.10.4
 django_allauth==0.30.0
 django_crispy_forms==1.6.1
 djangorestframework==3.5.3
 django_filter==1.0.1
-django-rest-swagger
-six==1.10.0
-django_taggit
-django-contrib-comments

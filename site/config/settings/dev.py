@@ -25,6 +25,7 @@ SECRET_KEY = 'a0l*+xp2a)_svomnw4an2ge6mx&k6p+amzr1g#f3(z%_siqikr'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+DEBUG_API = False
 
 # //TODO
 DEMO = False
@@ -44,13 +45,11 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'allauth',
     'allauth.account',
-    'rest_framework',
-    # 'rest_framework_swagger',
     'crispy_forms',
-    'taggit',
+    'rest_framework',
     'accounts',
-    'api',
     'blog',
+    'api',
 ]
 
 MIDDLEWARE = [

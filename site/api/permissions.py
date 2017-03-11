@@ -1,15 +1,38 @@
 from rest_framework import permissions
+from django.conf import settings
 
 
-class PostPermission(permissions.BasePermission):
+class DEBUG_API_MIXIN:
 	def has_permission(self, request, view):
-		return True
+		if settings.DEBUG_API:
+			return True
+		return super().has_permission(self, request, view)
 
 	def has_object_permission(self, request, view, obj):
-		return True
-		# owner or public & safe
-		return obj.author == request.user or \
-			obj.status == 'p' and request.method in permissions.SAFE_METHODS
+		print(1)
+		if settings.DEBUG_API:
+			return True
+		return super().has_object_permission(self, request, view, obj)
 
 
-# class 
+class PostPermission(DEBUG_API_MIXIN, permissions.BasePermission):
+
+	def has_permission(self, request, view):
+		if request.user.is_superuser:
+			return True
+
+		over_perm = request.GET.get('blog', False) or request.GET.get('status', False)
+		return not over_perm
+
+
+	def has_object_permission(self, request, view, obj):
+		print(2)
+		if request.user.is_superuser:
+			return True
+
+		safe = request.method in permissions.SAFE_METHODS
+		return obj.status == 'p' and safe
+
+
+class BlogPermission(DEBUG_API_MIXIN, permissions.BasePermission):
+	pass

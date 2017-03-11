@@ -8,7 +8,6 @@ from django.db.models.signals import post_save
 
 import json
 import datetime
-from taggit.managers import TaggableManager
 
 from . import managers
 from . import shortcuts
@@ -26,6 +25,7 @@ BLOG_COMMENTS = (
 	('x', 'Close'),
 	('c', 'Custom'),
 	)
+
 POST_CONTENT_TYPE = (
 	('m', 'markdown'),
 	('h', 'html'),
@@ -36,6 +36,11 @@ POST_STATUS = (
 	('t', 'trash'),
 	)
 POST_TITLE_TRUNC = 32
+
+TAG_TYPE = (
+	('u', 'User tag'),
+	('s', 'System auto tag')
+	)
 
 def DEFAULT_NAVS():
 	return json.dumps([])
@@ -55,7 +60,7 @@ def get_random_id(length):
 
 class Blog(models.Model):
 	accessibility = models.CharField(max_length=1, choices=BLOG_ACCESS, default='a')
-	access_password = models.CharField(max_length=20, default='', null=True, \
+	password_hash = models.CharField(max_length=20, default='', blank=True, \
 		help_text='Need if accessibility=p')
 	domain = models.CharField(max_length=100, unique=True, \
 		help_text="Only this domain can access this blog")
@@ -116,9 +121,8 @@ class Post(models.Model):
 	content_type = models.CharField(max_length=1, choices=POST_CONTENT_TYPE)
 	rendered_html = models.TextField()
 
-	tags = TaggableManager(blank=True)
 	# django_comments
-	comments = models.BooleanField(default=True)
+	comment_enable = models.BooleanField(default=True)
 	sticky = models.BooleanField(default=False)
 	status = models.CharField(max_length=1, choices=POST_STATUS, default='d')
 
@@ -126,8 +130,11 @@ class Post(models.Model):
 	last_modified_time = models.DateTimeField(auto_now=True)
 	modified_count = models.PositiveIntegerField(default=0)
 	views_count = models.PositiveIntegerField(default=0)
+	like_count = models.PositiveIntegerField(default=0)
 
 	objects = managers.PostManager()
+	tags = managers.TagsManager()
+	comments = managers.CommentsManager()
 
 	def __str__(self):
 		return self.title
@@ -166,6 +173,23 @@ class Post(models.Model):
 		return slugify(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '-' + get_random_id(4))
 
 
+class Tag(models.Model):
+	post = models.ManyToManyField(Post)
+	name = models.CharField(max_length=42, unique=True)
+	tag_type = models.CharField(max_length=1, choices=TAG_TYPE, default='u')
+
+
+class Comment(models.Model):
+	post = models.ForeignKey(Post)
+	login_user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True)
+	
+	username = models.CharField(max_length=64)
+	email = models.EmailField()
+	website = models.CharField(max_length=64, default='')
+
+	content = models.TextField()
+
+
 class Page(models.Model):
 	blog = models.ForeignKey(Blog)
 	url = models.CharField(max_length=128)
@@ -184,3 +208,4 @@ class Page(models.Model):
 			if len(find) > 0:
 				raise Exception('already exists.')
 		super(Page, self).save(*args, **kwargs)
+
