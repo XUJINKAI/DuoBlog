@@ -96,7 +96,7 @@ var BUS = new Vue({
 		reload_post_list: function(){
 			var self = this;
 			API.post_list({
-				pk: self.current_blog.pk,
+				blog: self.current_blog.pk,
 				status: self.current_blog_btn_status,
 			}, function(data){
 				self.$data._post_list = data;

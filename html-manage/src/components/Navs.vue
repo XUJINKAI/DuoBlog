@@ -1,7 +1,9 @@
 <template>
 	<div class="navs stretch box y-center">
-		<a href="javascript: window.location='/manage/'" class="logo">Manager</a>
-		<router-link to='/'>Blogs</router-link>
+		<div>
+			<a href="javascript: window.location='/manage/'" class="logo">Manager</a>
+			<router-link to='/'>Blogs</router-link>
+		</div>
 		<span style="margin-right: 20px;">
 			<a><i class="fa fa-user-circle-o" aria-hidden="true"></i> USERNAME</a>
 		</span>

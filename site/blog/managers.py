@@ -1,8 +1,9 @@
-from django.db import models
+from django.db import models as db_models
 from .shortcuts import get_current_blog
+from . import models as models
 
 
-class PostManager(models.Manager):
+class PostManager(db_models.Manager):
 
 	def blog_queryset(self, request, **kwargs):
 		current_blog = get_current_blog(request)
@@ -18,15 +19,15 @@ class PostManager(models.Manager):
 		status = request.GET.get('status', 'p')
 
 		if blog_pk:
-			blog = models.Blog.get(pk=blog_pk)
+			blog = models.Blog.objects.get(pk=blog_pk)
 		else:
 			blog = get_current_blog(request)
 
 		return self.filter(blog=blog, status=status)
 
 
-class TagsManager(models.Manager):
+class TagsManager(db_models.Manager):
 	pass
 
-class CommentsManager(models.Manager):
+class CommentsManager(db_models.Manager):
 	pass

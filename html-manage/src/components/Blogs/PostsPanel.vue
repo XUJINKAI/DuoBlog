@@ -12,8 +12,8 @@
 			<PostsList class='stretch' :posts='posts' v-on:select_changed='selected_posts_change'></PostsList>
 		</div>
 		<div class="posts-detail stretch">
-			<PostDetail v-if='select_one_post'></PostDetail>
-			<PostDetail v-if='select_multi_post'></PostDetail>
+			<PostEditor v-if='select_one_post'></PostEditor>
+			<PostEditor v-if='select_multi_post'></PostEditor>
 		</div>
 	</div>
 </template>
@@ -21,12 +21,12 @@
 <script>
 import Tags from './PostsPanel/Tags'
 import PostsList from './PostsPanel/List'
-import PostDetail from './PostsPanel/PostDetail'
+import PostEditor from './PostsPanel/PostEditor'
 export default {
 	components: {
 		Tags,
 		PostsList,
-		PostDetail
+		PostEditor,
 	},
 	data: function(){
 		return {

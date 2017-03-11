@@ -29,15 +29,20 @@
 				</p>
 			</div>
 		</div>
-		<PostEditor :model='post' class='PostEditor-component'></PostEditor>
+		<HtmlEditor v-if='post.content_type == "h"' :model='post'></HtmlEditor>
+		<MdEditor v-else-if='post.content_type == "m"' :model='post'></MdEditor>
+		<p v-else>Error Type.</p>
 	</div>
 </template>
 
 <script>
-import PostEditor from '@/components/Editor/Editor'
+import HtmlEditor from '@/components/Editor/HtmlEditor'
+import MdEditor from '@/components/Editor/MdEditor'
+
 export default {
 	components: {
-		PostEditor
+		HtmlEditor,
+		MdEditor,
 	},
 	data: function(){
 		return {
