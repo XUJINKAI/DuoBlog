@@ -6,11 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width">
     {% endblock %}
-    {{ head_html }}
+    {{ blog.head_html | safe }}
   </head>
   <body>
     {% block body %}
     {% endblock %}
-    {{ body_html }}
+    {{ blog.body_html | safe }}
   </body>
 </html>

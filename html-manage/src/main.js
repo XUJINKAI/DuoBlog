@@ -43,6 +43,15 @@ var app = new Vue({
 	}
 })
 
+router.beforeEach((to, from, next) => {
+	if(app.BUS.content_changed) {
+		alert('not saved');
+		next(false);
+	} else {
+		next();
+	}
+})
+
 if(DEBUG) {
 	window.BUS = BUS;
 	window.app = app;

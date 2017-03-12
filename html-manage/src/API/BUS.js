@@ -5,7 +5,7 @@ export default BUS;
 var BUS = new Vue({
 	data: {
 		_blog_list: [],
-		_post_changed: false,
+		content_changed: false,
 	},
 	computed: {
 		time_format: function(){
@@ -14,16 +14,13 @@ var BUS = new Vue({
 		blog_list: function(){
 			return this.$data._blog_list;
 		},
-		post_changed: function(){
-			return this.$data._post_changed;
-		},
 		ask_quit: function(){
-			return this.post_changed;
+			return this.content_changed;
 		},
 	},
 	watch: {
-		post_changed: function(){
-			log('BUS.post_changed = '+this.$data._post_changed);
+		content_changed: function(){
+			log('BUS.content_changed = '+this.content_changed);
 		},
 	},
 	methods: {
@@ -56,6 +53,13 @@ var BUS = new Vue({
 					var pk = blog_list[idx].pk;
 					self.$emit('blog_changed', pk);
 				}, false);
+			})
+		},
+		save_blog: function(blog, callback){
+			var self = this;
+			API.blog_update(blog, function(data){
+				self.reload_blog_list();
+				if(callback) callback(data);
 			})
 		},
 

@@ -81,8 +81,6 @@ class Blog(models.Model):
 		help_text='insert to tail of head')
 	body_html = models.TextField(default='', blank=True, \
 		help_text='insert to tail of body')
-	custom_theme_area_html = models.TextField(default='', blank=True, \
-		help_text='insert to place theme defined')
 
 
 	def __str__(self):

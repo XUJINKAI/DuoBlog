@@ -13,8 +13,8 @@ class BlogViewSet(viewsets.ModelViewSet):
 		return {
 			'list': BlogListSerializer,
 			'retrieve': BlogDetailSerializer,
-			'update': BlogListSerializer,
-			'partial_update': BlogListSerializer,
-			'create': BlogListSerializer,
+			'update': BlogDetailSerializer,
+			'partial_update': BlogDetailSerializer,
+			'create': BlogDetailSerializer,
 			'metadata': BlogListSerializer,
 		}[self.action]
