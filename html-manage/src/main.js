@@ -5,15 +5,35 @@ import App from './App'
 import router from './router'
 import BUS from './API/BUS'
 
+import iView from 'iview';
+import 'iview/dist/styles/iview.css';
+Vue.use(iView);
+
 Vue.config.productionTip = false
 window.DEBUG = true;
 
 /* eslint-disable no-new */
 var app = new Vue({
-  el: '#app',
-  router,
-  template: '<div><App/></div>',
-  components: { App }
+	el: '#app',
+	router,
+	template: '<div><App/></div>',
+	components: { App },
+	methods: {
+		check_route: function(){
+			if(this.$route.name=='index') {
+				//TODO 得BUS先加载完blog_list再执行
+				// this.$router.push({ name: 'post-list', params: { blog: this.BUS.blog_list[0].pk}})
+			}
+		}
+	},
+	watch: {
+		'$route': function(){
+			this.check_route();
+		}
+	},
+	mounted: function(){
+		this.check_route();
+	}
 })
 
 if(DEBUG) {

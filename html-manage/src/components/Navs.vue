@@ -1,11 +1,18 @@
 <template>
 	<div class="navs stretch box y-center">
-		<div>
+		<span id="left" class="box">
 			<a href="javascript: window.location='/manage/'" class="logo">Manager</a>
-			<router-link :to="{ name: 'blog'}">Blogs</router-link>
-		</div>
-		<span style="margin-right: 20px;">
-			<a v-for='blog in blogs' :href='"//" + blog.url'>{{ blog.name }}</a>
+			<ul class="box">
+				<router-link :to="{ name: 'blog'}" :tag="'li'" :active-class="'active-nav'">Blogs</router-link>
+			</ul>
+		</span>
+		<span id="right" class="box">
+			<ul class="box">
+				<li v-for='blog in blogs'><a :href='"//" + blog.url' target="_blank">
+					<i class="fa fa-home" aria-hidden="true"></i>
+					{{ blog.name }}
+				</a></li>
+			</ul>
 			<a><i class="fa fa-user-circle-o" aria-hidden="true"></i> {{ username }}</a>
 		</span>
 	</div>
@@ -18,7 +25,7 @@ export default {
 			return this.BUS.blog_list;
 		},
 		username: function(){
-			return 'XJK';
+			return '//XJK';
 		}
 	}
 }
@@ -32,7 +39,35 @@ export default {
 	justify-content: space-between;
 }
 .logo {
+	font-size: 14px;
 	font-weight: bolder;
 	color: black;
+}
+.active-nav {
+	font-weight: bold;
+	text-decoration: underline;
+}
+#left {
+	align-items: baseline;
+}
+#left ul {
+	list-style: none;
+	margin-left: 10px;
+}
+#left ul li {
+	margin-left: 10px;
+}
+#right {
+	margin-right: 20px;
+}
+#right ul {
+	list-style: none;
+	margin-right: 5px;
+}
+#right ul li {
+	margin-right: 20px;
+}
+ul li:hover {
+	cursor: pointer;
 }
 </style>
