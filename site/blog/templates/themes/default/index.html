@@ -72,7 +72,7 @@ a:focus {
 			{% for post in posts %}
 			<li><a href="{% url 'posts_detail' post.slug %}">
 				<h3>{{ post.title }}
-				<span class="text-muted" style="font-size: 0.6em;"><script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script></span>
+				<span class="text-muted" style="font-size: 0.6em;"><script>document.write(moment('{{ post.created_time | date:"c" }}').fromNow());</script></span>
 				</h3>
 				<p class="post_abstract">{{ post.rendered_html | truncatechars_html:250 | striptags }}</p>
 			</a></li>

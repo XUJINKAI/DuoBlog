@@ -10,7 +10,7 @@ import 'iview/dist/styles/iview.css';
 Vue.use(iView);
 
 Vue.config.productionTip = false
-window.DEBUG = true;
+window.DEBUG = (process.env.NODE_ENV !== 'production');
 
 /* eslint-disable no-new */
 var app = new Vue({
@@ -22,7 +22,7 @@ var app = new Vue({
 		check_route: function(){
 			if(this.$route.name=='index') {
 				//TODO 得BUS先加载完blog_list再执行
-				// this.$router.push({ name: 'post-list', params: { blog: this.BUS.blog_list[0].pk}})
+				this.$router.push({ name: 'post-list', params: { blog: this.BUS.blog_list[0].pk}})
 			}
 		}
 	},
@@ -32,7 +32,14 @@ var app = new Vue({
 		}
 	},
 	mounted: function(){
-		this.check_route();
+		var self = this;
+		self.BUS.$on('blog_changed', function(pk){
+			if(pk) {
+				self.$router.push({name: 'blog', params: {blog: pk}});
+			} else {
+				self.check_route();
+			}
+		})
 	}
 })
 

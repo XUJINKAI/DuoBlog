@@ -1,7 +1,7 @@
 <template>
 <div class="wrapper">
 	<div>
-		<router-link :to="{ name: 'blog', params: {blog: blog.pk } }" class="blog_title" :active-class="'blog_title_actived'">{{ blog.name }}</router-link>
+		<router-link :to="{ name: 'blog', params: {blog: blog.pk } }" class="blog_title" :active-class="'blog_title_actived'" :tag="'a'" exact>{{ blog.name }}</router-link>
 	</div>
 	<ul class="blog_btn_ul">
 		<router-link :to="{ name: 'post-list', params: { blog: blog.pk } }" class="blog_btn" :active-class="'blog_btn_clicked'" :tag="'li'">博文 ({{ blog.post_count }})</router-link>
@@ -26,6 +26,8 @@ export default {
 	margin-bottom: 10px;
 }
 .blog_title {
+	display: inline-block;
+	width: 100%;
 	font-size: 1.1em;
     font-weight: bolder;
     text-decoration: underline;
@@ -34,7 +36,9 @@ export default {
 .blog_btn:hover {
 	cursor: pointer;
 }
-.blog_title_actived,
+.blog_title_actived {
+	background-color: rgba(135, 138, 142, 0.4);
+}
 .blog_btn_clicked {
 	background-color: rgba(135, 138, 142, 0.23);
 }

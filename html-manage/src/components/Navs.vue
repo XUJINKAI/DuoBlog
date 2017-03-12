@@ -3,7 +3,7 @@
 		<span id="left" class="box">
 			<a href="javascript: window.location='/manage/'" class="logo">Manager</a>
 			<ul class="box">
-				<router-link :to="{ name: 'blog'}" :tag="'li'" :active-class="'active-nav'">Blogs</router-link>
+				<router-link :to="{ name: 'blog'}" :tag="'li'" :active-class="'active-nav'">Blogs//TODO</router-link>
 			</ul>
 		</span>
 		<span id="right" class="box">

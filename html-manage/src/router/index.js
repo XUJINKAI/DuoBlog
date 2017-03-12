@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Blogs from '@/components/Blogs'
+import BlogSetting from '@/components/Blogs/BlogSetting'
 import PostsPanel from '@/components/Blogs/PostsPanel'
 import PostEditor from '@/components/Blogs/PostsPanel/PostEditor'
 
@@ -12,7 +13,7 @@ export default new Router({
 			path: '/blog/:blog/', component: Blogs,
 			children: [
 				{
-					path: '', component: PostsPanel, name: 'blog',
+					path: '', component: BlogSetting, name: 'blog',
 				},
 				{
 					path: 'post/', component: PostsPanel, name: 'post-list', meta: {status: 'p'},

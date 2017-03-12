@@ -1,7 +1,7 @@
 <template>
 	<div id="wrapper">
 		<NavItem v-for='blog in blogs' :blog='blog' :key='blog.pk'></NavItem>
-		<span @click='create'>新建</span>
+		<a @click='create'>新建</a>
 	</div>
 </template>
 
@@ -31,7 +31,7 @@ export default {
 
 <style scoped>
 #wrapper {
-	flex: 0 0 180px;
+	flex: 0 0 160px;
 	height: 100%;
 	overflow: auto;
 	padding-right: 15px;

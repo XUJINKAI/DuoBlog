@@ -5,107 +5,60 @@ export default BUS;
 var BUS = new Vue({
 	data: {
 		_blog_list: [],
-		_blog__pk: -1,
-		_blog__btn: 'posts',
-
-		_post_list: [],
-		_post__slug: '',
-
-		_post_detail: null,
 		_post_changed: false,
 	},
 	computed: {
 		time_format: function(){
 			return 'YYYY-MM-DD HH:mm:ss';
 		},
-
 		blog_list: function(){
 			return this.$data._blog_list;
 		},
-		current_blog: function(){
-			var f = _(this.blog_list).find(['pk', this.$data._blog__pk]);
-			if( ! f) {
-				f = this.blog_list[0];
-				this.$data._blog__pk = f.pk;
-				this.reload_post_list();
-			}
-			return f;
-		},
-		current_blog_btn: function(){
-			return this.$data._blog__btn;
-		},
-		current_blog_btn_status: function(){
-			var l = {
-				posts: 'p',
-				draft: 'd',
-				trash: 't',
-			}
-			return l[this.current_blog_btn];
-		},
-
-		post_list: function(){
-			return this.$data._post_list;
-		},
-		current_post: function(){
-			var f = _(this.post_list).find(['slug', this.$data._post__slug]);
-			if ( ! f) {
-				return {};
-			}
-			return f;
-		},
-
-		post_detail: function(){
-			return this.$data._post_detail;
-		},
-
 		post_changed: function(){
-			return this.$data._post_changed && this.post_detail;
+			return this.$data._post_changed;
 		},
 		ask_quit: function(){
 			return this.post_changed;
 		},
 	},
 	watch: {
-		post_detail: {
-			deep: true,
-			handler: function(val, oldVal){
-				this.$data._post_changed = true;
-			},
-		},
 		post_changed: function(){
 			log('BUS.post_changed = '+this.$data._post_changed);
 		},
 	},
 	methods: {
-		reload_blog_list: function(){
+		reload_blog_list: function(callback, emit=true){
 			var self = this;
 			API.blog_list(function(data){
 				self.$data._blog_list = data;
+				if(emit) self.$emit('blog_changed');
+				if(callback) callback(data);
 			})
-		},
-		select_blog_function: function(blog, btn){
-			this.$data._blog__pk = blog.pk;
-			this.$data._blog__btn = btn;
-			this.reload_post_list();
-			this.$data._post_detail = null;
 		},
 		create_new_blog: function(){
-			log('//TODO')
-		},
-
-		reload_post_list: function(){
 			var self = this;
-			API.post_list({
-				blog: self.current_blog.pk,
-				status: self.current_blog_btn_status,
-			}, function(data){
-				self.$data._post_list = data;
+			API.blog_new(function(data){
+				self.reload_blog_list(function(){
+					self.$emit('blog_changed', data.pk);
+				}, false);
 			})
 		},
-		select_post: function(post){
-			this.$data._post__slug = post.slug;
-			this.reload_post_detail();
+		delete_blog: function(blog){
+			var self = this;
+			var f = _.find(this.blog_list, {'pk': blog.pk})
+			var idx = this.blog_list.indexOf(f);
+			API.blog_delete(blog.pk, function(data){
+				self.reload_blog_list(function(blog_list){
+					var len = blog_list.length;
+					if(idx >= len) {
+						idx = len - 1;
+					}
+					var pk = blog_list[idx].pk;
+					self.$emit('blog_changed', pk);
+				}, false);
+			})
 		},
+
 		create_new_post: function(type){
 			var self = this;
 			API.post_new({
@@ -123,24 +76,6 @@ var BUS = new Vue({
 			})
 		},
 
-		reload_post_detail: function(){
-			var self = this;
-			var handler = function(){
-				API.post_detail(self.current_post, function(data){
-					self.$data._post_detail = data;
-					setTimeout(function(){
-						self.$data._post_changed = false;
-					}, 0);
-				})
-			}
-			if(self.post_changed) {
-				self.save_post_detail(false, function(){
-					handler();
-				})
-			} else {
-				handler();
-			}
-		},
 		save_post_detail: function(type, callback){
 			var self = this;
 			if(type) {
@@ -177,14 +112,14 @@ var BUS = new Vue({
 			}
 		}
 		this.reload_blog_list();
-	}
+	},
 });
 Vue.use(function(Vue){
-	Vue.prototype.BUS = BUS;
-	Vue.mixin({
-		created: function(){
-			this.BUS = BUS;
-			this.$data.$BUS = BUS.$data;
-		}
+	Object.defineProperty(Vue.prototype, '$BUS', {
+		get () { return BUS.$data }
+	})
+
+	Object.defineProperty(Vue.prototype, 'BUS', {
+		get () { return BUS }
 	})
 });
