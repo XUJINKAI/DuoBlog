@@ -7,13 +7,17 @@
 		<span :class='{bolder: order_by=="modify"}'>Modify <span v-if='order_by=="modify"'>{{ order_asc?'↑':'↓'}}</span></span>
 	</div>
 	<ul class="post-list">
-		<li v-for='post in posts' class="post-item"
-			v-on:click='select_post($event, post)'
-			:class='{selected_post: is_selected(post)}'>
+		<router-link
+			v-for='post in posts' :key='post.pk'
+			:to="{ name: status2view(post.status), params: {blog: blog_pk, post: post.pk }}"
+			class="post-item"
+			:active-class="'selected_post'"
+			:tag="'li'"
+			>
 			<input type="checkbox" value='post' v-model='selected_posts'>
 			<p>{{ post.title }}</p>
 			<!-- <span>{{ post.last_modified_time }}</span> -->
-		</li>
+		</router-link>
 	</ul>
 </div>
 </template>
@@ -31,13 +35,21 @@ export default {
 		posts: Array,
 	},
 	computed: {
+		blog_pk: function(){
+			return this.$route.params.blog;
+		},
 		is_select_all: function(){
 			return this.posts.every(this.is_selected);
-		}
+		},
 	},
 	methods: {
-		selected_changed: function(){
-			this.$emit('select_changed', this.selected_posts);
+		status2view: function(status){
+			var map = {
+				'p': 'post-detail',
+				'd': 'draft-detail',
+				't': 'trash-detail',
+			}
+			return map[status];
 		},
 		is_selected: function(post){
 			return this.selected_posts.includes(post);

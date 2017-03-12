@@ -1,15 +1,17 @@
 <template>
 	<div class="wrapper box">
 		<BlogSelector :blogs='blog_list'></BlogSelector>
-		<PostsPanel></PostsPanel>
+		<router-view></router-view>
 	</div>
 </template>
 
 <script>
 import BlogSelector from './Blogs/BlogSelector'
-import PostsPanel from './Blogs/PostsPanel'
 
 export default {
+	components: {
+		BlogSelector,
+	},
 	data: function() {
 		return {
 		}
@@ -17,12 +19,8 @@ export default {
 	computed: {
 		blog_list: function(){
 			return this.BUS.blog_list;
-		}
+		},
 	},
-	components: {
-		BlogSelector,
-		PostsPanel,
-	}
 }
 </script>
 

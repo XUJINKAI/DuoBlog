@@ -15,13 +15,13 @@ class PostAuthorSerializer(serializers.HyperlinkedModelSerializer):
 # view
 
 class PostListSerializer(serializers.ModelSerializer):
-	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='slug', read_only=True)
+	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='pk', read_only=True)
 	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
 
 	class Meta:
 		model = blog_models.Post
 		fields = (
-			'slug', 'api_url', 'html_url', \
+			'pk', 'slug', 'api_url', 'html_url', \
 			'create_time', 'last_modified_time', \
 			'views_count', 'modified_count', \
 			'comments', 'sticky', 'status', \
@@ -30,13 +30,13 @@ class PostListSerializer(serializers.ModelSerializer):
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
-	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='slug', read_only=True)
+	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='pk', read_only=True)
 	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
 
 	class Meta:
 		model = blog_models.Post
 		fields = (
-			'slug', 'api_url', 'html_url', \
+			'pk', 'slug', 'api_url', 'html_url', \
 			'create_time', 'last_modified_time', \
 			'views_count', 'modified_count', \
 			'comments', 'sticky', 'status', \
@@ -52,7 +52,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = blog_models.Post
 		fields = (
-			'slug', 'title', 'content', 'content_type', 'rendered_html', \
+			'pk', 'slug', 'title', 'content', 'content_type', 'rendered_html', \
 			'status', 'comments', 'sticky', \
 			)
 

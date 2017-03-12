@@ -1,8 +1,8 @@
 <template>
-	<div v-if='post' class="post-detail-container box-col">
+	<div id='wrapper' v-if='post' class="box-col">
 		<div class="box">
 			<div class="stretch box-col">
-				<input type="input" v-model='post.title' class='post_detail_title border0'></p>
+				<input id="title" type="input" v-model='post.title' class='border0' placeholder="<title>"></p>
 				<p class="box"><strong>URL</strong><span>: /posts/</span>
 					<input type="text" v-model='post.slug' class="border0 stretch" placeholder="<auto>" style='width: 30em;'/>
 					<a :href="post.html_url" target="_blank">Open</a>
@@ -29,10 +29,11 @@
 				</p>
 			</div>
 		</div>
-		<HtmlEditor v-if='post.content_type == "h"' :model='post'></HtmlEditor>
-		<MdEditor v-else-if='post.content_type == "m"' :model='post'></MdEditor>
+		<HtmlEditor v-if='post.content_type == "h"' :model='post' class='editor'></HtmlEditor>
+		<MdEditor v-else-if='post.content_type == "m"' :model='post' class='editor'></MdEditor>
 		<p v-else>Error Type.</p>
 	</div>
+	<div v-else>No Data.</div>
 </template>
 
 <script>
@@ -46,11 +47,12 @@ export default {
 	},
 	data: function(){
 		return {
+			post: null,
 		};
 	},
 	computed: {
-		post: function(){
-			return this.BUS.post_detail;
+		url_pk: function(){
+			return this.$route.params.post;
 		},
 		create_time: function(){
 			return moment(this.post.create_time).format(this.BUS.time_format);
@@ -59,9 +61,20 @@ export default {
 			return moment(this.post.last_modified_time).format(this.BUS.time_format);
 		},
 	},
+	watch: {
+		'$route': function(){
+			this.reload();
+		}
+	},
+	created: function() {
+		this.reload();
+	},
 	methods: {
 		reload: function(){
-			this.BUS.reload_post_detail();
+			var self = this;
+			API.post_detail_by_pk(self.url_pk, function(data){
+				self.post = data;
+			})
 		},
 		delete_current: function() {
 			this.BUS.delete_post_detail();
@@ -77,13 +90,16 @@ export default {
 };
 </script>
 
-<style>
-.post-detail-container {
+<style scoped>
+#wrapper {
 	height: 100%;
 }
-.post_detail_title {
+#title {
     font-size: x-large;
     font-weight: bolder;
+}
+.editor {
+	height: 100%;
 }
 .PostEditor-component {
 	flex: 1;

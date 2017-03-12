@@ -109,9 +109,9 @@ var BUS = new Vue({
 		create_new_post: function(type){
 			var self = this;
 			API.post_new({
-				status: 'p',
-				content: 'your new post',
-				rendered_html: 'your new html post',
+				status: 'd',
+				content: '',
+				rendered_html: '<p/>',
 				content_type: type,
 				tags: [],
 			}, function(data){

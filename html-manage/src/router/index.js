@@ -1,53 +1,47 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Blogs from '@/components/Blogs'
-// import Setting from '@/components/Setting'
-// import BlogSetting from '@/components/Blog/Setting'
-// import BlogPostsList from '@/components/Blog/PostsList'
-// import BlogComment from '@/components/Blog/Comment'
-// import BlogNavs from '@/components/Blog/Navs'
+import PostsPanel from '@/components/Blogs/PostsPanel'
+import PostEditor from '@/components/Blogs/PostsPanel/PostEditor'
 
 Vue.use(Router)
 
 export default new Router({
 	routes: [
 		{
-			path: '/',
-			component: Blogs
+			path: '/blog/:blog/', component: Blogs,
+			children: [
+				{
+					path: '', component: PostsPanel, name: 'blog',
+				},
+				{
+					path: 'post/', component: PostsPanel, name: 'post-list', meta: {status: 'p'},
+					children: [
+						{
+							path: ':post/', component: PostEditor, name: 'post-detail', meta: {status: 'p'},
+						},
+					],
+				},
+				{
+					path: 'draft/', component: PostsPanel, name: 'draft-list', meta: {status: 'd'},
+					children: [
+						{
+							path: ':post/', component: PostEditor, name: 'draft-detail', meta: {status: 'd'},
+						},
+					],
+				},
+				{
+					path: 'trash/', component: PostsPanel, name: 'trash-list', meta: {status: 't'},
+					children: [
+						{
+							path: ':post/', component: PostEditor,  name: 'trash-detail', meta: {status: 't'},
+						},
+					],
+				},
+			]
 		},
-		// {
-		// 	path: '/blog/:pk/',
-		// 	component: Blogs,
-		// 	children: [
-		// 		{
-		// 			path: '', component: BlogPostsList
-		// 		},
-		// 		{
-		// 			path: 'setting', component: BlogSetting
-		// 		},
-		// 		{
-		// 			path: 'posts', component: BlogPostsList
-		// 		},
-		// 		{
-		// 			path: 'posts/:pk/', component: BlogPostsList
-		// 		},
-		// 		{
-		// 			path: 'draft', component: BlogPostsList
-		// 		},
-		// 		{
-		// 			path: 'trash', component: BlogPostsList
-		// 		},
-		// 		{
-		// 			path: 'comment', component: BlogComment
-		// 		},
-		// 		{
-		// 			path: 'navs', component: BlogNavs
-		// 		},
-		// 	]
-		// },
-		// {
-		// 	path: '/setting',
-		// 	component: Setting
-		// }
+		{
+			path: '/', component: Blogs,
+		},
 	]
 })

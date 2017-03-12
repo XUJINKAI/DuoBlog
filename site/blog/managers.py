@@ -25,6 +25,9 @@ class PostManager(db_models.Manager):
 
 		return self.filter(blog=blog, status=status)
 
+	def api_detail_queryset(self, request, **kwargs):
+		return self
+
 
 class TagsManager(db_models.Manager):
 	pass

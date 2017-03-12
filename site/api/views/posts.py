@@ -32,7 +32,7 @@ class PostFilter(rest_filter.FilterSet):
 
 
 class PostViewSet(viewsets.ModelViewSet):
-	lookup_field = 'slug'
+	lookup_field = 'pk'
 	queryset = blog_models.Post.objects.all()
 	permission_classes = (PostPermission,)
 	filter_backends = (rest_filter.DjangoFilterBackend,)
@@ -49,7 +49,13 @@ class PostViewSet(viewsets.ModelViewSet):
 		}[self.action]
 
 	def get_queryset(self):
-		return blog_models.Post.objects.api_list_queryset(self.request)
+		func_name = {
+			'list': 'api_list_queryset',
+			'retrieve': 'api_detail_queryset',
+			'update': 'api_detail_queryset',
+			'partial_update': 'api_detail_queryset',
+		}[self.action]
+		return getattr(blog_models.Post.objects, func_name)(self.request)
 		
 
 	def create(self, request, *args, **kwargs):

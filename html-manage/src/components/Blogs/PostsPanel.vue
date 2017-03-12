@@ -9,11 +9,10 @@
 				<button class="stretch" v-on:click='new_markdown'>Markdown</button>
 				<button class="stretch" v-on:click='new_html'>HTML</button>
 			</div>
-			<PostsList class='stretch' :posts='posts' v-on:select_changed='selected_posts_change'></PostsList>
+			<PostsList class='stretch' :posts='posts' @select_changed='selected_posts_change'></PostsList>
 		</div>
 		<div class="posts-detail stretch">
-			<PostEditor v-if='select_one_post'></PostEditor>
-			<PostEditor v-if='select_multi_post'></PostEditor>
+			<router-view></router-view>
 		</div>
 	</div>
 </template>
@@ -22,6 +21,7 @@
 import Tags from './PostsPanel/Tags'
 import PostsList from './PostsPanel/List'
 import PostEditor from './PostsPanel/PostEditor'
+
 export default {
 	components: {
 		Tags,
@@ -30,27 +30,22 @@ export default {
 	},
 	data: function(){
 		return {
+			all_posts: [],
 			selected_tags: [],
 			order_by: 'create',
 			order_asc: false,
 		};
 	},
 	computed: {
-		raw_data: function(){
-			return this.BUS.post_list;
-		},
-		blog: function(){
-			return this.BUS.current_blog;
-		},
-		selected_post: function(){
-			return this.BUS.current_post;
+		blog_pk: function() {
+			return this.$route.params.blog;
 		},
 		posts: function(){
 			if(this.selected_tags.length==0) {
-				return this.raw_data;
+				return this.all_posts;
 			} else {
 				var self = this;
-				return _.filter(self.raw_data, function(post){
+				return _.filter(self.all_posts, function(post){
 					var flag = true;
 					_.forEach(self.selected_tags, function(t){
 						if(!_.includes(post.tags, t.name)) {
@@ -61,9 +56,15 @@ export default {
 				});
 			}
 		},
+		blog: function(){
+			return this.BUS.current_blog;
+		},
+		selected_post: function(){
+			return this.BUS.current_post;
+		},
 		tags: function(){
 			var tags_list = [];
-			_.forEach(this.raw_data, function(post){
+			_.forEach(this.all_posts, function(post){
 				tags_list = _.concat(tags_list, post.tags)
 			});
 			var tags_count = _.countBy(tags_list);
@@ -83,9 +84,24 @@ export default {
 			return false;
 		},
 	},
-	props: {
+	watch: {
+		'$route': function(){
+			this.reload_all_posts();
+		}
+	},
+	created: function(){
+		this.reload_all_posts();
 	},
 	methods: {
+		reload_all_posts: function(){
+			var self = this;
+			API.post_list({
+				blog: self.blog_pk,
+				status: self.$route.meta.status,
+			}, function(data){
+				self.all_posts = data;
+			})
+		},
 		create_new_post: function(type) {
 			this.BUS.create_new_post(type);
 		},

@@ -9,7 +9,7 @@ Vue.config.productionTip = false
 window.DEBUG = true;
 
 /* eslint-disable no-new */
-window.app = new Vue({
+var app = new Vue({
   el: '#app',
   router,
   template: '<div><App/></div>',
@@ -18,4 +18,5 @@ window.app = new Vue({
 
 if(DEBUG) {
 	window.BUS = BUS;
+	window.app = app;
 }
