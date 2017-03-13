@@ -32,7 +32,7 @@ class PostPermission(BasePermission):
 			or super().has_permission(request, view)
 
 	def has_object_permission(self, request, view, obj):
-		domain_match = get_current_blog(request) is obj.blog.domain
+		domain_match = request.META['HTTP_HOST'] == obj.blog.domain
 		safe = request.method in permissions.SAFE_METHODS
 		return domain_match and obj.status == 'p' and safe \
 			or super().has_object_permission(request, view, obj)
