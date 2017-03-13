@@ -48,9 +48,9 @@ export default {
 	},
 	watch: {
 		navs: {
-			handler: function(){
+			handler: function(val, oldVal){
 				log('nav');
-				this.update_navs_to_json();
+				// this.update_navs_to_json();
 			},
 			deep: true,
 		}
