@@ -199,13 +199,14 @@ var BUS = new Vue({
 				if(callback) callback(data);
 			})
 		},
-		create_new_post: function(type, callback){
+		create_new_post: function(type, blog_pk, callback){
 			var self = this;
 			API.post_new({
-				status: 'd',
+				blog: blog_pk,
 				content: '',
-				rendered_html: '<p/>',
 				content_type: type,
+				rendered_html: '<p/>',
+				status: 'd',
 				tags: [],
 			}, function(data){
 				self.reload_blog_list();

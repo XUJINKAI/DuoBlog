@@ -39,6 +39,7 @@ function ajax_data(method, url, data, success, error, complete) {
 		dataType: 'json',
 		data: data,
 		success: function(data) {
+			log(data);
 			if(success) { success(data); }
 		},
 		error: function(data) {

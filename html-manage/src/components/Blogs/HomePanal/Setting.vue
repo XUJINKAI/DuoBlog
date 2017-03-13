@@ -5,10 +5,16 @@
 		<p>domain: <el-input type="input" v-model="blog.url"></el-input></p>
 		<p>desc: <el-input type="input" v-model="blog.desc"></el-input></p>
 		<p>
+			<span>Theme:</span>
+			<el-select v-model="blog.theme" placeholder="">
+				<el-option label="Default" value="default"></el-option>
+			</el-select>
+		</p>
+		<p>
 			<span>head_html:</span>
 			<el-input type="textarea"
 				v-model="blog.head_html"
-				:rows='5'
+				:rows='6'
 				placeholder='e.g. your google domain verify code'>
 			</el-input>
 		</p>
@@ -21,14 +27,43 @@
 			</el-input>
 		</p>
 		<p>
-			<span>custom_comment_html (if blog.comment_enable=true):</span>
-			<el-input type="textarea" v-model="blog.custom_comment_html"></el-input>
+			<span>Comment:</span>
+			<el-select v-model="blog.comments" placeholder="">
+				<el-option label="Anyone" value="a"></el-option>
+				<el-option label="Login" value="l"></el-option>
+				<el-option label="Close" value="x"></el-option>
+				<el-option label="Custom" value="c"></el-option>
+			</el-select>
 		</p>
-		<el-button type='success' @click='save_blog'>Save</el-button>
-		<p>Danger Zone</p>
-		<el-button type='danger'  @click='delete_blog'>Delete this Blog</el-button>
+		<p>
+			<span>Custom Comment HTML</span>
+			<el-input
+				type="textarea"
+				:rows='6'
+				v-model="blog.custom_comment_html">
+			</el-input>
+		</p>
+		<p>
+			<span>RSS</span>
+			<el-switch
+				v-model="blog.rss"
+				@change='save'
+				on-text="on"
+				off-text="off">
+			</el-switch>
+			<span>Sitemap</span>
+			<el-switch
+				v-model="blog.sitemap"
+				@change='save'
+				on-text="on"
+				off-text="off">
+			</el-switch>
+		</p>
 	</div>
-	<div class="stretch">
+	<div class="right stretch">
+		<el-button type='success' @click='save_blog'>Save</el-button>
+		<el-button type='danger'  @click='delete_blog'>Delete this Blog</el-button>
+		<hr>
 		<NavItem :model='navs'></NavItem>
 	</div>
 </div>
@@ -84,6 +119,9 @@ export default {
 			this.BUS.delete_blog(this.blog);
 			this.BUS.clear_content();
 		},
+		save: function(){
+			this.save_blog();
+		},
 		save_blog: function(){
 			var self = this;
 			this.update_navs_to_json();
@@ -110,5 +148,9 @@ export default {
 }
 .left {
 	flex: 0 0 50%;
+}
+.right {
+	margin-top: 30px;
+	margin-left: 40px;
 }
 </style>

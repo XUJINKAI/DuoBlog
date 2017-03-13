@@ -1,7 +1,7 @@
 <template>
 <div class="wrapper">
 	<div>
-		<router-link :to="{ name: 'blog', params: {blog: blog.pk } }" class="blog_title" :active-class="'blog_title_actived'" :tag="'a'" exact>{{ blog.name }}</router-link>
+		<router-link :to="{ name: 'blog', params: {blog: blog.pk } }" class="blog_title" :active-class="'blog_title_actived'" :tag="'li'" exact>{{ blog.name }}</router-link>
 	</div>
 	<ul class="blog_btn_ul">
 		<router-link :to="{ name: 'post-list', params: { blog: blog.pk } }" class="blog_btn" :active-class="'blog_btn_clicked'" :tag="'li'">博文 ({{ blog.post_count }})</router-link>

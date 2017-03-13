@@ -33,9 +33,13 @@ var API = {
 			url: blog.url,
 			desc: blog.desc,
 			navs: blog.navs,
+			theme: blog.theme,
+			rss: blog.rss,
+			sitemap: blog.sitemap,
+			comments: blog.comments,
+			custom_comment_html: blog.custom_comment_html,
 			head_html: blog.head_html,
 			body_html: blog.body_html,
-			custom_comment_html: blog.custom_comment_html,
 		}, _.isNil)
 	},
 	blog_list: function(callback) {
@@ -69,15 +73,16 @@ var API = {
 
 	post_parameter: function(post){
 		return _.omitBy({
+			blog: post.blog,
 			slug: post.slug,
 			title: post.title,
 			content: post.content,
 			content_type: post.content_type,
 			rendered_html: post.rendered_html,
 			status: post.status,
-			tags: JSON.stringify(post.tags),
-			comments: post.comments,
 			sticky: post.sticky,
+			comments: post.comments,
+			tags: JSON.stringify(post.tags),
 		}, _.isNil)
 	},
 	post_list: function(filter, callback) {

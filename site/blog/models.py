@@ -110,9 +110,9 @@ class Blog(models.Model):
 
 
 class Post(models.Model):
+	blog = models.ForeignKey(Blog)
 	slug = models.CharField(max_length=128, unique=True, blank=True, \
 		help_text="as url")
-	blog = models.ForeignKey(Blog)
 	author = models.ForeignKey(settings.AUTH_USER_MODEL)
 
 	title = models.CharField(max_length=70, blank=True, default='')
@@ -123,7 +123,7 @@ class Post(models.Model):
 
 	status = models.CharField(max_length=1, choices=POST_STATUS, default='d')
 	sticky = models.BooleanField(default=False)
-	comment_enable = models.BooleanField(default=True)
+	comment_enable = models.BooleanField(default=True, blank=True)
 
 	create_time = models.DateTimeField(auto_now_add=True)
 	last_modified_time = models.DateTimeField(auto_now=True)

@@ -56,11 +56,11 @@ p {
 	<hr>
 	<div>
 		{% if custom_comment %}
-		{{ custom_comment_html }}  c
+		{{ custom_comment_html | safe }}
 		{% elif anyone_comment %}
-		{% include './comment_anyone.html' %}  a
+		{% include './comment_anyone.html' %}
 		{% elif login_comment %}
-		{% include './comment_login.html'%}  l
+		{% include './comment_login.html' %}
 		{% endif %}
 	</div>
 </div>

@@ -67,7 +67,12 @@ class PostViewSet(viewsets.ModelViewSet):
 		return super().create(request, *args, **kwargs)
 
 	def perform_create(self, serializer):
-		serializer.save(author=self.request.user, blog=get_current_blog(self.request))
+		blog_pk = self.request.POST.get('blog', False)
+		if blog_pk:
+			blog = blog_models.Blog.objects.get(pk=int(blog_pk))
+		else:
+			blog = get_current_blog(self.request)
+		serializer.save(author=self.request.user, blog=blog)
 
 
 	def delete(self, request, *args, **kwargs):

@@ -10,3 +10,13 @@ class BlogAdmin(admin.ModelAdmin):
 @admin.register(models.Post)
 class PostAdmin(admin.ModelAdmin):
 	pass
+
+
+@admin.register(models.Comment)
+class PostAdmin(admin.ModelAdmin):
+	pass
+
+
+@admin.register(models.Tag)
+class PostAdmin(admin.ModelAdmin):
+	pass

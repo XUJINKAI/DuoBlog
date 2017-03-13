@@ -6,8 +6,8 @@
 		<div class="posts-list stretch box-col">
 			<div class="new-post box">
 				<span>New: </span>
-				<button class="stretch" v-on:click='new_markdown'>Markdown</button>
-				<button class="stretch" v-on:click='new_html'>HTML</button>
+				<button class="stretch" @click='new_markdown'>Markdown</button>
+				<button class="stretch" @click='new_html'>HTML</button>
 			</div>
 			<PostsList class='stretch' :posts='posts' @select_changed='selected_posts_change'></PostsList>
 		</div>
@@ -94,13 +94,13 @@ export default {
 			})
 		},
 		new_markdown: function(){
-			this.BUS.create_new_post('m');
+			this.create_new_post('m');
 		},
 		new_html: function(){
-			this.BUS.create_new_post('h');
+			this.create_new_post('h');
 		},
 		create_new_post: function(type) {
-			this.BUS.create_new_post(type);
+			this.BUS.create_new_post(type, this.blog_pk);
 		},
 		selected_posts_change: function(posts){
 			if(posts.length == 1) {

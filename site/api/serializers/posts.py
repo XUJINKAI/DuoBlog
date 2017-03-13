@@ -10,8 +10,6 @@ class PostAuthorSerializer(serializers.HyperlinkedModelSerializer):
 		model = account_models.User
 		fields = ('username', )
 
-
-
 # view
 
 class PostListSerializer(serializers.ModelSerializer):
@@ -48,12 +46,14 @@ class PostDetailSerializer(serializers.ModelSerializer):
 # create-update
 
 class PostCreateSerializer(serializers.ModelSerializer):
+	blog = serializers.IntegerField(source='blog.pk', required=False)
+	comments = serializers.CharField(source='comment_enable', required=False)
 
 	class Meta:
 		model = blog_models.Post
 		fields = (
-			'pk', 'slug', 'title', 'content', 'content_type', 'rendered_html', \
-			'status', 'comments', 'sticky', \
+			'pk', 'blog', 'slug', 'title', 'content', 'content_type', 'rendered_html', \
+			'status', 'sticky', 'comments', 'tags', \
 			)
 
 class PostUpdateSerializer(PostCreateSerializer):
