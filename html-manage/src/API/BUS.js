@@ -4,16 +4,34 @@ export default BUS;
 
 var BUS = new Vue({
 	data: {
+		_session: null,
 		_blog_list: [],
+
 		_ori_content: null,
 		_content: null,
 		_save_handler: null,
+
+		modal_login: null,
 		modal_save_no_cancel: null,
 		modal_blog_delete: null,
 	},
 	computed: {
 		time_format: function(){
 			return 'YYYY-MM-DD HH:mm:ss';
+		},
+		username: function(){
+			if(this.is_login){
+				return this.$data._session.username;
+			} else {
+				return 'Not_Login';
+			}
+		},
+		is_login: function(){
+			if( ! this.$data._session) {
+				return false;
+			} else {
+				return true;
+			}
 		},
 		blog_list: function(){
 			return this.$data._blog_list;
@@ -41,6 +59,18 @@ var BUS = new Vue({
 					next(false);
 				}
 			})
+		},
+
+		login: function(username, password){
+			var self = this;
+			API.login(username, password, function(session){
+				self.$data._session = session;
+			})
+		},
+		check_login: function(callback){
+			if(this.is_login){
+				callback();
+			}
 		},
 
 		set_content: function(obj, save_handler){
@@ -173,7 +203,9 @@ var BUS = new Vue({
 				return "确定退出吗";
 			}
 		}
-		this.reload_blog_list();
+		self.check_login(function(){
+			self.reload_blog_list();
+		})
 	},
 });
 Vue.use(function(Vue){

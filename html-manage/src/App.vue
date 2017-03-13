@@ -2,6 +2,7 @@
 	<div id="app" class="layout">
 		<Navs></Navs>
 		<router-view></router-view>
+		<Login v-if='Modal_Login' @login='on_login'></Login>
 		<SaveNoCancel v-if='Modal_SaveNoCancel' @close='Modal_SaveNoCancel_Close'></SaveNoCancel>
 		<BlogDelete v-if='Model_BlogDelete' @close='Model_BlogDelete_Close'></BlogDelete>
 	</div>
@@ -9,6 +10,7 @@
 
 <script>
 import Navs from '@/components/Navs'
+import Login from '@/components/prompt/login'
 import SaveNoCancel from '@/components/prompt/save_no_cancel'
 import BlogDelete from '@/components/prompt/blog_delete'
 
@@ -16,6 +18,7 @@ export default {
 	name: 'app',
 	components: {
 		Navs,
+		Login,
 		SaveNoCancel,
 		BlogDelete,
 	},
@@ -28,7 +31,16 @@ export default {
 			Model_BlogDelete_Resolve: null,
 		}
 	},
+	computed: {
+		Modal_Login: function(){
+			return !this.BUS.is_login;
+		}
+	},
 	methods: {
+		on_login: function(username, password){
+			this.BUS.login(username, password);
+		},
+
 		Modal_SaveNoCancel_Close: function(result){
 			this.Modal_SaveNoCancel = false;
 			this.Modal_SaveNoCancel_Resolve(result);

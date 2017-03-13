@@ -29,7 +29,7 @@ export default {
 			return this.BUS.blog_list;
 		},
 		username: function(){
-			return '//XJK';
+			return this.BUS.username;
 		}
 	}
 }
