@@ -5,7 +5,11 @@ export default BUS;
 var BUS = new Vue({
 	data: {
 		_blog_list: [],
-		content_changed: false,
+		_ori_content: null,
+		_content: null,
+		_save_handler: null,
+		modal_save_no_cancel: null,
+		modal_blog_delete: null,
 	},
 	computed: {
 		time_format: function(){
@@ -14,16 +18,62 @@ var BUS = new Vue({
 		blog_list: function(){
 			return this.$data._blog_list;
 		},
+		content_changed: function(){
+			return JSON.stringify(this.$data._ori_content) !== JSON.stringify(this.$data._content)
+		},
 		ask_quit: function(){
 			return this.content_changed;
 		},
 	},
 	watch: {
 		content_changed: function(){
-			log('BUS.content_changed = '+this.content_changed);
+			if(window.DEBUG) {
+				log('BUS.content_changed = '+this.content_changed);
+			}
 		},
 	},
 	methods: {
+		on_router_change: function(to, from, next){
+			this.check_content_saved(function(clear){
+				if(clear) {
+					next();
+				} else {
+					next(false);
+				}
+			})
+		},
+
+		set_content: function(obj, save_handler){
+			if( ! save_handler) {
+				alert('网页出错：BUS.set_content must have a save_handler')
+			}
+			this.$data._ori_content = JSON.parse(JSON.stringify(obj));
+			this.$data._content = obj;
+			this.$data._save_handler = save_handler;
+		},
+		clear_content: function(){
+			this.$data._ori_content = null;
+			this.$data._content = null;
+		},
+		check_content_saved: function(cb_clear){
+			var self = this;
+			if(this.content_changed) {
+				self.modal_save_no_cancel(function(result){
+					if(result=='save') {
+						self.$data._save_handler()
+						cb_clear(true);
+					} else if (result=='no') {
+						self.clear_content();
+						cb_clear(true);
+					} else {
+						cb_clear(false);
+					}
+				})
+			} else {
+				cb_clear(true);
+			}
+		},
+
 		reload_blog_list: function(callback, emit=true){
 			var self = this;
 			API.blog_list(function(data){
@@ -40,7 +90,7 @@ var BUS = new Vue({
 				}, false);
 			})
 		},
-		delete_blog: function(blog){
+		_delete_blog: function(blog){
 			var self = this;
 			var f = _.find(this.blog_list, {'pk': blog.pk})
 			var idx = this.blog_list.indexOf(f);
@@ -53,6 +103,14 @@ var BUS = new Vue({
 					var pk = blog_list[idx].pk;
 					self.$emit('blog_changed', pk);
 				}, false);
+			})
+		},
+		delete_blog: function(blog){
+			var self = this;
+			self.modal_blog_delete(function(result){
+				if(result=='delete') {
+					self._delete_blog(blog);
+				}
 			})
 		},
 		save_blog: function(blog, callback){

@@ -55,7 +55,7 @@ def blog_index(request):
 	return render_theme(request, 'index.html', context)
 
 
-def posts_detail(request, slug):
+def post_show(request, slug):
 	post = models.Post.objects.blog_queryset(request).filter(slug=slug).first()
 	if not post:
 		raise Http404
@@ -73,7 +73,7 @@ def posts_detail(request, slug):
 	}
 	if context['custom_comment']:
 		context['custom_comment_html'] = post.blog.custom_comment_html
-	return render_theme(request, 'posts_detail.html', context)
+	return render_theme(request, 'post_default.html', context)
 
 
 def posts_list(request):
@@ -107,17 +107,6 @@ def my_page(request, page):
 	return render_theme(request, 'my_%s.html' % page)
 
 
-# flatpage
-def page_view(request, url):
-	blog = get_current_blog(request)
-	try:
-		page = models.Page.objects.get(blog=blog, url=url.strip('/'))
-	except MultipleObjectsReturned:
-		raise
-	except:
-		raise Http404
-	return render_theme(request, 'pages_template.html', {'page': page})
-
-
+# admin SPA
 def manage_view(request):
 	return render(request, 'manage/index.html')

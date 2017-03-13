@@ -1,7 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Blogs from '@/components/Blogs'
-import BlogSetting from '@/components/Blogs/BlogSetting'
+import BlogHomePanal from '@/components/Blogs/HomePanal'
+import BlogSetting from '@/components/Blogs/HomePanal/Setting'
+import BlogNavs from '@/components/Blogs/HomePanal/Navs'
+import BlogImportJekyll from '@/components/Blogs/HomePanal/Import_Jekyll'
 import PostsPanel from '@/components/Blogs/PostsPanel'
 import PostEditor from '@/components/Blogs/PostsPanel/PostEditor'
 
@@ -13,7 +16,18 @@ export default new Router({
 			path: '/blog/:blog/', component: Blogs,
 			children: [
 				{
-					path: '', component: BlogSetting, name: 'blog',
+					path: '', component: BlogHomePanal,
+					children: [
+						{
+							path: '', component: BlogSetting, name: 'blog',
+						},
+						{
+							path: 'navs', component: BlogNavs, name: 'blog-navs',
+						},
+						{
+							path: 'import-jekyll', component: BlogImportJekyll, name: 'blog-import-jekyll',
+						},
+					]
 				},
 				{
 					path: 'post/', component: PostsPanel, name: 'post-list', meta: {status: 'p'},

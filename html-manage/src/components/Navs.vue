@@ -3,7 +3,10 @@
 		<span id="left" class="box">
 			<a href="javascript: window.location='/manage/'" class="logo">Manager</a>
 			<ul class="box">
-				<router-link :to="{ name: 'blog'}" :tag="'li'" :active-class="'active-nav'">Blogs//TODO</router-link>
+				<router-link :to="{ name: 'blog'}" :tag="'li'" :active-class="'active-nav'">Blogs</router-link>
+				<li>Users</li>
+				<li>Files</li>
+				<li>Advanced</li>
 			</ul>
 		</span>
 		<span id="right" class="box">
@@ -13,6 +16,7 @@
 					{{ blog.name }}
 				</a></li>
 			</ul>
+			<a href="/admin" target="_blank"><i class="fa fa-wrench" aria-hidden="true"></i> Admin</a>
 			<a><i class="fa fa-user-circle-o" aria-hidden="true"></i> {{ username }}</a>
 		</span>
 	</div>
@@ -40,34 +44,44 @@ export default {
 }
 .logo {
 	font-size: 14px;
-	font-weight: bolder;
 	color: black;
+	font-style: italic;
 }
 .active-nav {
 	font-weight: bold;
-	text-decoration: underline;
 }
-#left {
+#left,
+#right {
 	align-items: baseline;
 }
 #left ul {
 	list-style: none;
-	margin-left: 10px;
+	margin-left: 0px;
+	padding-left: 10px;
 }
 #left ul li {
-	margin-left: 10px;
+	margin-left: 15px;
 }
 #right {
-	margin-right: 20px;
+	/*margin-right: 20px;*/
 }
 #right ul {
 	list-style: none;
 	margin-right: 5px;
 }
 #right ul li {
+	/*margin-right: 20px;*/
+}
+#right a {
 	margin-right: 20px;
 }
 ul li:hover {
 	cursor: pointer;
+}
+.logo, li, a {
+	text-decoration: none;
+}
+a, a:visited, a:active, a:focus {
+	color: black;
 }
 </style>

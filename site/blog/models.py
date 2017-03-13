@@ -46,6 +46,7 @@ def DEFAULT_NAVS():
 	return json.dumps([])
 	# example
 	return json.dumps([
+		# //TODO post.pk or url
 		{'name': 'Work', 'url': '/posts/?tags=work'},
 		{'name': 'Life', 'url': '#', 'sub': [
 				{'name': 'Movie', 'url': '/posts/?tags=movie'},
@@ -110,19 +111,19 @@ class Blog(models.Model):
 
 class Post(models.Model):
 	slug = models.CharField(max_length=128, unique=True, blank=True, \
-		help_text="as post url")
+		help_text="as url")
 	blog = models.ForeignKey(Blog)
-
 	author = models.ForeignKey(settings.AUTH_USER_MODEL)
+
 	title = models.CharField(max_length=70, blank=True, default='')
 	content = models.TextField(default='')
 	content_type = models.CharField(max_length=1, choices=POST_CONTENT_TYPE)
 	rendered_html = models.TextField()
+	template_name = models.CharField(max_length=24, default='default')
 
-	# django_comments
-	comment_enable = models.BooleanField(default=True)
-	sticky = models.BooleanField(default=False)
 	status = models.CharField(max_length=1, choices=POST_STATUS, default='d')
+	sticky = models.BooleanField(default=False)
+	comment_enable = models.BooleanField(default=True)
 
 	create_time = models.DateTimeField(auto_now_add=True)
 	last_modified_time = models.DateTimeField(auto_now=True)
@@ -186,24 +187,3 @@ class Comment(models.Model):
 	website = models.CharField(max_length=64, default='')
 
 	content = models.TextField()
-
-
-class Page(models.Model):
-	blog = models.ForeignKey(Blog)
-	url = models.CharField(max_length=128)
-
-	title = models.CharField(max_length=70)
-	content = models.TextField()
-	comments = models.BooleanField(default=False)
-
-	def __str__(self):
-		return self.title
-
-	def save(self, *args, **kwargs):
-		self.url = self.url.strip('/')
-		if self.pk is None:
-			find = Page.objects.filter(blog=self.blog, url=self.url)
-			if len(find) > 0:
-				raise Exception('already exists.')
-		super(Page, self).save(*args, **kwargs)
-

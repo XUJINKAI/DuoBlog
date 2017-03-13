@@ -8,7 +8,6 @@
 		<router-link :to="{ name: 'draft-list', params: { blog: blog.pk } }" class="blog_btn" :active-class="'blog_btn_clicked'" :tag="'li'">草稿 ({{ blog.draft_count }})</router-link>
 		<router-link :to="{ name: 'trash-list', params: { blog: blog.pk } }" class="blog_btn" :active-class="'blog_btn_clicked'" :tag="'li'">废纸篓({{ blog.trash_count }})</router-link>
 		<li>评论 ({{ blog.comment_count }})</li>
-		<li>导航</li>
 	</ul>
 </div>
 </template>

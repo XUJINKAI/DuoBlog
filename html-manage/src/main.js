@@ -5,9 +5,9 @@ import App from './App'
 import router from './router'
 import BUS from './API/BUS'
 
-import iView from 'iview';
-import 'iview/dist/styles/iview.css';
-Vue.use(iView);
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-default/index.css'
+Vue.use(ElementUI)
 
 Vue.config.productionTip = false
 window.DEBUG = (process.env.NODE_ENV !== 'production');
@@ -44,12 +44,7 @@ var app = new Vue({
 })
 
 router.beforeEach((to, from, next) => {
-	if(app.BUS.content_changed) {
-		alert('not saved');
-		next(false);
-	} else {
-		next();
-	}
+	app.BUS.on_router_change(to, from, next);
 })
 
 if(DEBUG) {

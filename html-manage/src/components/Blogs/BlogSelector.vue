@@ -1,7 +1,7 @@
 <template>
 	<div id="wrapper">
 		<NavItem v-for='blog in blogs' :blog='blog' :key='blog.pk'></NavItem>
-		<a @click='create'>新建</a>
+		<el-button @click='create' size='small'>新建</el-button>
 	</div>
 </template>
 
