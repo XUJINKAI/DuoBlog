@@ -1,22 +1,23 @@
 <template>
 	<div id='wrapper' v-if='post' class="box-col">
-		<div class="box">
+		<div id="meta-div" class="box">
 			<div class="stretch box-col">
-				<input id="title" type="input" v-model='post.title' class='border0' placeholder="<title>"></p>
-				<p class="box"><strong>URL</strong><span>: /p/</span>
+				<input id="title" type="input" v-model='post.title' class='border0' placeholder="<title>">
+				<div id="url" class="box">
+					<strong><a :href="post.html_url" target="_blank">URL</a></strong>
+					<span>: /p/</span>
 					<input type="text" v-model='post.slug' class="border0 stretch" placeholder="<auto>" style='width: 30em;'/>
-					<a :href="post.html_url" target="_blank">Open</a>
-				</p>
-				<div class="stretch">
+				</div>
+				<div id="tags" class="stretch">
 					<strong>Tags: </strong>
 					<span v-for='tag in post.tags'>{{ tag }} <i class="fa fa-times" aria-hidden="true"></i>, </span>
 					<input type="text" name="" placeholder="Add Tag" class="border0" style="width: 10em;">
 				</div>
 			</div>
-			<div style="flex: 0 1 100px">
-				<button v-on:click='save_publish'>publish</button>
-				<button v-on:click='save_draft'>draft</button>
-				<button v-on:click='delete_post'>delete</button>
+			<div id="save-div">
+				<el-button v-on:click='save_publish' type='primary'>publish</el-button>
+				<el-button v-on:click='save_draft' type='success'>draft</el-button>
+				<el-button v-on:click='delete_post' type='danger'>delete</el-button>
 			</div>
 			<div style="flex: 0 1 200px">
 				<p>创建 {{ create_time }}</p>
@@ -114,9 +115,15 @@ export default {
 #wrapper {
 	height: 100%;
 }
+#meta-div {
+	margin-bottom: 15px;
+}
 #title {
     font-size: x-large;
     font-weight: bolder;
+}
+#url, #tags {
+	margin-top: 10px;
 }
 .editor {
 	height: 100%;
@@ -125,5 +132,15 @@ export default {
 	flex: 1;
 	overflow: overlay;
 	margin-top: 1.2em;
+}
+#save-div {
+	flex: 0 0 60px;
+	margin-right: 20px;
+}
+#save-div button.el-button {
+	width: 100%;
+	height: 32px;
+	margin-left: 0;
+	border-radius: 0;
 }
 </style>

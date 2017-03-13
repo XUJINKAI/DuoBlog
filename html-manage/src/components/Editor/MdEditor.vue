@@ -1,10 +1,13 @@
 <template>
 	<div class="box-col" style="flex: 1; overflow: overlay; height: 100%;" :class='{full_screen: is_full_screen}'>
-		<div style="">
-			<span v-on:click='show("editor")' :class="{bolder: show_editor&&!show_html}">Markdown</span>
-			<span v-on:click='show("split")' :class="{bolder: show_editor&&show_html}">Split</span>
-			<span v-on:click='show("html")' :class="{bolder: !show_editor&&show_html}">Rendered</span>
-			<span v-on:click='full_screen' style="float: right;"><i class="fa fa-arrows-alt" aria-hidden="true"></i></span>
+		<div id="bar">
+			<span v-on:click='full_screen'><i class="fa fa-arrows-alt" aria-hidden="true"></i> FullScreen</span>
+			<div class="center">
+				<span v-on:click='show("editor")' :class="{bolder: show_editor&&!show_html}">Markdown</span>
+				<span v-on:click='show("split")' :class="{bolder: show_editor&&show_html}">Split</span>
+				<span v-on:click='show("html")' :class="{bolder: !show_editor&&show_html}">Rendered</span>
+			</div>
+			<div></div>
 		</div>
 		<div class="stretch box" style="padding-top: 1em;">
 			<textarea v-if='show_editor' id="editor-md-textarea" 
@@ -102,5 +105,18 @@ export default {
 	bottom: 0;
 	padding: 20px;
 	background-color: white;
+}
+#bar {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+#bar > span {
+	align-self: flex-start;
+}
+#bar .center {
+	/*align-self: center;*/
+	max-width: 50%;
 }
 </style>

@@ -93,9 +93,11 @@ body {
 
 /* common */
 .box {
+	display: -webkit-box;
 	display: flex;
 }
 .box-col {
+	display: -webkit-box;
 	display: flex;
 	flex-direction: column;
 }

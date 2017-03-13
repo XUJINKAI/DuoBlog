@@ -43,6 +43,14 @@ var app = new Vue({
 		self.BUS.$on('post_open', function(type, pk){
 			self.$router.push({name: type+'-detail', params: {post: pk }})
 		})
+		self.BUS.$on('post_saved', function(){
+			self.$message({
+				showClose: false,
+				type: 'success',
+				duration: 1000,
+				message: 'saved'
+			});
+		})
 		window._AJAX_ERROR = function(data) {
 			self.$message.error(JSON.stringify(data.responseText));
 		}

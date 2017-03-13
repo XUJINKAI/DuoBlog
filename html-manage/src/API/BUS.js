@@ -215,6 +215,7 @@ var BUS = new Vue({
 		save_post: function(post, callback){
 			var self = this;
 			API.post_update(post, function(data){
+				self.$emit('post_saved');
 				self.reload_blog_list();
 				if(callback) callback(data);
 			})
