@@ -2,7 +2,7 @@
 	<div id='wrapper' v-if='post' class="box-col">
 		<div id="meta-div" class="box">
 			<div class="stretch">
-				<input id="title" type="input" v-model='post.title' class='border0' placeholder="<title>">
+				<input id="title" type="input" v-model='post.title' class='border0' style="width: 90%;" placeholder="<title>">
 				<div id="url" class="box">
 					<strong><a :href="post.html_url" target="_blank">URL</a></strong>
 					<span>: /p/</span>
@@ -109,9 +109,14 @@ export default {
 		},
 		_save: function(){
 			var self = this;
-			self.BUS.save_post(self.post, function(data){
-				self.BUS.set_content(self.post, self._save, false);
-			});
+			// 传说中的回调地狱？
+			self.BUS.suppress_router(function(next_router){
+				self.BUS.save_post(self.post, function(data){
+					next_router(function(){
+						self.BUS.set_content(self.post, self._save, false);
+					});
+				});
+			})
 		},
 		save: function(){
 			this._save();

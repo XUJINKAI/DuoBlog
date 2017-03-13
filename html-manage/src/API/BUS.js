@@ -12,6 +12,8 @@ var BUS = new Vue({
 		_auto_save: false,
 		_save_handler: null,
 
+		_bln_suppress_router: false,
+
 		modal_login: null,
 		modal_save_no_cancel: null,
 		modal_blog_delete: null,
@@ -19,6 +21,9 @@ var BUS = new Vue({
 	computed: {
 		time_format: function(){
 			return 'YYYY-MM-DD HH:mm:ss';
+		},
+		bln_suppress_router: function(){
+			return this.$data._bln_suppress_router;
 		},
 		is_login: function(){
 			if( ! this.$data._session) {
@@ -54,10 +59,31 @@ var BUS = new Vue({
 		},
 	},
 	methods: {
+		/*
+		suppress_router(function(next){
+			// Do something
+			next(<callback>);
+		})
+		*/
+		suppress_router: function(callback){
+			if( ! callback) {
+				alert('Error: BUS.suppress_router must has callback');
+				return;
+			}
+			var self = this;
+			self.$data._bln_suppress_router = true;
+			callback(function(next){
+				self.$data._bln_suppress_router = false;
+				if(next) next();
+			})
+		},
+		// hook to router.beforeEach in main.js
 		on_router_change: function(to, from, next){
-			this.check_content_saved(function(clear){
+			var self = this;
+			self.check_content_saved(function(clear){
 				if(clear) {
-					next();
+					var suppress = self.$data._bln_suppress_router;
+					next( ! suppress);
 				} else {
 					next(false);
 				}

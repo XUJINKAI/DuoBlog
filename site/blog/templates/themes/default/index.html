@@ -14,9 +14,15 @@
 }
 .content_div li {
 	margin-bottom: 25px;
+	border-bottom: 1px rgba(224, 224, 224, 0.56) solid;
 }
 .content_div h3 {
 	font-size: 20px;
+	margin-bottom: 7px;
+}
+.content_div hr {
+	/*margin-bottom: 7px;*/
+	display: none;
 }
 .sticky_posts_tag {
 	color: red;
@@ -79,11 +85,12 @@ a:focus {
 				<a href="{% url 'posts_detail' post.slug %}">
 				<h3>{{ post.title }}</h3>
 				<p class="post_abstract">{{ post.rendered_html | truncatechars_html:250 | striptags }}</p>
-				</a>
 				<p>
 				<span class="text-muted" style="font-size: 0.8em;"><script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script></span>
 				</p>
+				</a>
 			</li>
+			<hr>
 			{% endfor %}
 		</ul>
 		<div class="page-div">

@@ -118,7 +118,7 @@ class Post(models.Model):
 	title = models.CharField(max_length=70, blank=True, default='')
 	content = models.TextField(default='')
 	content_type = models.CharField(max_length=1, choices=POST_CONTENT_TYPE)
-	rendered_html = models.TextField()
+	rendered_html = models.TextField(default='')
 	template_name = models.CharField(max_length=24, default='default')
 
 	status = models.CharField(max_length=1, choices=POST_STATUS, default='d')
