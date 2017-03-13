@@ -169,7 +169,6 @@ LOGIN_URL = '/account/login/'
 # management.middleware.py
 RESTRICTED_URLS = (
     (r'^/manage/', 'access_manage'),
-    (r'^/note/', 'access_note'),
     (r'^/admin/', 'access_admin'),
 )
 RESTRICTED_URLS_EXCEPTIONS = (
