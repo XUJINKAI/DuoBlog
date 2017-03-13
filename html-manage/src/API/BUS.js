@@ -9,6 +9,7 @@ var BUS = new Vue({
 
 		_ori_content: null,
 		_content: null,
+		_auto_save: false,
 		_save_handler: null,
 
 		modal_login: null,
@@ -47,6 +48,8 @@ var BUS = new Vue({
 		content_changed: function(){
 			if(window.DEBUG) {
 				log('BUS.content_changed = '+this.content_changed);
+				// log(JSON.stringify(this.$data._ori_content));
+				// log(JSON.stringify(this.$data._content));
 			}
 		},
 	},
@@ -97,32 +100,40 @@ var BUS = new Vue({
 			});
 		},
 		// global content change modal
-		set_content: function(obj, save_handler){
+		set_content: function(obj, save_handler, auto_save=false){
 			if( ! save_handler) {
 				alert('网页出错：BUS.set_content must have a save_handler')
 			}
+			log('BUS.set_content')
 			this.$data._ori_content = JSON.parse(JSON.stringify(obj));
 			this.$data._content = obj;
 			this.$data._save_handler = save_handler;
+			this.$data._auto_save = auto_save;
 		},
 		clear_content: function(){
+			log('BUS.clear_content')
 			this.$data._ori_content = null;
 			this.$data._content = null;
 		},
 		check_content_saved: function(cb_clear){
 			var self = this;
-			if(this.content_changed) {
-				self.modal_save_no_cancel(function(result){
-					if(result=='save') {
-						self.$data._save_handler()
-						cb_clear(true);
-					} else if (result=='no') {
-						self.clear_content();
-						cb_clear(true);
-					} else {
-						cb_clear(false);
-					}
-				})
+			if(self.content_changed) {
+				if(self.$data._auto_save) {
+					self.$data._save_handler();
+					cb_clear(true);
+				} else {
+					self.modal_save_no_cancel(function(result){
+						if(result=='save') {
+							self.$data._save_handler();
+							cb_clear(true);
+						} else if (result=='no') {
+							self.clear_content();
+							cb_clear(true);
+						} else {
+							cb_clear(false);
+						}
+					})
+				}
 			} else {
 				cb_clear(true);
 			}
@@ -178,7 +189,7 @@ var BUS = new Vue({
 		post_open: function(post){
 			if(post.status=='p') {
 				this.$emit('post_open', 'post', post.pk);
-			} else {
+			} else if (post.status=='d') {
 				this.$emit('post_open', 'draft', post.pk);
 			}
 		},
@@ -205,8 +216,7 @@ var BUS = new Vue({
 			var self = this;
 			API.post_update(post, function(data){
 				self.reload_blog_list();
-				self.post_open(data);
-				if(callback) callback();
+				if(callback) callback(data);
 			})
 		},
 		delete_post: function(post, callback){

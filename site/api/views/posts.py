@@ -60,6 +60,10 @@ class PostViewSet(viewsets.ModelViewSet):
 		
 
 	def create(self, request, *args, **kwargs):
+		if not get_current_blog(self.request):
+			return Response({
+				'error': 'your request domain not found'
+				}, status=status.HTTP_403_FORBIDDEN)
 		return super().create(request, *args, **kwargs)
 
 	def perform_create(self, serializer):

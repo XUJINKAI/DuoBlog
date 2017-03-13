@@ -1,6 +1,6 @@
 venv
 
-static
+/static/
 
 data/*
 !data/uploads

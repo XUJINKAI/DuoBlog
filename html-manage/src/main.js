@@ -43,12 +43,16 @@ var app = new Vue({
 		self.BUS.$on('post_open', function(type, pk){
 			self.$router.push({name: type+'-detail', params: {post: pk }})
 		})
+		window._AJAX_ERROR = function(data) {
+			self.$message.error(JSON.stringify(data.responseText));
+		}
 	}
 })
 
 router.beforeEach((to, from, next) => {
 	app.BUS.on_router_change(to, from, next);
 })
+
 
 if(DEBUG) {
 	window.BUS = BUS;

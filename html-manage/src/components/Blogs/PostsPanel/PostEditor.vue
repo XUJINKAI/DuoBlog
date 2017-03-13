@@ -64,31 +64,46 @@ export default {
 	watch: {
 		'$route': function(){
 			this.reload();
-		}
+		},
+		post: {
+			handler: function(){
+				log('PostEditor: post changed');
+				// log(JSON.stringify(this.post));
+			},
+			deep: true,
+		},
 	},
 	methods: {
 		reload: function(){
 			var self = this;
 			this.BUS.load_post(self.url_pk, function(data){
 				self.post = data;
+				self.BUS.set_content(data, self._save, true);
 			})
 		},
 		delete_post: function() {
 			this.BUS.delete_post(this.post);
+			this.BUS.clear_content();
+		},
+		_save: function(){
+			var self = this;
+			this.BUS.save_post(this.post, function(data){
+				self.BUS.set_content(data, self._save, true);
+			});
 		},
 		save_publish: function() {
 			this.post.status = 'p';
-			this.BUS.save_post(this.post);
+			this._save();
 		},
 		save_draft: function() {
 			this.post.status = 'd';
-			this.BUS.save_post(this.post);
+			this._save();
 		},
 	},
 	created: function() {
-		this.reload();
 		var self = this;
-		this.BUS.$on('post_deleted', function(){
+		self.reload();
+		self.BUS.$on('post_deleted', function(){
 			self.post = null;
 		})
 	},
