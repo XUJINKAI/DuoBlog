@@ -19,14 +19,22 @@
 				<el-button v-on:click='save_draft' type='success'>draft</el-button>
 				<el-button v-on:click='delete_post' type='danger'>delete</el-button>
 			</div>
-			<div style="flex: 0 1 200px">
+			<div style="info-div">
+				<el-select v-model="post.blog" placeholder="">
+					<el-option
+						v-for="blog in BUS.blog_list"
+						:key='blog.pk'
+						:label="blog.name"
+						:value="blog.pk">
+					</el-option>
+				</el-select>
 				<p>创建 {{ create_time }}</p>
 				<p>修改 {{ last_modified_time }}</p>
 				<p>
 					<input type="checkbox" v-model='post.comments'>
-					<span v-on:click='post.comments=!post.comments'>Comments</span>
+					<span @click='post.comments=!post.comments'>Comments</span>
 					<input type="checkbox" v-model='post.sticky'>
-					<span v-on:click='post.sticky=!post.sticky'>Sticky</span>
+					<span @click='post.sticky=!post.sticky'>Sticky</span>
 				</p>
 			</div>
 		</div>
@@ -142,5 +150,8 @@ export default {
 	height: 32px;
 	margin-left: 0;
 	border-radius: 0;
+}
+#info-div {
+	flex: 0 1 200px
 }
 </style>

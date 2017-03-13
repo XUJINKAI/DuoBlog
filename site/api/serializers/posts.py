@@ -30,11 +30,12 @@ class PostListSerializer(serializers.ModelSerializer):
 class PostDetailSerializer(serializers.ModelSerializer):
 	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='pk', read_only=True)
 	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
+	blog = serializers.IntegerField(source='blog.pk', required=False, read_only=True)
 
 	class Meta:
 		model = blog_models.Post
 		fields = (
-			'pk', 'slug', 'api_url', 'html_url', \
+			'pk', 'blog', 'slug', 'api_url', 'html_url', \
 			'create_time', 'last_modified_time', \
 			'views_count', 'modified_count', \
 			'comments', 'sticky', 'status', \
@@ -59,3 +60,11 @@ class PostCreateSerializer(serializers.ModelSerializer):
 class PostUpdateSerializer(PostCreateSerializer):
 	class Meta(PostCreateSerializer.Meta):
 		pass
+
+	def update(self, instance, validated_data):
+		if 'blog' in validated_data.keys():
+			pk = validated_data['blog']['pk']
+			blog = blog_models.Blog.objects.get(pk=pk)
+			setattr(instance, 'blog', blog)
+			del validated_data['blog']
+		return super().update(instance, validated_data)
