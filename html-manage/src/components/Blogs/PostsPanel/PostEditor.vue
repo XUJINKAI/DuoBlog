@@ -69,7 +69,7 @@ export default {
 		post: {
 			handler: function(){
 				log('PostEditor: post changed');
-				// log(JSON.stringify(this.post));
+				log(JSON.stringify(this.post));
 			},
 			deep: true,
 		},
@@ -79,7 +79,7 @@ export default {
 			var self = this;
 			this.BUS.load_post(self.url_pk, function(data){
 				self.post = data;
-				self.BUS.set_content(data, self._save, true);
+				self.BUS.set_content(data, self._save, false);
 			})
 		},
 		delete_post: function() {
@@ -89,7 +89,7 @@ export default {
 		_save: function(){
 			var self = this;
 			this.BUS.save_post(this.post, function(data){
-				self.BUS.set_content(data, self._save, true);
+				self.BUS.set_content(data, self._save, false);
 			});
 		},
 		save_publish: function() {

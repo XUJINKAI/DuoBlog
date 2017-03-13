@@ -25,7 +25,7 @@ class PostListSerializer(serializers.ModelSerializer):
 			'create_time', 'last_modified_time', \
 			'views_count', 'modified_count', \
 			'comments', 'sticky', 'status', \
-			'title', 'content_type', \
+			'title', 'content_type', 'abstract', \
 			)
 
 

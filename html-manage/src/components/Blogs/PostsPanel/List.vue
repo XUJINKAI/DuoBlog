@@ -15,7 +15,7 @@
 			:tag="'li'"
 			>
 			<input type="checkbox" value='post' v-model='selected_posts'>
-			<p>{{ post.title }}</p>
+			<p>{{ post.abstract }}</p>
 			<!-- <span>{{ post.last_modified_time }}</span> -->
 		</router-link>
 	</ul>

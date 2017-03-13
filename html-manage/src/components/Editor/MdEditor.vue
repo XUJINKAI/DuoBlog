@@ -34,15 +34,8 @@
 
 
 <script>
-$.getScript('http://cdn.bootcss.com/marked/0.3.6/marked.min.js');
 var RENDER_MARKDOWN = function(md){
-	var render = function() {
-		return marked(md);
-	}
-	if(typeof(marked)=='undefined') {
-		log('//MAKE RENDER MARKDOWN ASYNC.')
-	}
-	return render();
+	return marked(md).trim();
 }
 
 export default { 
@@ -59,6 +52,9 @@ export default {
 	watch: {
 		'model.content': function(){
 			this.model.rendered_html = this.render(this.model.content);
+			log('MdEditor: model.content changed')
+			log(this.model.content);
+			log(this.model.rendered_html);
 		}
 	},
 	methods: {
