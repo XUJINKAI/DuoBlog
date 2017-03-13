@@ -53,8 +53,11 @@ ul {
 			{% for post in posts %}
 			<li>
 				<h3>
-					<a href="{% url 'posts_detail' post.slug %}">{{ post.title }}</a>
+					<a href="{% url 'posts_detail' post.slug %}">
+					{% if post.title %}{{ post.title }}{% else %}
+					{{ post.rendered_html | truncatechars_html:20 | striptags }}{% endif %}
 					<span class="post_time"><script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script></span>
+					</a>
 				</h3>
 			</li>
 			{% endfor %}

@@ -65,17 +65,20 @@ a:focus {
 			{% if current_page == 1 %}
 			{% for post in sticky_posts %}
 			<li>
-				<h3><span class="sticky_posts_tag">[Sticky]</span> <a href="{% url 'posts_detail' post.slug %}">{{ post.title }}</a></h3>
+				<h3><a href="{% url 'posts_detail' post.slug %}"><span class="sticky_posts_tag">[置顶]</span> {{ post.abstract }}</a></h3>
 			</li>
 			{% endfor %}
 			{% endif %}
 			{% for post in posts %}
-			<li><a href="{% url 'posts_detail' post.slug %}">
-				<h3>{{ post.title }}
-				<span class="text-muted" style="font-size: 0.6em;"><script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script></span>
-				</h3>
+			<li>
+				<a href="{% url 'posts_detail' post.slug %}">
+				<h3>{{ post.title }}</h3>
 				<p class="post_abstract">{{ post.rendered_html | truncatechars_html:250 | striptags }}</p>
-			</a></li>
+				</a>
+				<p>
+				<span class="text-muted" style="font-size: 0.8em;"><script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script></span>
+				</p>
+			</li>
 			{% endfor %}
 		</ul>
 		<div class="page-div">

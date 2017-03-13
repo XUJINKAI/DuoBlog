@@ -77,27 +77,27 @@ def post_show(request, slug):
 
 
 def posts_list(request):
-	search_tags = [x for x in request.GET.get('tags', '').split(',') if x]
+	# search_tags = [x for x in request.GET.get('tags', '').split(',') if x]
 	all_posts = models.Post.objects.blog_queryset(request)
-	if search_tags:
-		qs = all_posts
-		for tag in search_tags:
-			qs = qs.filter(tags__name=tag)
-		posts = qs
-		posts_tags = set(tag.name for post in posts for tag in post.tags.all())
-	else:
-		posts = all_posts[:100]
-		posts_tags = set(tag.name for post in all_posts for tag in post.tags.all())
+	# if search_tags:
+	# 	qs = all_posts
+	# 	for tag in search_tags:
+	# 		qs = qs.filter(tags__name=tag)
+	# 	posts = qs
+	# 	posts_tags = set(tag.name for post in posts for tag in post.tags.all())
+	# else:
+	# 	posts = all_posts[:100]
+	# 	posts_tags = set(tag.name for post in all_posts for tag in post.tags.all())
 	all_tags = []
-	for p in Counter(tag.name for post in all_posts for tag in post.tags.all()).most_common():
-		all_tags.append({
-			'name': p[0],
-			'count': p[1],
-			'selected': p[0] in search_tags,
-			'overlap': p[0] in posts_tags,
-			})
+	# for p in Counter(tag.name for post in all_posts for tag in post.tags.all()).most_common():
+	# 	all_tags.append({
+	# 		'name': p[0],
+	# 		'count': p[1],
+	# 		'selected': p[0] in search_tags,
+	# 		'overlap': p[0] in posts_tags,
+	# 		})
 	context = {
-		'posts': posts,
+		'posts': all_posts,
 		'all_tags': all_tags,
 	}
 	return render_theme(request, 'posts_list.html', context)
