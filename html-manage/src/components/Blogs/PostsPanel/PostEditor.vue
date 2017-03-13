@@ -3,7 +3,7 @@
 		<div class="box">
 			<div class="stretch box-col">
 				<input id="title" type="input" v-model='post.title' class='border0' placeholder="<title>"></p>
-				<p class="box"><strong>URL</strong><span>: /posts/</span>
+				<p class="box"><strong>URL</strong><span>: /p/</span>
 					<input type="text" v-model='post.slug' class="border0 stretch" placeholder="<auto>" style='width: 30em;'/>
 					<a :href="post.html_url" target="_blank">Open</a>
 				</p>
@@ -16,7 +16,7 @@
 			<div style="flex: 0 1 100px">
 				<button v-on:click='save_publish'>publish</button>
 				<button v-on:click='save_draft'>draft</button>
-				<button v-on:click='delete_current'>delete</button>
+				<button v-on:click='delete_post'>delete</button>
 			</div>
 			<div style="flex: 0 1 200px">
 				<p>创建 {{ create_time }}</p>
@@ -66,27 +66,32 @@ export default {
 			this.reload();
 		}
 	},
-	created: function() {
-		this.reload();
-	},
 	methods: {
 		reload: function(){
 			var self = this;
-			API.post_detail_by_pk(self.url_pk, function(data){
+			this.BUS.load_post(self.url_pk, function(data){
 				self.post = data;
 			})
 		},
-		delete_current: function() {
-			this.BUS.delete_post_detail();
+		delete_post: function() {
+			this.BUS.delete_post(this.post);
 		},
 		save_publish: function() {
-			this.BUS.save_post_detail_public();
+			this.post.status = 'p';
+			this.BUS.save_post(this.post);
 		},
 		save_draft: function() {
-			this.BUS.save_post_detail_draft();
+			this.post.status = 'd';
+			this.BUS.save_post(this.post);
 		},
-	}
-
+	},
+	created: function() {
+		this.reload();
+		var self = this;
+		this.BUS.$on('post_deleted', function(){
+			self.post = null;
+		})
+	},
 };
 </script>
 

@@ -60,7 +60,7 @@ var BUS = new Vue({
 				}
 			})
 		},
-
+		// session
 		reload_session(){
 			var self = this;
 			API.login_status(function(data){
@@ -96,7 +96,7 @@ var BUS = new Vue({
 				self.$data._session = data;
 			});
 		},
-
+		// global content change modal
 		set_content: function(obj, save_handler){
 			if( ! save_handler) {
 				alert('网页出错：BUS.set_content must have a save_handler')
@@ -127,7 +127,7 @@ var BUS = new Vue({
 				cb_clear(true);
 			}
 		},
-
+		// blog
 		reload_blog_list: function(callback, emit=true){
 			var self = this;
 			API.blog_list(function(data){
@@ -174,8 +174,20 @@ var BUS = new Vue({
 				if(callback) callback(data);
 			})
 		},
-
-		create_new_post: function(type){
+		// post
+		post_open: function(post){
+			if(post.status=='p') {
+				this.$emit('post_open', 'post', post.pk);
+			} else {
+				this.$emit('post_open', 'draft', post.pk);
+			}
+		},
+		load_post: function(pk, callback){
+			API.post_detail(pk, function(data){
+				if(callback) callback(data);
+			})
+		},
+		create_new_post: function(type, callback){
 			var self = this;
 			API.post_new({
 				status: 'd',
@@ -185,38 +197,25 @@ var BUS = new Vue({
 				tags: [],
 			}, function(data){
 				self.reload_blog_list();
-				self.reload_post_list();
-				self.$data._post__slug = data.slug;
-				self.$data.current_post = data;
-				self.reload_post_detail();
+				self.post_open(data);
+				if(callback) callback(data);
 			})
 		},
-
-		save_post_detail: function(type, callback){
+		save_post: function(post, callback){
 			var self = this;
-			if(type) {
-				self.post_detail.status = type;
-			}
-			API.post_update(self.post_detail, function(){
-				self.$data._post_changed = false;
+			API.post_update(post, function(data){
 				self.reload_blog_list();
-				self.reload_post_list();
+				self.post_open(data);
 				if(callback) callback();
 			})
 		},
-		save_post_detail_public: function(){
-			this.save_post_detail('p');
-		},
-		save_post_detail_draft: function(){
-			this.save_post_detail('d');
-		},
-		delete_post_detail: function(){
+		delete_post: function(post, callback){
 			var self = this;
-			API.post_delete(this.post_detail, function(){
+			API.post_delete(post, function(){
 				self.reload_blog_list();
-				self.reload_post_list();
-				self.$data._post__slug = -1;
-				self.$data._post_detail = null
+				self.$emit('post_list_changed');
+				self.$emit('post_deleted')
+				if(callback) callback();
 			});
 		},
 	},

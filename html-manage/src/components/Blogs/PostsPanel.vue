@@ -56,12 +56,6 @@ export default {
 				});
 			}
 		},
-		blog: function(){
-			return this.BUS.current_blog;
-		},
-		selected_post: function(){
-			return this.BUS.current_post;
-		},
 		tags: function(){
 			var tags_list = [];
 			_.forEach(this.all_posts, function(post){
@@ -89,9 +83,6 @@ export default {
 			this.reload_all_posts();
 		}
 	},
-	created: function(){
-		this.reload_all_posts();
-	},
 	methods: {
 		reload_all_posts: function(){
 			var self = this;
@@ -102,17 +93,14 @@ export default {
 				self.all_posts = data;
 			})
 		},
-		create_new_post: function(type) {
-			this.BUS.create_new_post(type);
-		},
-		select_post: function(post){
-			this.BUS.select_post(post);
-		},
 		new_markdown: function(){
 			this.BUS.create_new_post('m');
 		},
 		new_html: function(){
 			this.BUS.create_new_post('h');
+		},
+		create_new_post: function(type) {
+			this.BUS.create_new_post(type);
 		},
 		selected_posts_change: function(posts){
 			if(posts.length == 1) {
@@ -122,6 +110,12 @@ export default {
 			}
 		},
 	},
+	created: function(){
+		this.BUS.$on('post_list_changed', this.reload_all_posts);
+	},
+	mounted: function(){
+		this.reload_all_posts();
+	}
 }
 </script>
 

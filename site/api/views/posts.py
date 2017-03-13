@@ -54,6 +54,7 @@ class PostViewSet(viewsets.ModelViewSet):
 			'retrieve': 'api_detail_queryset',
 			'update': 'api_detail_queryset',
 			'partial_update': 'api_detail_queryset',
+			'destroy': 'api_detail_queryset',
 		}[self.action]
 		return getattr(blog_models.Post.objects, func_name)(self.request)
 		
