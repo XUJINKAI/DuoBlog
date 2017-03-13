@@ -5,6 +5,7 @@ import BlogHomePanal from '@/components/Blogs/HomePanal'
 import BlogSetting from '@/components/Blogs/HomePanal/Setting'
 import BlogNavs from '@/components/Blogs/HomePanal/Navs'
 import BlogImportJekyll from '@/components/Blogs/HomePanal/Import_Jekyll'
+import UserMe from '@/components/Users/UserMe'
 import PostsPanel from '@/components/Blogs/PostsPanel'
 import PostEditor from '@/components/Blogs/PostsPanel/PostEditor'
 
@@ -54,6 +55,9 @@ export default new Router({
 					],
 				},
 			]
+		},
+		{
+			path: '/me', component: UserMe, name: 'userme',
 		},
 		{
 			path: '/', component: Blogs, name: 'index',

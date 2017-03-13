@@ -7,6 +7,9 @@
 				<li>Users</li>
 				<li>Files</li>
 				<li>Advanced</li>
+				<router-link :to="{name: 'userme'}" tag='li' :active-class="'active-nav'">
+					<i class="fa fa-user-circle-o" aria-hidden="true"></i> {{ username }}
+				</router-link>
 			</ul>
 		</span>
 		<span id="right" class="box">
@@ -17,7 +20,6 @@
 				</a></li>
 			</ul>
 			<a href="/admin" target="_blank"><i class="fa fa-wrench" aria-hidden="true"></i> Admin</a>
-			<a><i class="fa fa-user-circle-o" aria-hidden="true"></i> {{ username }}</a>
 		</span>
 	</div>
 </template>

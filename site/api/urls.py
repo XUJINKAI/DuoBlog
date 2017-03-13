@@ -4,6 +4,7 @@ from .views.blogs import BlogViewSet
 from .views.posts import PostViewSet
 from .views.comments import CommentViewSet
 from .views.img import img_view
+from .views.session import SessionView
 
 
 app_name = 'api'
@@ -16,6 +17,7 @@ router.register(r'posts', PostViewSet)
 
 urlpatterns = [
 	url(r'^', include(router.urls)),
+	url(r'^session/', SessionView.as_view()),
 	# session
 	# users
 	# blogs/<pk>/tags	GET

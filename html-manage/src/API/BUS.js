@@ -4,7 +4,7 @@ export default BUS;
 
 var BUS = new Vue({
 	data: {
-		_session: null,
+		_session: {login: true, username: 'Not_Login'},
 		_blog_list: [],
 
 		_ori_content: null,
@@ -19,18 +19,18 @@ var BUS = new Vue({
 		time_format: function(){
 			return 'YYYY-MM-DD HH:mm:ss';
 		},
+		is_login: function(){
+			if( ! this.$data._session) {
+				return false;
+			} else {
+				return this.$data._session.login;
+			}
+		},
 		username: function(){
 			if(this.is_login){
 				return this.$data._session.username;
 			} else {
 				return 'Not_Login';
-			}
-		},
-		is_login: function(){
-			if( ! this.$data._session) {
-				return false;
-			} else {
-				return true;
 			}
 		},
 		blog_list: function(){
@@ -61,16 +61,40 @@ var BUS = new Vue({
 			})
 		},
 
-		login: function(username, password){
+		reload_session(){
 			var self = this;
-			API.login(username, password, function(session){
-				self.$data._session = session;
+			API.login_status(function(data){
+				self.$data._session = data;
+				self.reload_blog_list();
 			})
 		},
-		check_login: function(callback){
-			if(this.is_login){
-				callback();
+		login: function(username, password){
+			var self = this;
+			if(username=='' || password=='') {
+				self.$message({
+					message: '请输入信息',
+					type: 'warning'
+				});
+				return;
 			}
+			API.login(username, password, function(data){
+				self.$data._session = data;
+				if(self.is_login) {
+					self.reload_blog_list();
+					self.$message({
+						message: '登录成功',
+						type: 'success'
+					});
+				} else {
+					self.$message.error('登录失败');
+				}
+			})
+		},
+		logout: function(){
+			var self = this;
+			API.logout(function(data){
+				self.$data._session = data;
+			});
 		},
 
 		set_content: function(obj, save_handler){
@@ -203,9 +227,7 @@ var BUS = new Vue({
 				return "确定退出吗";
 			}
 		}
-		self.check_login(function(){
-			self.reload_blog_list();
-		})
+		this.reload_session();
 	},
 });
 Vue.use(function(Vue){
