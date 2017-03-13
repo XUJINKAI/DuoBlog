@@ -32,6 +32,7 @@ var API = {
 			name: blog.name,
 			url: blog.url,
 			desc: blog.desc,
+			navs: blog.navs,
 			head_html: blog.head_html,
 			body_html: blog.body_html,
 			custom_comment_html: blog.custom_comment_html,

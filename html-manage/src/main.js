@@ -51,6 +51,14 @@ var app = new Vue({
 				message: 'saved'
 			});
 		})
+		self.BUS.$on('blog_saved', function(){
+			self.$message({
+				showClose: false,
+				type: 'success',
+				duration: 1000,
+				message: 'saved'
+			});
+		})
 		window._AJAX_ERROR = function(data) {
 			self.$message.error(JSON.stringify(data.responseText));
 		}

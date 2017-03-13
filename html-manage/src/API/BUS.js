@@ -182,6 +182,7 @@ var BUS = new Vue({
 			var self = this;
 			API.blog_update(blog, function(data){
 				self.reload_blog_list();
+				self.$emit('blog_saved', data);
 				if(callback) callback(data);
 			})
 		},

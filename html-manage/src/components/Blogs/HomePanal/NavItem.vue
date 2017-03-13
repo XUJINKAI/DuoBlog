@@ -2,7 +2,7 @@
 	<li>
 		<div
 			:class=""
-			v-if='!isRoot'
+			v-if='model && !isRoot'
 			v-bind:title='model.url'
 		>
 			<span @click="Toggle">{{ model.name }}</span>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -15,12 +15,13 @@
 			<input type="" name="" v-model='model.name' placeholder="Title">
 			<input type="" name="" v-model='model.url' v-if="!hasSubItems" placeholder="URL">
 		</form>
-		<ul v-show="hasSubItems || isRoot">
-			<navs-item
+		<ul v-if="hasSubItems || isRoot">
+			<NavItem
 				class="item"
 				v-for="model in model.sub"
+				:key='model.name'
 				:model="model">
-			</navs-item>
+			</NavItem>
 			<li class="add" @click="addChild">+</li>
 		</ul>
 	</li>
@@ -28,6 +29,7 @@
 
 <script>
 export default {
+	name: 'NavItem',
 	props: {
 		model: Object
 	},
@@ -41,7 +43,7 @@ export default {
 			return this.model.sub;
 		},
 		hasSubItems: function () {
-			return this.model.sub && this.model.sub.length;
+			return this.model && this.model.sub && this.model.sub.length;
 		},
 		isRoot: function() {
 			return this.$parent.$parent==undefined;

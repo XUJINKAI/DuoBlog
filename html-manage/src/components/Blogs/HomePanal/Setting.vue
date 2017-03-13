@@ -1,6 +1,6 @@
 <template>
 <div id="wrapper" class="box">
-	<div v-if='blog' class="stretch">
+	<div v-if='blog' class="stretch left">
 		<p>name: <el-input v-model="blog.name"></el-input></p>
 		<p>domain: <el-input type="input" v-model="blog.url"></el-input></p>
 		<p>desc: <el-input type="input" v-model="blog.desc"></el-input></p>
@@ -29,27 +29,54 @@
 		<el-button type='danger'  @click='delete_blog'>Delete this Blog</el-button>
 	</div>
 	<div class="stretch">
+		<NavItem :model='navs'></NavItem>
 	</div>
 </div>
 </template>
 
 <script>
+import NavItem from './NavItem'
 export default {
+	components: {
+		NavItem,
+	},
 	data: function(){
 		return {
 			blog: null,
+			navs: null,
+		}
+	},
+	watch: {
+		navs: {
+			handler: function(){
+				log('nav');
+				this.update_navs_to_json();
+			},
+			deep: true,
 		}
 	},
 	computed: {
 		blog_pk: function() {
 			return this.$route.params.blog;
-		}
+		},
 	},
 	methods: {
+		parse_navs: function(json){
+			if(json!=='') {
+				this.navs = {name: 'root', sub: JSON.parse(json)}
+			}
+			else {
+				this.navs = {name: 'root', sub: []}
+			}
+		},
+		update_navs_to_json: function(){
+			this.blog.navs = JSON.stringify(this.navs.sub);
+		},
 		reload_blog: function(){
 			var self = this;
 			API.blog_detail(this.blog_pk, function(data){
 				self.blog = data;
+				self.parse_navs(data.navs);
 				self.BUS.set_content(data, self.save_blog);
 			})
 		},
@@ -59,6 +86,7 @@ export default {
 		},
 		save_blog: function(){
 			var self = this;
+			this.update_navs_to_json();
 			this.BUS.save_blog(this.blog, function(data){
 				self.BUS.set_content(data, self.save_blog);
 			});
@@ -79,5 +107,8 @@ export default {
 #wrapper {
 	overflow-y: auto;
 	/*margin-left: 20px;*/
+}
+.left {
+	flex: 0 0 50%;
 }
 </style>

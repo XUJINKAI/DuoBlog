@@ -2,7 +2,6 @@
 <div id="wrapper">
 	<div>
 		<router-link :to="{name: 'blog'}">Setting</router-link>
-		<router-link :to="{name: 'blog-navs'}">Navs</router-link>
 		<router-link :to="{name: 'blog-import-jekyll'}">ImportJekyll</router-link>
 	</div>
 	<div id="content">

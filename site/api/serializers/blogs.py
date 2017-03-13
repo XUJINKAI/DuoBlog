@@ -21,4 +21,5 @@ class BlogDetailSerializer(serializers.HyperlinkedModelSerializer):
 		model = BlogModel
 		fields = ('pk', 'api_url', 'name', 'url', 'desc', \
 			'post_count', 'draft_count', 'trash_count', 'comment_count', \
-			'head_html', 'body_html', 'custom_comment_html')
+			'head_html', 'body_html', 'custom_comment_html', 
+			'navs')
