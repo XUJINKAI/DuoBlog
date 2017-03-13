@@ -1,7 +1,7 @@
 <template>
 	<div id='wrapper' v-if='post' class="box-col">
 		<div id="meta-div" class="box">
-			<div class="stretch box-col">
+			<div class="stretch">
 				<input id="title" type="input" v-model='post.title' class='border0' placeholder="<title>">
 				<div id="url" class="box">
 					<strong><a :href="post.html_url" target="_blank">URL</a></strong>
@@ -13,28 +13,41 @@
 					<span v-for='tag in post.tags'>{{ tag }} <i class="fa fa-times" aria-hidden="true"></i>, </span>
 					<input type="text" name="" placeholder="Add Tag" class="border0" style="width: 10em;">
 				</div>
+				<p style="margin-top: 10px; color: gray;">创建 {{ create_time }}, 修改 {{ last_modified_time }}</p>
 			</div>
 			<div id="save-div">
-				<el-button v-on:click='save_publish' type='primary'>publish</el-button>
-				<el-button v-on:click='save_draft' type='success'>draft</el-button>
-				<el-button v-on:click='delete_post' type='danger'>delete</el-button>
+				<el-button v-on:click='save_publish' type='primary'>Publish</el-button>
+				<el-button v-on:click='save_draft' type='success'>Draft</el-button>
+				<el-button v-on:click='delete_post' type='danger'>Delete</el-button>
 			</div>
 			<div style="info-div">
-				<el-select v-model="post.blog" placeholder="">
-					<el-option
-						v-for="blog in BUS.blog_list"
-						:key='blog.pk'
-						:label="blog.name"
-						:value="blog.pk">
-					</el-option>
-				</el-select>
-				<p>创建 {{ create_time }}</p>
-				<p>修改 {{ last_modified_time }}</p>
 				<p>
-					<input type="checkbox" v-model='post.comments'>
-					<span @click='post.comments=!post.comments'>Comments</span>
-					<input type="checkbox" v-model='post.sticky'>
-					<span @click='post.sticky=!post.sticky'>Sticky</span>
+					<el-select v-model="post.blog" placeholder="">
+						<el-option
+							v-for="blog in BUS.blog_list"
+							:key='blog.pk'
+							:label="blog.name"
+							:value="blog.pk">
+						</el-option>
+					</el-select>
+				</p>
+				<p class="cs_switch">
+					<span>Comments</span>
+					<el-switch
+						v-model="post.comments"
+						@change='save'
+						on-text="on"
+						off-text="off">
+					</el-switch>
+				</p>
+				<p class="cs_switch">
+					<span>Sticky</span>
+					<el-switch
+						v-model="post.sticky"
+						@change='save'
+						on-text="on"
+						off-text="off">
+					</el-switch>
 				</p>
 			</div>
 		</div>
@@ -96,9 +109,12 @@ export default {
 		},
 		_save: function(){
 			var self = this;
-			this.BUS.save_post(this.post, function(data){
-				self.BUS.set_content(data, self._save, false);
+			self.BUS.save_post(self.post, function(data){
+				self.BUS.set_content(self.post, self._save, false);
 			});
+		},
+		save: function(){
+			this._save();
 		},
 		save_publish: function() {
 			this.post.status = 'p';
@@ -153,5 +169,11 @@ export default {
 }
 #info-div {
 	flex: 0 1 200px
+}
+.cs_switch {
+	display: flex;
+}
+.cs_switch span {
+	flex: 0 0 90px;
 }
 </style>

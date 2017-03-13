@@ -40,8 +40,8 @@ var app = new Vue({
 				self.check_route();
 			}
 		})
-		self.BUS.$on('post_open', function(type, pk){
-			self.$router.push({name: type+'-detail', params: {post: pk }})
+		self.BUS.$on('router_open_post', function(type, pk, blog_pk){
+			self.$router.push({name: type+'-detail', params: {blog: blog_pk, post: pk }})
 		})
 		self.BUS.$on('post_saved', function(){
 			self.$message({

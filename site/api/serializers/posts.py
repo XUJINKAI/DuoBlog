@@ -15,6 +15,7 @@ class PostAuthorSerializer(serializers.HyperlinkedModelSerializer):
 class PostListSerializer(serializers.ModelSerializer):
 	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='pk', read_only=True)
 	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
+	comments = serializers.BooleanField(source='comment_enable')
 
 	class Meta:
 		model = blog_models.Post
@@ -31,6 +32,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='pk', read_only=True)
 	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
 	blog = serializers.IntegerField(source='blog.pk', required=False, read_only=True)
+	comments = serializers.BooleanField(source='comment_enable')
 
 	class Meta:
 		model = blog_models.Post
@@ -48,7 +50,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
 class PostCreateSerializer(serializers.ModelSerializer):
 	blog = serializers.IntegerField(source='blog.pk', required=False)
-	comments = serializers.CharField(source='comment_enable', required=False)
+	comments = serializers.BooleanField(source='comment_enable', required=False)
 
 	class Meta:
 		model = blog_models.Post

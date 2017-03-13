@@ -187,11 +187,11 @@ var BUS = new Vue({
 			})
 		},
 		// post
-		post_open: function(post){
+		router_open_post: function(post){
 			if(post.status=='p') {
-				this.$emit('post_open', 'post', post.pk);
+				this.$emit('router_open_post', 'post', post.pk, post.blog);
 			} else if (post.status=='d') {
-				this.$emit('post_open', 'draft', post.pk);
+				this.$emit('router_open_post', 'draft', post.pk, post.blog);
 			}
 		},
 		load_post: function(pk, callback){
@@ -210,16 +210,20 @@ var BUS = new Vue({
 				tags: [],
 			}, function(data){
 				self.reload_blog_list();
-				self.post_open(data);
+				self.router_open_post(data);
 				if(callback) callback(data);
 			})
 		},
 		save_post: function(post, callback){
 			var self = this;
 			API.post_update(post, function(data){
-				self.$emit('post_saved');
-				self.reload_blog_list();
+				// ! 顺序很重要，callback会先设置set_content，
+				// 这样后续的操作才不会提醒未保存，
+				// 最先callback，最后$emit
 				if(callback) callback(data);
+				self.reload_blog_list();
+				self.router_open_post(data);
+				self.$emit('post_saved');
 			})
 		},
 		delete_post: function(post, callback){
