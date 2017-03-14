@@ -15,6 +15,9 @@ while true; do
 	esac
 done
 
+chmod +x update.sh
+
+
 cd site
 pip3 install -r requirements.txt
 python manage.py migrate
