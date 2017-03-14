@@ -68,7 +68,7 @@ class Blog(models.Model):
 
 	name = models.CharField(max_length=50)
 	desc = models.CharField(max_length=140, default='This is my new blog.', blank=True, \
-		, help_text='HTML')
+		help_text='HTML')
 	navs = models.TextField(default='[]', blank=True)
 	theme = models.CharField(max_length=16, default='default')
 
