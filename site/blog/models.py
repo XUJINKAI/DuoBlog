@@ -11,6 +11,7 @@ import datetime
 
 from . import managers
 from . import shortcuts
+from . import validators
 
 # Create your models here.
 BLOG_ACCESS = (
@@ -64,7 +65,9 @@ class Blog(models.Model):
 	password_hash = models.CharField(max_length=20, default='', blank=True, \
 		help_text='Need if accessibility=p')
 	domain = models.CharField(max_length=100, unique=True, \
-		help_text="Only this domain can access this blog")
+		help_text="Only this domain can access this blog, e.g. emample.com")
+	absolute_url = models.CharField(max_length=128, default='', validators=[validators.validate_abosolute_url], \
+		help_text="To generate sitemap link, e.g. http://example.com/")
 
 	name = models.CharField(max_length=50)
 	desc = models.CharField(max_length=140, default='This is my new blog.', blank=True, \

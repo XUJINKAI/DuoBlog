@@ -5,21 +5,19 @@ from blog.models import Blog as BlogModel
 
 class BlogListSerializer(serializers.HyperlinkedModelSerializer):
 	api_url = serializers.HyperlinkedIdentityField(view_name='api:blog-detail', lookup_field='pk', read_only=True)
-	url = serializers.CharField(source='domain')
 
 	class Meta:
 		model = BlogModel
-		fields = ('pk', 'api_url', 'name', 'url', \
+		fields = ('pk', 'api_url', 'name', 'domain', \
 			'post_count', 'draft_count', 'trash_count', 'comment_count')
 
 
 class BlogDetailSerializer(serializers.HyperlinkedModelSerializer):
 	api_url = serializers.HyperlinkedIdentityField(view_name='api:blog-detail', lookup_field='pk', read_only=True)
-	url = serializers.CharField(source='domain')
 
 	class Meta:
 		model = BlogModel
-		fields = ('pk', 'api_url', 'name', 'url', 'desc', \
+		fields = ('pk', 'api_url', 'name', 'domain', 'absolute_url', 'desc', \
 			'navs', 'theme', 'rss', 'sitemap', \
 			'comments', 'custom_comment_html', \
 			'head_html', 'body_html', \

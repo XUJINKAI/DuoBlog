@@ -173,3 +173,6 @@ RESTRICTED_URLS = (
 )
 RESTRICTED_URLS_EXCEPTIONS = (
 )
+
+# http://example.com/<POSTS_URL_FIELD>/<slug>
+POSTS_URL_FIELD = 'p'

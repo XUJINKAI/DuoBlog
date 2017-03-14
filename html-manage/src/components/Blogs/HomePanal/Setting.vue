@@ -2,7 +2,8 @@
 <div id="wrapper" class="box">
 	<div v-if='blog' class="stretch left">
 		<p>name: <el-input v-model="blog.name"></el-input></p>
-		<p>domain: <el-input type="input" v-model="blog.url"></el-input></p>
+		<p>domain: <el-input type="input" v-model="blog.domain"></el-input></p>
+		<p>Absolute Url: <el-input type="input" v-model="blog.absolute_url"></el-input></p>
 		<p>desc: <el-input type="input" v-model="blog.desc"></el-input></p>
 		<p>
 			<span>Theme:</span>

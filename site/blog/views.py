@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.urls import reverse
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.exceptions import MultipleObjectsReturned
+from django.conf import settings
 
 import json
 from collections import Counter
@@ -105,6 +106,19 @@ def posts_list(request):
 
 def my_page(request, page):
 	return render_theme(request, 'my_%s.html' % page)
+
+
+# //TODO cache
+def sitemap_txt(request):
+	blog = get_current_blog(request)
+	if not blog.sitemap:
+		raise Http404
+	url = blog.absolute_url + settings.POSTS_URL_FIELD + '/'
+	posts = models.Post.objects.blog_queryset(request)
+	txt = ''
+	for post in posts:
+		txt += url + post.slug + '\r\n'
+	return HttpResponse(txt, content_type='text/plain')
 
 
 # admin SPA

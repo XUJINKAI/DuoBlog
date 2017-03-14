@@ -30,7 +30,8 @@ var API = {
 	blog_parameter: function(blog){
 		return _.omitBy({
 			name: blog.name,
-			url: blog.url,
+			domain: blog.domain,
+			absolute_url: blog.absolute_url,
 			desc: blog.desc,
 			navs: blog.navs,
 			theme: blog.theme,
@@ -50,7 +51,7 @@ var API = {
 	blog_new: function(callback) {
 		post_data(API_URL('blog_list'), {
 			name: 'NewBlog',
-			url: Math.random().toString(36).substring(2),
+			domain: Math.random().toString(36).substring(2),
 		}, function(data){
 			if(callback) callback(data);
 		});
