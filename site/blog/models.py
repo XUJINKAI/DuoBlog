@@ -67,7 +67,8 @@ class Blog(models.Model):
 		help_text="Only this domain can access this blog")
 
 	name = models.CharField(max_length=50)
-	desc = models.CharField(max_length=140, default='This is my new blog.', blank=True)
+	desc = models.CharField(max_length=140, default='This is my new blog.', blank=True, \
+		, help_text='HTML')
 	navs = models.TextField(default='[]', blank=True)
 	theme = models.CharField(max_length=16, default='default')
 
@@ -93,7 +94,7 @@ class Blog(models.Model):
 
 	@classmethod
 	def create_new(cls):
-		domain = get_random_id(8)
+		domain = get_random_id(50)
 		name = 'MultBlog_' + get_random_id(3)
 		blog = Blog.objects.create(domain=domain, name=name, navs=DEFAULT_NAVS())
 		return blog

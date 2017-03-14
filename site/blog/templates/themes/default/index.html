@@ -67,7 +67,7 @@ a:focus {
 {% block content %}
 {% if blog.desc %}
 <br>
-<p style="font-size: x-large;"><i>{{ blog.desc }}</i></p>
+<p style="font-size: x-large;"><i>{{ blog.desc | safe }}</i></p>
 <hr>
 {% endif %}
 <div class="row">
