@@ -1,35 +1,36 @@
 <template>
-	<div class="box-col" style="flex: 1; overflow: overlay; height: 100%;" :class='{full_screen: is_full_screen}'>
-		<div id="bar">
-			<span v-on:click='full_screen'><i class="fa fa-arrows-alt" aria-hidden="true"></i> FullScreen</span>
-			<div class="center">
-				<span v-on:click='show("editor")' :class="{bolder: show_editor&&!show_html}">Markdown</span>
-				<span v-on:click='show("split")' :class="{bolder: show_editor&&show_html}">Split</span>
-				<span v-on:click='show("html")' :class="{bolder: !show_editor&&show_html}">Rendered</span>
-			</div>
-			<div></div>
+<div class="container box-col" :class='{full_screen: is_full_screen}'>
+	<div id="bar">
+		<div>
+			<el-tooltip effect="light" content="Ctrl + S" placement="top">
+				<span @click='save'><i class="fa fa-floppy-o" aria-hidden="true"></i> Save</span>
+			</el-tooltip>
 		</div>
-		<div class="stretch box" style="padding-top: 1em;">
-			<textarea v-if='show_editor' id="editor-md-textarea" 
-				class='stretch y-scroll'
-				style="
-				flex: 1;
-				resize: none;
-				overflow-y: scroll;
-				" 
-				v-on:keydown.tab.prevent="insert_tab"
-				v-model='model.content'>
-			</textarea>
-			<div style="flex-basis: 2em;" v-if='show_editor&&show_html'></div>
-			<div v-if='show_html'
-				style="
-				flex: 1;
-				overflow-wrap: break-word;
-    			overflow-y: scroll;
-				" 
-				v-html='model.rendered_html'></div>
+		<div class="center">
+			<span @click='show("editor")' :class="{bolder: show_editor&&!show_html}">Markdown</span>
+			<span @click='show("split")' :class="{bolder: show_editor&&show_html}">Split</span>
+			<span @click='show("html")' :class="{bolder: !show_editor&&show_html}">Rendered</span>
+		</div>
+		<div>
+			<el-tooltip effect="light" content="Alt + Enter" placement="top">
+				<span @click='full_screen'><i class="fa fa-arrows-alt" aria-hidden="true"></i> FullScreen</span>
+			</el-tooltip>
 		</div>
 	</div>
+	<div class="content stretch">
+		<textarea v-if='show_editor' id="editor-md-textarea" 
+			class='markdown'
+			@keydown.tab.prevent="insert_tab"
+			@keydown.ctrl.S.prevent="save"
+			@keydown.alt.enter.prevent='full_screen'
+			v-model='model.content'>
+		</textarea>
+		<div class="seprate" v-if='show_editor&&show_html'></div>
+		<div v-if='show_html'
+			class="rendered" 
+			v-html='model.rendered_html'></div>
+	</div>
+</div>
 </template>
 
 
@@ -87,20 +88,28 @@ export default {
 		},
 		full_screen: function(){
 			this.is_full_screen = !this.is_full_screen;
-		}
+		},
+		save: function(){
+			this.$emit('save');
+		},
 	},
 };
 </script>
 
 <style scoped>
+.container {
+	overflow: hidden;
+}
 .full_screen {
 	position: absolute;
 	left: 0;
 	right: 0;
 	top: 0;
 	bottom: 0;
-	padding: 20px;
+	padding: 7px;
+	height: 98%;
 	background-color: white;
+	font-size: 1.2em;
 }
 #bar {
 	width: 100%;
@@ -108,11 +117,47 @@ export default {
 	align-items: center;
 	justify-content: space-between;
 }
-#bar > span {
-	align-self: flex-start;
+#bar span {
+	cursor: pointer;
 }
 #bar .center {
 	/*align-self: center;*/
 	max-width: 50%;
+}
+.content {
+	padding-top: 1em;
+	display: flex;
+	display: -webkit-flex;
+	flex-shrink: 1;
+	flex-grow: 1;
+}
+.markdown, .rendered {
+	flex: 1;
+	resize: none;
+	overflow-y: scroll;
+	overflow-wrap: break-word;
+	padding: 0.8em;
+	margin: 0;
+}
+.seprate {
+	flex-basis: 0.1em;
+}
+.markdown {
+	font-size: 1.1em;
+	line-height: 1.5em;
+}
+.markdown,
+.markdown:active,
+.markdown:focus,
+.markdown:hover,
+.markdown:visited
+ {
+ 	outline: none !important;
+	border: 1px solid rgba(135, 135, 135, 0.62);
+}
+.rendered {
+	border: 1px solid rgba(135, 135, 135, 0.62);
+	padding-top: 0;
+	padding-bottom: 0;
 }
 </style>

@@ -50,7 +50,7 @@ var API = {
 	blog_new: function(callback) {
 		post_data(API_URL('blog_list'), {
 			name: 'NewBlog',
-			url: Math.random().toString(36).substring(8),
+			url: Math.random().toString(36).substring(2),
 		}, function(data){
 			if(callback) callback(data);
 		});

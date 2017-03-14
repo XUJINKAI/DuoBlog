@@ -13,24 +13,22 @@
 					<span v-for='tag in post.tags'>{{ tag }} <i class="fa fa-times" aria-hidden="true"></i>, </span>
 					<input type="text" name="" placeholder="Add Tag" class="border0" style="width: 10em;">
 				</div>
-				<p style="margin-top: 10px; color: gray;">创建 {{ create_time }}, 修改 {{ last_modified_time }}</p>
+				<p style="margin-top: 10px; color: gray;">创建 {{ create_time }}, 修改({{post.modified_count}}) {{ last_modified_time }}</p>
 			</div>
 			<div id="save-div">
-				<el-button v-on:click='save_publish' type='primary'>Publish</el-button>
-				<el-button v-on:click='save_draft' type='success'>Draft</el-button>
-				<el-button v-on:click='delete_post' type='danger'>Delete</el-button>
+				<el-button @click='save_publish' type='primary' :class="{active_status: post.status=='p'}">Publish</el-button>
+				<el-button @click='save_draft' type='success' :class="{active_status: post.status=='d'}">Draft</el-button>
+				<el-button @click='delete_post' type='danger' :class="{active_status: post.status=='t'}">Delete</el-button>
 			</div>
 			<div style="info-div">
-				<p>
-					<el-select v-model="post.blog" placeholder="">
-						<el-option
-							v-for="blog in BUS.blog_list"
-							:key='blog.pk'
-							:label="blog.name"
-							:value="blog.pk">
-						</el-option>
-					</el-select>
-				</p>
+				<el-select v-model="post.blog" placeholder="">
+					<el-option
+						v-for="blog in BUS.blog_list"
+						:key='blog.pk'
+						:label="blog.name"
+						:value="blog.pk">
+					</el-option>
+				</el-select>
 				<p class="cs_switch">
 					<span>Comments</span>
 					<el-switch
@@ -51,8 +49,17 @@
 				</p>
 			</div>
 		</div>
-		<HtmlEditor v-if='post.content_type == "h"' :model='post' class='editor'></HtmlEditor>
-		<MdEditor v-else-if='post.content_type == "m"' :model='post' class='editor'></MdEditor>
+		<MdEditor
+			v-if='post.content_type == "m"'
+			:model='post'
+			@save='save'
+			class='editor'>
+		</MdEditor>
+		<HtmlEditor
+			v-else-if='post.content_type == "h"'
+			:model='post'
+			class='editor'
+			></HtmlEditor>
 		<p v-else>Error Type.</p>
 	</div>
 	<div v-else>No Data.</div>
@@ -110,9 +117,12 @@ export default {
 		_save: function(){
 			var self = this;
 			// 传说中的回调地狱？
-			self.BUS.suppress_router(function(next_router){
+			self.BUS.suppress_router(function(release_suppress){
 				self.BUS.save_post(self.post, function(data){
-					next_router(function(){
+					release_suppress(function(){
+						// data didn't contains these fields
+						self.post.last_modified_time = Date();
+						self.post.modified_count += 1;
 						self.BUS.set_content(self.post, self._save, false);
 					});
 				});
@@ -154,7 +164,15 @@ export default {
 #url, #tags {
 	margin-top: 10px;
 }
+.active_status,
+.active_status:visited,
+.active_status:focus
+ {
+	color: black;
+	text-decoration: underline;
+}
 .editor {
+	flex: 1;
 	height: 100%;
 }
 .PostEditor-component {

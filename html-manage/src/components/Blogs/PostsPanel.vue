@@ -5,7 +5,6 @@
 		</div>
 		<div class="posts-list stretch box-col">
 			<div class="new-post box">
-				<span>New: </span>
 				<button class="stretch" @click='new_markdown'>Markdown</button>
 				<button class="stretch" @click='new_html'>HTML</button>
 			</div>

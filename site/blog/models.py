@@ -124,7 +124,7 @@ class Post(models.Model):
 
 	status = models.CharField(max_length=1, choices=POST_STATUS, default='d')
 	sticky = models.BooleanField(default=False)
-	comment_enable = models.BooleanField(default=True, blank=True)
+	comment_enable = models.BooleanField(default=True)
 
 	create_time = models.DateTimeField(auto_now_add=True)
 	last_modified_time = models.DateTimeField(auto_now=True)

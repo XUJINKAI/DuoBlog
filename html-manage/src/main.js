@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import BUS from './API/BUS'
+import KeyCode from './config/keycode'
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-default/index.css'

@@ -60,21 +60,21 @@ var BUS = new Vue({
 	},
 	methods: {
 		/*
-		suppress_router(function(next){
+		suppress_router(function(release_suppress){
 			// Do something
-			next(<callback>);
+			release_suppress(<after_suppress>);
 		})
 		*/
-		suppress_router: function(callback){
-			if( ! callback) {
-				alert('Error: BUS.suppress_router must has callback');
+		suppress_router: function(in_suppress){
+			if( ! in_suppress) {
+				alert('Error: BUS.suppress_router must has callback in_suppress');
 				return;
 			}
 			var self = this;
 			self.$data._bln_suppress_router = true;
-			callback(function(next){
+			in_suppress(function(after_suppress){
 				self.$data._bln_suppress_router = false;
-				if(next) next();
+				if(after_suppress) after_suppress();
 			})
 		},
 		// hook to router.beforeEach in main.js

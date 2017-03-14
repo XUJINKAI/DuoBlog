@@ -50,7 +50,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
 class PostCreateSerializer(serializers.ModelSerializer):
 	blog = serializers.IntegerField(source='blog.pk', required=False)
-	comments = serializers.BooleanField(source='comment_enable', required=False)
+	comments = serializers.BooleanField(source='comment_enable', required=False, default=True)
 
 	class Meta:
 		model = blog_models.Post
@@ -58,6 +58,10 @@ class PostCreateSerializer(serializers.ModelSerializer):
 			'pk', 'blog', 'slug', 'title', 'content', 'content_type', 'rendered_html', \
 			'status', 'sticky', 'comments', 'tags', \
 			)
+
+	def create(self, validated_data):
+		return super().create(validated_data)
+
 
 class PostUpdateSerializer(PostCreateSerializer):
 	class Meta(PostCreateSerializer.Meta):
