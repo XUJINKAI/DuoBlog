@@ -8,7 +8,7 @@ class BlogListSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = BlogModel
-		fields = ('pk', 'api_url', 'name', 'domain', \
+		fields = ('pk', 'api_url', 'name', 'domain', 'absolute_url', \
 			'post_count', 'draft_count', 'trash_count', 'comment_count')
 
 
@@ -22,4 +22,17 @@ class BlogDetailSerializer(serializers.HyperlinkedModelSerializer):
 			'comments', 'custom_comment_html', \
 			'head_html', 'body_html', \
 			'post_count', 'draft_count', 'trash_count', 'comment_count', \
+			)
+
+
+class BlogCreateSerializer(serializers.ModelSerializer):
+	rss = serializers.BooleanField(default=True)
+	sitemap = serializers.BooleanField(default=True)
+
+	class Meta:
+		model = BlogModel
+		fields = ('pk', 'name', 'domain', 'absolute_url', 'desc', \
+			'navs', 'theme', 'rss', 'sitemap', \
+			'comments', 'custom_comment_html', \
+			'head_html', 'body_html', \
 			)

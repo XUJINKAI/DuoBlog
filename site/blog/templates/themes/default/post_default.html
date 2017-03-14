@@ -47,7 +47,7 @@ p {
 	<div>
 		<p>
 			<span>本页链接：
-				<a href="//{{ blog.domain }}{% url 'posts_detail' post.slug %}" id="current_url">{{ blog.domain }}{% url 'posts_detail' post.slug %}</a>
+				<a href="{{ post.absolute_url }}" id="current_url">{{ post.absolute_url }}</a>
 				<a href="javascript:void(0);" class="pull-right" id="qrcode_text">二维码</a>
 				<div id="qrcode" class="pull-right" style="display: none; padding: 20px; background-color: white; z-index: 1000;"></div>
 			</span>

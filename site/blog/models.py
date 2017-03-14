@@ -148,6 +148,8 @@ class Post(models.Model):
 		else:
 			return self.title
 
+	def absolute_url(self):
+		return self.blog.absolute_url + settings.POSTS_URL_FIELD + '/' + self.slug
 
 	class Meta:
 		ordering = ['-create_time', '-last_modified_time']

@@ -109,6 +109,7 @@ def my_page(request, page):
 
 
 # //TODO cache
+# xml 比txt多重要度等一些信息，就等到like_count做完后再来搞
 def sitemap_txt(request):
 	blog = get_current_blog(request)
 	if not blog.sitemap:

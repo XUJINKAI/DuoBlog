@@ -122,6 +122,9 @@ p.text-muted {
 				<a href="/"><span style="font-size: 47px; font-weight: bold; color: #585858;">{{ blog.name }}</span></a>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
+				{% if request.user.is_superuser %}
+				<li><a href="{% url 'manage_index' %}#/blog/{{blog.pk}}/draft" class="staff_btn"><i class="fa fa-pencil" aria-hidden="true"></i></a></li>
+				{% endif %}
 				<li><a href="{% url 'index' %}">首页</a></li>
 				<li><a href="{% url 'posts_list' %}">存档</a></li>
 				{% if navs %}
@@ -160,7 +163,7 @@ p.text-muted {
 						<span><a href="{% url 'account_login' %}">登录</span>
 						{% endif %}
 						{% if request.user.is_superuser %}
-						<span><a href="{% url 'manage_index' %}" class="staff_btn">管理</a></span>
+						<span><a href="{% url 'manage_index' %}#/blog/{{blog.pk}}" class="staff_btn">管理</a></span>
 						{% endif %}
 						<span><a href="/" class="staff_btn" style="margin-left: 8px;"><i class="fa fa-rss" aria-hidden="true"></i> 订阅</a></span>
 					</span>

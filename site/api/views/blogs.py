@@ -1,7 +1,7 @@
 from rest_framework import generics, viewsets, serializers, permissions, status
 
 from blog.models import Blog as BlogModel
-from ..serializers.blogs import BlogListSerializer, BlogDetailSerializer
+from ..serializers.blogs import BlogListSerializer, BlogDetailSerializer, BlogCreateSerializer
 from ..permissions import BlogPermission
 
 
@@ -13,8 +13,8 @@ class BlogViewSet(viewsets.ModelViewSet):
 		return {
 			'list': BlogListSerializer,
 			'retrieve': BlogDetailSerializer,
-			'update': BlogDetailSerializer,
-			'partial_update': BlogDetailSerializer,
-			'create': BlogDetailSerializer,
+			'update': BlogCreateSerializer,
+			'partial_update': BlogCreateSerializer,
+			'create': BlogCreateSerializer,
 			'metadata': BlogListSerializer,
 		}[self.action]

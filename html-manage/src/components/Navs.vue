@@ -14,7 +14,7 @@
 		</span>
 		<span id="right" class="box">
 			<ul class="box">
-				<li v-for='blog in blogs'><a :href='"http://" + blog.url' target="_blank">
+				<li v-for='blog in blogs' v-if='blog.absolute_url'><a :href='blog.absolute_url'>
 					<i class="fa fa-home" aria-hidden="true"></i>
 					{{ blog.name }}
 				</a></li>
