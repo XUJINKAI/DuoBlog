@@ -3,20 +3,9 @@
 cd $(dirname $0)
 . venv/bin/activate
 
-while true; do
-	read -p "RESET git repo (clean) and pull remote repo ? (Y/N)" yn
-	case $yn in
-		[Yy]* )
-			git reset --hard HEAD
-			git pull http://repo.xujinkai.net/x/code-tango.git
-			break;;
-		[Nn]* ) break;;
-		* ) echo "Please answer yes or no.";;
-	esac
-done
-
+git reset --hard HEAD
+git pull https://github.com/XUJINKAI/DuoBlog.git
 chmod +x update.sh
-
 
 cd site
 pip3 install -r requirements.txt
