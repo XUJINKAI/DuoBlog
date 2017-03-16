@@ -32,7 +32,7 @@ DEMO = False
 
 ALLOWED_HOSTS = ['*']
 
-BLOG_PROGRAM_NAME = 'MultBlog'
+BLOG_PROGRAM_NAME = 'DuoBlog'
 # Application definition
 
 INSTALLED_APPS = [

@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='blog',
             name='desc',
-            field=models.CharField(blank=True, default='this is my new blog via MultBlog', max_length=140),
+            field=models.CharField(blank=True, default='this is my new blog via DuoBlog', max_length=140),
         ),
         migrations.AlterField(
             model_name='page',
