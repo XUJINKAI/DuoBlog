@@ -1,7 +1,7 @@
 <template>
 	<div id='wrapper' v-if='post' class="box-col">
-		<div id="meta-div" class="box">
-			<div class="stretch">
+		<div id="meta-div">
+			<div id="meta-left">
 				<input id="title" type="input" v-model='post.title' class='border0' style="width: 90%;" placeholder="<title>">
 				<div id="url" class="box">
 					<strong><a :href="post.html_url" target="_blank">URL</a></strong>
@@ -15,13 +15,12 @@
 				</div>
 				<p style="margin-top: 10px; color: gray;">创建 {{ create_time }}, 修改({{post.modified_count}}) {{ last_modified_time }}</p>
 			</div>
-			<div id="save-div">
-				<el-button @click='save_publish' type='primary' :class="{active_status: post.status=='p'}">Publish</el-button>
-				<el-button @click='save_draft' type='success' :class="{active_status: post.status=='d'}">Draft</el-button>
-				<el-button @click='delete_post' type='danger' :class="{active_status: post.status=='t'}">Delete</el-button>
-			</div>
-			<div style="info-div">
-				<el-select v-model="post.blog" placeholder="">
+			<div id="meta-right">
+				<div id="save-div">
+					<el-button @click='save' type='primary'>Save</el-button>
+					<el-button @click='delete_post' type='danger'>Delete</el-button>
+				</div>
+				<el-select id='blog-selector' v-model="post.blog" placeholder="">
 					<el-option
 						v-for="blog in BUS.blog_list"
 						:key='blog.pk'
@@ -29,19 +28,16 @@
 						:value="blog.pk">
 					</el-option>
 				</el-select>
+				<el-radio-group id='status' v-model="post.status">
+					<el-radio-button label="s" id='sticky'>置顶</el-radio-button>
+					<el-radio-button label="p" id='public'>公开</el-radio-button>
+					<el-radio-button label="h" id='hidden'>隐藏</el-radio-button>
+					<el-radio-button label="x" id='private'>私有</el-radio-button>
+				</el-radio-group>
 				<p class="cs_switch">
-					<span>Comments</span>
+					<span>评论</span>
 					<el-switch
 						v-model="post.comments"
-						@change='save'
-						on-text="on"
-						off-text="off">
-					</el-switch>
-				</p>
-				<p class="cs_switch">
-					<span>Sticky</span>
-					<el-switch
-						v-model="post.sticky"
 						@change='save'
 						on-text="on"
 						off-text="off">
@@ -131,14 +127,6 @@ export default {
 		save: function(){
 			this._save();
 		},
-		save_publish: function() {
-			this.post.status = 'p';
-			this._save();
-		},
-		save_draft: function() {
-			this.post.status = 'd';
-			this._save();
-		},
 	},
 	created: function() {
 		var self = this;
@@ -156,6 +144,13 @@ export default {
 }
 #meta-div {
 	margin-bottom: 15px;
+	display: flex;
+}
+#meta-left {
+	flex: 1;
+}
+#meta-right {
+	flex: 0 1 240px;
 }
 #title {
     font-size: x-large;
@@ -163,13 +158,6 @@ export default {
 }
 #url, #tags {
 	margin-top: 10px;
-}
-.active_status,
-.active_status:visited,
-.active_status:focus
- {
-	color: black;
-	text-decoration: underline;
 }
 .editor {
 	flex: 1;
@@ -181,17 +169,29 @@ export default {
 	margin-top: 1.2em;
 }
 #save-div {
-	flex: 0 0 60px;
 	margin-right: 20px;
+	display: flex;
 }
 #save-div button.el-button {
 	width: 100%;
 	height: 32px;
-	margin-left: 0;
+	margin: 0;
 	border-radius: 0;
 }
-#info-div {
-	flex: 0 1 200px
+#save-div button.el-button,
+#save-div button.el-button:visited,
+#save-div button.el-button:focus
+{
+
+}
+#blog-selector {
+	border-radius: 0;
+}
+#status {
+	width: 100%;
+}
+#status .el-radio-button__inner{
+	padding: 8px 13px;
 }
 .cs_switch {
 	display: flex;

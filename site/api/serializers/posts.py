@@ -14,23 +14,22 @@ class PostAuthorSerializer(serializers.HyperlinkedModelSerializer):
 
 class PostListSerializer(serializers.ModelSerializer):
 	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='pk', read_only=True)
-	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
 	comments = serializers.BooleanField(source='comment_enable')
 
 	class Meta:
 		model = blog_models.Post
 		fields = (
-			'pk', 'slug', 'api_url', 'html_url', \
+			'pk', 'slug', 'api_url', \
 			'create_time', 'last_modified_time', \
 			'views_count', 'modified_count', \
-			'comments', 'sticky', 'status', \
+			'comments', 'status', \
 			'title', 'content_type', 'abstract', \
 			)
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
 	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='pk', read_only=True)
-	html_url = serializers.HyperlinkedIdentityField(view_name='posts_detail', lookup_field='slug', read_only=True)
+	html_url = serializers.CharField(source='absolute_url')
 	blog = serializers.IntegerField(source='blog.pk', required=False, read_only=True)
 	comments = serializers.BooleanField(source='comment_enable')
 
@@ -40,7 +39,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 			'pk', 'blog', 'slug', 'api_url', 'html_url', \
 			'create_time', 'last_modified_time', \
 			'views_count', 'modified_count', \
-			'comments', 'sticky', 'status', \
+			'comments', 'deleted', 'status', \
 			'title', 'content_type', 'content', 'rendered_html', \
 			)
 
@@ -56,7 +55,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 		model = blog_models.Post
 		fields = (
 			'pk', 'blog', 'slug', 'title', 'content', 'content_type', 'rendered_html', \
-			'status', 'sticky', 'comments', 'tags', \
+			'status', 'comments', 'tags', \
 			)
 
 	def create(self, validated_data):

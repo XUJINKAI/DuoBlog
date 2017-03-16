@@ -4,9 +4,8 @@
 		<router-link :to="{ name: 'blog', params: {blog: blog.pk } }" class="blog_title" :active-class="'blog_title_actived'" :tag="'li'" exact>{{ blog.name }}</router-link>
 	</div>
 	<ul class="blog_btn_ul">
-		<router-link :to="{ name: 'post-list', params: { blog: blog.pk } }" class="blog_btn" :active-class="'blog_btn_clicked'" :tag="'li'">文章 ({{ blog.post_count }})</router-link>
-		<router-link :to="{ name: 'draft-list', params: { blog: blog.pk } }" class="blog_btn" :active-class="'blog_btn_clicked'" :tag="'li'">草稿 ({{ blog.draft_count }})</router-link>
-		<router-link :to="{ name: 'trash-list', params: { blog: blog.pk } }" class="blog_btn" :active-class="'blog_btn_clicked'" :tag="'li'">废纸篓({{ blog.trash_count }})</router-link>
+		<router-link :to="{ name: 'post-list', params: { blog: blog.pk } }" class="blog_btn" :active-class="'blog_btn_clicked'" :tag="'li'">博文 ({{ blog.post_count }})</router-link>
+		<li>废纸篓 (0)</li>
 		<li>评论 ({{ blog.comment_count }})</li>
 	</ul>
 </div>

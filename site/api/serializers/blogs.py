@@ -9,7 +9,7 @@ class BlogListSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = BlogModel
 		fields = ('pk', 'api_url', 'name', 'domain', 'absolute_url', \
-			'post_count', 'draft_count', 'trash_count', 'comment_count')
+			'post_count', 'trash_count', 'comment_count')
 
 
 class BlogDetailSerializer(serializers.HyperlinkedModelSerializer):
@@ -21,7 +21,7 @@ class BlogDetailSerializer(serializers.HyperlinkedModelSerializer):
 			'navs', 'theme', 'rss', 'sitemap', \
 			'comments', 'custom_comment_html', \
 			'head_html', 'body_html', \
-			'post_count', 'draft_count', 'trash_count', 'comment_count', \
+			'post_count', 'trash_count', 'comment_count', \
 			)
 
 

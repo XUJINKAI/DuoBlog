@@ -3,23 +3,17 @@
 		<span id="left" class="box">
 			<a href="javascript: window.location='/manage/'" class="logo">Manager</a>
 			<ul class="box">
-				<router-link :to="{ name: 'blog'}" :tag="'li'" :active-class="'active-nav'">Blogs</router-link>
-				<li>Users</li>
-				<li>Files</li>
-				<li>Advanced</li>
-				<router-link :to="{name: 'userme'}" tag='li' :active-class="'active-nav'">
-					<i class="fa fa-user-circle-o" aria-hidden="true"></i> {{ username }}
-				</router-link>
-			</ul>
-		</span>
-		<span id="right" class="box">
-			<ul class="box">
 				<li v-for='blog in blogs' v-if='blog.absolute_url'><a :href='blog.absolute_url'>
 					<i class="fa fa-home" aria-hidden="true"></i>
 					{{ blog.name }}
 				</a></li>
 			</ul>
-			<a href="/admin" target="_blank"><i class="fa fa-wrench" aria-hidden="true"></i> Admin</a>
+		</span>
+		<span id="right" class="box">
+			<a href="/admin" target="_blank"><i class="fa fa-wrench" aria-hidden="true"></i> Dj-Admin</a>
+			<router-link :to="{name: 'userme'}" tag='a' :active-class="'active-nav'">
+				<i class="fa fa-user-circle-o" aria-hidden="true"></i> {{ username }}
+			</router-link>
 		</span>
 	</div>
 </template>

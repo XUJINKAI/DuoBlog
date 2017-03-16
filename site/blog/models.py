@@ -32,9 +32,10 @@ POST_CONTENT_TYPE = (
 	('h', 'html'),
 	)
 POST_STATUS = (
+	('s', 'sticky'),
 	('p', 'public'),
-	('d', 'draft'),
-	('t', 'trash'),
+	('h', 'hidden'),
+	('x', 'private'),
 	)
 POST_TITLE_TRUNC = 32
 
@@ -103,11 +104,9 @@ class Blog(models.Model):
 		return blog
 
 	def post_count(self):
-		return Post.objects.filter(blog=self, status='p').count()
-	def draft_count(self):
-		return Post.objects.filter(blog=self, status='d').count()
+		return Post.objects.filter(blog=self, deleted=False).count()
 	def trash_count(self):
-		return Post.objects.filter(blog=self, status='t').count()
+		return Post.objects.filter(blog=self, deleted=True).count()
 	def comment_count(self):
 		return 0
 
@@ -125,8 +124,8 @@ class Post(models.Model):
 	rendered_html = models.TextField(default='')
 	template_name = models.CharField(max_length=24, default='default')
 
-	status = models.CharField(max_length=1, choices=POST_STATUS, default='d')
-	sticky = models.BooleanField(default=False)
+	status = models.CharField(max_length=1, choices=POST_STATUS, default='x')
+	deleted = models.BooleanField(default=False)
 	comment_enable = models.BooleanField(default=True)
 
 	create_time = models.DateTimeField(auto_now_add=True)
@@ -141,6 +140,10 @@ class Post(models.Model):
 
 	def __str__(self):
 		return self.title
+
+	@property
+	def is_public(self):
+		return self.status is not 'x'
 
 	def abstract(self):
 		if self.title.isspace() or self.title is '':
@@ -167,11 +170,11 @@ class Post(models.Model):
 		super(Post, self).save(*args, **kwargs)
 
 	def delete(self, *args, **kwargs):
-		if self.status in ['p', 'd']:
-			self.status = 't'
-			self.save()
-		else:
+		if self.deleted:
 			super(Post, self).delete(*args, **kwargs)
+		else:
+			self.deleted = True
+			self.save()
 
 	@staticmethod
 	def get_auto_slug():

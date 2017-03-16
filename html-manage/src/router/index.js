@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Blogs from '@/components/Blogs'
+import BlogView from '@/components/Blogs/BlogView'
 import BlogHomePanal from '@/components/Blogs/HomePanal'
 import BlogSetting from '@/components/Blogs/HomePanal/Setting'
 import BlogImportJekyll from '@/components/Blogs/HomePanal/Import_Jekyll'
@@ -13,7 +13,7 @@ Vue.use(Router)
 export default new Router({
 	routes: [
 		{
-			path: '/blog/:blog/', component: Blogs,
+			path: '/blog/:blog/', component: BlogView,
 			children: [
 				{
 					path: '', component: BlogHomePanal,
@@ -27,36 +27,28 @@ export default new Router({
 					]
 				},
 				{
-					path: 'post/', component: PostsPanel, name: 'post-list', meta: {status: 'p'},
+					path: 'post/', component: PostsPanel, name: 'post-list',
 					children: [
 						{
-							path: ':post/', component: PostEditor, name: 'post-detail', meta: {status: 'p'},
+							path: ':post/', component: PostEditor, name: 'post-detail',
 						},
 					],
 				},
-				{
-					path: 'draft/', component: PostsPanel, name: 'draft-list', meta: {status: 'd'},
-					children: [
-						{
-							path: ':post/', component: PostEditor, name: 'draft-detail', meta: {status: 'd'},
-						},
-					],
-				},
-				{
-					path: 'trash/', component: PostsPanel, name: 'trash-list', meta: {status: 't'},
-					children: [
-						{
-							path: ':post/', component: PostEditor,  name: 'trash-detail', meta: {status: 't'},
-						},
-					],
-				},
+				// {
+				// 	path: 'trash/', component: PostsPanel, name: 'trash-list', meta: {status: 't'},
+				// 	children: [
+				// 		{
+				// 			path: ':post/', component: PostEditor,  name: 'trash-detail', meta: {status: 't'},
+				// 		},
+				// 	],
+				// },
 			]
 		},
 		{
 			path: '/me', component: UserMe, name: 'userme',
 		},
 		{
-			path: '/', component: Blogs, name: 'index',
+			path: '/', name: 'index',
 		},
 	]
 })

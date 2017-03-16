@@ -1,5 +1,4 @@
 from rest_framework import generics, viewsets, serializers, permissions, status
-from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
@@ -15,20 +14,20 @@ from ..serializers.posts import PostListSerializer, PostCreateSerializer, \
 					PostDetailSerializer, PostUpdateSerializer
 from ..filters import MBooleanFilter
 from ..permissions import PostPermission
-import json
 
 
 class PostFilter(rest_filter.FilterSet):
-	blog = django_filters.NumberFilter(name='blog__pk')
-	content_type = MBooleanFilter(name='content_type')
 	author = django_filters.CharFilter(name='author__username')
+	content_type = MBooleanFilter(name='content_type')
+	comments = MBooleanFilter(name='comment_enable')
+	# admin only
+	blog = django_filters.NumberFilter(name='blog__pk')
 	status = MBooleanFilter(name='status')
-	sticky = MBooleanFilter(name='sticky')
-	comments = MBooleanFilter(name='comments')
+	deleted = MBooleanFilter(name='deleted')
 
 	class Meta:
 		model = blog_models.Post
-		fields = ['blog', 'slug', 'content_type', 'author', 'status', 'sticky', 'comments']
+		fields = ['blog', 'status', 'deleted', 'slug', 'author', 'content_type', 'comments']
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -73,13 +72,3 @@ class PostViewSet(viewsets.ModelViewSet):
 		else:
 			blog = get_current_blog(self.request)
 		serializer.save(author=self.request.user, blog=blog)
-
-
-	def delete(self, request, *args, **kwargs):
-		delete_slugs = request.POST.get('delete_slugs', None)
-		if delete_slugs:
-			delete_slugs = json.loads(delete_slugs)
-			blog_models.Post.objects.filter(slug__in=delete_slugs).delete()
-			return Response(status=status.HTTP_204_NO_CONTENT)
-		else:
-			return super().destroy(request, *args, **kwargs)

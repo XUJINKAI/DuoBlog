@@ -214,16 +214,15 @@ var BUS = new Vue({
 		},
 		// post
 		router_open_post: function(post){
-			if(post.status=='p') {
-				this.$emit('router_open_post', 'post', post.pk, post.blog);
-			} else if (post.status=='d') {
-				this.$emit('router_open_post', 'draft', post.pk, post.blog);
-			}
+			this.$emit('router_open_post', 'post', post.pk, post.blog);
 		},
 		load_post: function(pk, callback){
 			API.post_detail(pk, function(data){
 				if(callback) callback(data);
 			})
+		},
+		load_post_list: function(callback, parameter){
+			API.post_list(parameter, callback);
 		},
 		create_new_post: function(type, blog_pk, callback){
 			var self = this;
@@ -232,7 +231,6 @@ var BUS = new Vue({
 				content: '',
 				content_type: type,
 				rendered_html: '<p/>',
-				status: 'd',
 				tags: [],
 			}, function(data){
 				self.reload_blog_list();
@@ -279,5 +277,11 @@ Vue.use(function(Vue){
 
 	Object.defineProperty(Vue.prototype, 'BUS', {
 		get () { return BUS }
+	})
+
+	Vue.mixin({
+		created: function(){
+			this.$data.$BUS = BUS.$data;
+		}
 	})
 });

@@ -1,6 +1,6 @@
 <template>
 <div>
-	<a @click='logout'>Logout</a>
+	<a @click='logout' id="logout">Logout</a>
 </div>
 </template>
 
@@ -13,3 +13,10 @@ export default {
 	}
 }
 </script>
+
+<style scoped>
+#logout {
+	right: 0;
+	position: fixed;
+}
+</style>

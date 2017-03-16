@@ -1,6 +1,11 @@
 <template>
 	<div id="wrapper" class="note-posts-container box stretch full-height">
 		<div class="posts-filter stretch full-height">
+			<li>All</li>
+			<li>sticky</li>
+			<li>public</li>
+			<li>hidden</li>
+			<li>private</li>
 			<Tags :tags='tags'></Tags>
 		</div>
 		<div class="posts-list stretch box-col">
@@ -85,11 +90,10 @@ export default {
 	methods: {
 		reload_all_posts: function(){
 			var self = this;
-			API.post_list({
-				blog: self.blog_pk,
-				status: self.$route.meta.status,
-			}, function(data){
+			this.BUS.load_post_list(function(data){
 				self.all_posts = data;
+			}, {
+				blog: self.blog_pk,
 			})
 		},
 		new_markdown: function(){

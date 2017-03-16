@@ -34,9 +34,9 @@ def blog_index(request):
 	blog = get_current_blog(request)
 	if not blog:
 		return HttpResponseRedirect(reverse('manage_index'))
-	queryset = models.Post.objects.blog_queryset(request)
-	sticky_posts = queryset.filter(sticky=True)
-	all_posts = queryset.filter(sticky=False)
+	queryset = models.Post.objects.guest_home_queryset(request)
+	sticky_posts = queryset.filter(status='s')
+	all_posts = queryset.exclude(status='s')
 
 	PAGE, MAX_PAGE, NEXT_PAGE, PREV_PAGE, START, END = Paginator(request.GET.get('page'), all_posts.count(), PAGE_SIZE)
 	next_page_url = '?page=%d' % (NEXT_PAGE,) if NEXT_PAGE else False
@@ -57,7 +57,7 @@ def blog_index(request):
 
 
 def post_show(request, slug):
-	post = models.Post.objects.blog_queryset(request).filter(slug=slug).first()
+	post = models.Post.objects.guest_queryset(request).get(slug=slug)
 	if not post:
 		raise Http404
 	# tags_href_string = ', '.join(['<a href="%s?tags=%s">%s</a>' \
@@ -79,7 +79,7 @@ def post_show(request, slug):
 
 def posts_list(request):
 	# search_tags = [x for x in request.GET.get('tags', '').split(',') if x]
-	all_posts = models.Post.objects.blog_queryset(request)
+	all_posts = models.Post.objects.guest_queryset(request)
 	# if search_tags:
 	# 	qs = all_posts
 	# 	for tag in search_tags:
@@ -115,7 +115,7 @@ def sitemap_txt(request):
 	if not blog.sitemap:
 		raise Http404
 	url = blog.absolute_url + settings.POSTS_URL_FIELD + '/'
-	posts = models.Post.objects.blog_queryset(request)
+	posts = models.Post.objects.guest_queryset(request)
 	txt = ''
 	for post in posts:
 		txt += url + post.slug + '\r\n'

@@ -1,7 +1,10 @@
 <template>
 	<div id="app" class="layout">
 		<Navs></Navs>
-		<router-view></router-view>
+		<div class="wrapper box">
+			<LeftPanel class='left'></LeftPanel>
+			<router-view></router-view>
+		</div>
 		<Login v-if='Modal_Login' @login='on_login'></Login>
 		<SaveNoCancel v-if='Modal_SaveNoCancel' @close='Modal_SaveNoCancel_Close'></SaveNoCancel>
 		<BlogDelete v-if='Model_BlogDelete' @close='Model_BlogDelete_Close'></BlogDelete>
@@ -10,6 +13,7 @@
 
 <script>
 import Navs from '@/components/Navs'
+import LeftPanel from '@/components/LeftPanel'
 import Login from '@/components/prompt/login'
 import SaveNoCancel from '@/components/prompt/save_no_cancel'
 import BlogDelete from '@/components/prompt/blog_delete'
@@ -18,6 +22,7 @@ export default {
 	name: 'app',
 	components: {
 		Navs,
+		LeftPanel,
 		Login,
 		SaveNoCancel,
 		BlogDelete,
@@ -66,18 +71,7 @@ export default {
 }
 </script>
 
-<style>
-body {
-	font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
-	font-size: 14px;
-	line-height: 1.5;
-	overflow: hidden;
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	top: 0;
-}
+<style scoped>
 #app {
 	color: #2c3e50;
 	margin: 0;
@@ -89,6 +83,29 @@ body {
 	right: 0;
 	top: 0;
 	bottom: 0;
+}
+.wrapper {
+	height: 100%;
+	margin-top: 10px;
+}
+.left {
+}
+</style>
+
+<style>
+.theme-color {
+	color: #20a0ff;
+}
+body {
+	font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+	font-size: 14px;
+	line-height: 1.5;
+	overflow: hidden;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	top: 0;
 }
 
 /* common */

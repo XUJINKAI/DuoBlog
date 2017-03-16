@@ -1,29 +1,23 @@
 from django.db import models as db_models
+from django.db.models import Q
 from .shortcuts import get_current_blog
 from . import models as models
 
 
 class PostManager(db_models.Manager):
 
-	def blog_queryset(self, request, **kwargs):
+	def guest_queryset(self, request, **kwargs):
+		'''frontend'''
 		current_blog = get_current_blog(request)
-		return self.filter(blog=current_blog, status='p')
+		return self.filter(blog=current_blog, deleted=False).exclude(status='x')
+
+	def guest_home_queryset(self, request, **kwargs):
+		'''frontend'''
+		return self.guest_queryset(request, **kwargs).exclude(status='h') # h for hidden for home
+
 
 	def api_list_queryset(self, request, **kwargs):
-		'''
-		parameter: blog(pk), status
-		default: current, 'p'
-
-		'''
-		blog_pk = request.GET.get('blog', False)
-		status = request.GET.get('status', 'p')
-
-		if blog_pk:
-			blog = models.Blog.objects.get(pk=blog_pk)
-		else:
-			blog = get_current_blog(request)
-
-		return self.filter(blog=blog, status=status)
+		return self
 
 	def api_detail_queryset(self, request, **kwargs):
 		return self

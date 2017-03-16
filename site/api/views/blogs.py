@@ -2,12 +2,12 @@ from rest_framework import generics, viewsets, serializers, permissions, status
 
 from blog.models import Blog as BlogModel
 from ..serializers.blogs import BlogListSerializer, BlogDetailSerializer, BlogCreateSerializer
-from ..permissions import BlogPermission
+from ..permissions import SuperUserPermission
 
 
 class BlogViewSet(viewsets.ModelViewSet):
 	queryset = BlogModel.objects.all()
-	permission_classes = (BlogPermission,)
+	permission_classes = (SuperUserPermission,)
 
 	def get_serializer_class(self):
 		return {
