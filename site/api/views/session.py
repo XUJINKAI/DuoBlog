@@ -12,13 +12,17 @@ class SessionView(APIView):
 		if request.user.is_authenticated:
 			content = {
 				'login': True,
-				'username': request.user.username
+				'username': request.user.username,
 			}
 		else:
 			content = {
 				'login': False,
 				'username': '',
 			}
+		if request.user.is_superuser:
+			content['role'] = 'manage'
+		else:
+			content['role'] = 'guest'
 		return content
 
 	def get(self, request, format=None):

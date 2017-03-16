@@ -16,13 +16,6 @@ class PostManager(db_models.Manager):
 		return self.guest_queryset(request, **kwargs).exclude(status='h') # h for hidden for home
 
 
-	def api_list_queryset(self, request, **kwargs):
-		return self
-
-	def api_detail_queryset(self, request, **kwargs):
-		return self
-
-
 class TagsManager(db_models.Manager):
 	pass
 

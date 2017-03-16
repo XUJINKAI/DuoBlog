@@ -12,22 +12,20 @@ from accounts import models as account_models
 
 from ..serializers.posts import PostListSerializer, PostCreateSerializer, \
 					PostDetailSerializer, PostUpdateSerializer
-from ..filters import MBooleanFilter
+from ..filters import MBooleanFilter, ToBoolean
 from ..permissions import PostPermission
 
 
 class PostFilter(rest_filter.FilterSet):
-	author = django_filters.CharFilter(name='author__username')
+	blog = django_filters.NumberFilter(name='blog__pk')
 	content_type = MBooleanFilter(name='content_type')
 	comments = MBooleanFilter(name='comment_enable')
-	# admin only
-	blog = django_filters.NumberFilter(name='blog__pk')
 	status = MBooleanFilter(name='status')
 	deleted = MBooleanFilter(name='deleted')
 
 	class Meta:
 		model = blog_models.Post
-		fields = ['blog', 'status', 'deleted', 'slug', 'author', 'content_type', 'comments']
+		fields = ['blog', 'slug', 'content_type', 'comments', 'status', 'deleted']
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -47,15 +45,13 @@ class PostViewSet(viewsets.ModelViewSet):
 			'metadata': PostListSerializer,
 		}[self.action]
 
+
 	def get_queryset(self):
-		func_name = {
-			'list': 'api_list_queryset',
-			'retrieve': 'api_detail_queryset',
-			'update': 'api_detail_queryset',
-			'partial_update': 'api_detail_queryset',
-			'destroy': 'api_detail_queryset',
-		}[self.action]
-		return getattr(blog_models.Post.objects, func_name)(self.request)
+		manage = self.request.GET.get('manage', False)
+		if ToBoolean(manage):
+			return blog_models.Post.objects
+		else:
+			return blog_models.Post.objects.guest_queryset(self.request)
 		
 
 	def create(self, request, *args, **kwargs):

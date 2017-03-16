@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import {API} from './API'
 
 export default BUS;
 
@@ -94,7 +95,10 @@ var BUS = new Vue({
 			var self = this;
 			API.login_status(function(data){
 				self.$data._session = data;
-				self.reload_blog_list();
+				if(self.is_login) {
+					API.SET_MODE(data.role);
+					self.reload_blog_list();
+				}
 			})
 		},
 		login: function(username, password){
@@ -172,6 +176,9 @@ var BUS = new Vue({
 				if(emit) self.$emit('blog_changed');
 				if(callback) callback(data);
 			})
+		},
+		load_blog: function(pk, callback){
+			API.blog_detail(pk, callback);
 		},
 		create_new_blog: function(){
 			var self = this;

@@ -34,12 +34,28 @@ export default {
 	mounted: function(){
 		this.reload();
 		var self = this;
-		API.EDIT_HTML('editor-html-container', function(editor){
+		EDIT_HTML('editor-html-container', function(editor){
 			self.model.rendered_html = editor.$txt.html();
 			self.editor = editor;
 		});
 	}
 };
+
+var EDIT_HTML = function(id, change) {
+	log('EDIT_HTML: init html editor')
+	var editor = new wangEditor(id);
+	editor.config.jsFilter = false;
+	editor.config.uploadImgUrl = '/api/img/';
+	editor.config.uploadHeaders = {
+	'X-CSRFToken': getCookie('csrftoken'),
+	};
+	editor.config.uploadImgFileName = 'file'
+	editor.onchange = function(){
+	change(editor);
+	}
+	editor.create();
+	return editor;
+}
 </script>
 
 <style scoped>

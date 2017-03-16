@@ -113,10 +113,9 @@ class Blog(models.Model):
 
 
 class Post(models.Model):
-	blog = models.ForeignKey(Blog)
+	blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
 	slug = models.CharField(max_length=128, unique=True, blank=True, \
 		help_text="as url")
-	author = models.ForeignKey(settings.AUTH_USER_MODEL)
 
 	title = models.CharField(max_length=70, blank=True, default='')
 	content = models.TextField(default='')
@@ -188,8 +187,9 @@ class Tag(models.Model):
 
 
 class Comment(models.Model):
-	post = models.ForeignKey(Post)
-	login_user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True)
+	post = models.ForeignKey(Post, on_delete=models.CASCADE)
+	login_user = models.ForeignKey(settings.AUTH_USER_MODEL, \
+		on_delete=models.SET_NULL, null=True, blank=True)
 	
 	username = models.CharField(max_length=64)
 	email = models.EmailField()

@@ -23,12 +23,13 @@ class SuperUserPermission(permissions.BasePermission):
 class PostPermission(permissions.BasePermission):
 
 	def has_permission(self, request, view):
-		over_perm = any(field in ['blog', 'status', 'deleted'] for field in request.GET)
-		return not over_perm \
+		guest_perm = 'manage' not in request.GET
+		return guest_perm \
 			or general_permission(request)
 
 	def has_object_permission(self, request, view, obj):
+		guest_perm = 'manage' not in request.GET
 		domain_match = request.META['HTTP_HOST'] == obj.blog.domain
 		safe_method = request.method in permissions.SAFE_METHODS
-		return domain_match and obj.is_public and safe_method \
+		return guest_perm and domain_match and obj.is_public and safe_method \
 			or general_permission(request)

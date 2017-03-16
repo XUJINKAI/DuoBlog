@@ -110,7 +110,7 @@ export default {
 		},
 		reload_blog: function(){
 			var self = this;
-			API.blog_detail(this.blog_pk, function(data){
+			this.BUS.load_blog(this.blog_pk, function(data){
 				self.blog = data;
 				self.parse_navs(data.navs);
 				self.BUS.set_content(data, self.save_blog);
