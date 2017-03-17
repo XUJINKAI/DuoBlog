@@ -117,7 +117,7 @@ export default {
 		this.BUS.$on('post_list_changed', this.reload_all_posts);
 	},
 	mounted: function(){
-		this.reload_all_posts();
+		this.BUS.run_after(this.reload_all_posts, 'login');
 	}
 }
 </script>

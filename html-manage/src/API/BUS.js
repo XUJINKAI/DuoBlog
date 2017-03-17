@@ -1,11 +1,12 @@
 import Vue from 'vue'
 import {API} from './API'
+import {loading} from './loading'
 
 export default BUS;
 
 var BUS = new Vue({
 	data: {
-		_session: {login: true, username: 'Not_Login'},
+		_session: {login: false, username: 'Not_Login'},
 		_blog_list: [],
 
 		_ori_content: null,
@@ -52,14 +53,30 @@ var BUS = new Vue({
 	},
 	watch: {
 		content_changed: function(){
-			if(window.DEBUG) {
-				log('BUS.content_changed = '+this.content_changed);
-				// log(JSON.stringify(this.$data._ori_content));
-				// log(JSON.stringify(this.$data._content));
+			log('BUS.content_changed = '+this.content_changed);
+			// log(JSON.stringify(this.$data._ori_content));
+			// log(JSON.stringify(this.$data._content));
+		},
+		is_login: function(){
+			if(this.is_login) {
+				this.event_done('login');
+				this.reload_blog_list();
+			} else {
+				this.event_undo('login');
 			}
 		},
 	},
 	methods: {
+		// 流程控制
+		run_after: function(callback, event){
+			loading.run_after(callback, event);
+		},
+		event_done: function(event){
+			loading.done(event);
+		},
+		event_undo: function(event){
+			loading.undo(event);
+		},
 		/*
 		suppress_router(function(release_suppress){
 			// Do something
@@ -95,10 +112,6 @@ var BUS = new Vue({
 			var self = this;
 			API.login_status(function(data){
 				self.$data._session = data;
-				if(self.is_login) {
-					API.SET_MODE(data.role);
-					self.reload_blog_list();
-				}
 			})
 		},
 		login: function(username, password){
@@ -113,7 +126,6 @@ var BUS = new Vue({
 			API.login(username, password, function(data){
 				self.$data._session = data;
 				if(self.is_login) {
-					self.reload_blog_list();
 					self.$message({
 						message: '登录成功',
 						type: 'success'

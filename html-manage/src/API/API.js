@@ -38,11 +38,6 @@ var post_parameter = function(post){
 }
 
 export var API = {
-	// guest, manage, admin
-	MODE: 'guest',
-	SET_MODE: function(mode) {
-		API.MODE = mode;
-	},
 	login_status: function(callback) {
 		get_data(API_URL('session'), {}, function(data){
 			if(callback) callback(data);
@@ -121,11 +116,6 @@ export var API = {
 function ajax_data(method, url, data, success, error, complete) {
 	if(!method || !url) throw 'Bad request: No method or url';
 	url = TrimUrl(url);
-	if(API.MODE=='manage') {
-		data['manage'] = 1;
-	} else if(API.MODE=='admin') {
-		data['admin'] = 1;
-	}
 	return $.ajax({
 		url: url,
 		method: method,
@@ -135,7 +125,7 @@ function ajax_data(method, url, data, success, error, complete) {
 		dataType: 'json',
 		data: data,
 		success: function(result) {
-			log(method + ': ' + url + ', ');
+			log('%c' + method + ': ' + url, 'color: red; background-color: rgba(206, 206, 206, 0.45);');
 			log(data);
 			log(result);
 			if(success) { success(result); }
@@ -184,8 +174,8 @@ function getCookie(name) {
 	return cookieValue;
 }
 
-window.log = function(msg){
+window.log = function(){
 	if(typeof(DEBUG)=='boolean'&&DEBUG){
-		console.log(msg);
+		console.log.apply(this, arguments);
 	}
 }
