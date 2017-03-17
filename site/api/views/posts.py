@@ -57,4 +57,4 @@ class PostViewSet(viewsets.ModelViewSet):
 			blog = blog_models.Blog.objects.get(pk=int(blog_pk))
 		else:
 			blog = get_current_blog(self.request)
-		serializer.save(author=self.request.user, blog=blog)
+		serializer.save(blog=blog)

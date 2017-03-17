@@ -158,7 +158,7 @@ function delete_data(url, data, success, error, complete) {
 function TrimUrl(url) {
 	return url.replace(/https?:\/\/[^\/]+/i, "");
 }
-function getCookie(name) {
+export function getCookie(name) {
 	var cookieValue = null;
 	if (document.cookie && document.cookie !== '') {
 		var cookies = document.cookie.split(';');
@@ -179,3 +179,28 @@ window.log = function(){
 		console.log.apply(this, arguments);
 	}
 }
+// Array
+Array.prototype.remove = function() {
+	var what, a = arguments, L = a.length, ax;
+	while (L && this.length) {
+		what = a[--L];
+		while ((ax = this.indexOf(what)) !== -1) {
+			this.splice(ax, 1);
+		}
+	}
+	return this;
+};
+Array.prototype.move = function (old_index, new_index) {
+	if(old_index<0 || old_index>=this.length 
+		|| new_index<0 || new_index>=this.length){
+		return this;
+	}
+	if (new_index >= this.length) {
+		var k = new_index - this.length;
+		while ((k--) + 1) {
+			this.push(undefined);
+		}
+	}
+	this.splice(new_index, 0, this.splice(old_index, 1)[0]);
+	return this; // for testing purposes
+};

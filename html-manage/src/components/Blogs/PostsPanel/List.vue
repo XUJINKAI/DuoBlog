@@ -1,38 +1,37 @@
 <template>
-<div class="post-list-container box-col">
-	<div class="post-order box" style="justify-content: space-between;">
+<div id="wrapper" class="box-col">
+	<div id="head" class="post-order box">
 		<input type="checkbox" v-on:click='select_all' :bind='is_select_all'>
 		<span :class='{bolder: order_by=="title"}'>Title <span v-if='order_by=="title"'>{{ order_asc?'↑':'↓'}}</span></span>
 		<span :class='{bolder: order_by=="create"}'>Create <span v-if='order_by=="create"'>{{ order_asc?'↑':'↓'}}</span></span>
 		<span :class='{bolder: order_by=="modify"}'>Modify <span v-if='order_by=="modify"'>{{ order_asc?'↑':'↓'}}</span></span>
 	</div>
-	<ul class="post-list">
-		<router-link
+	<ul id="list" class="post-list">
+		<li
 			v-for='post in posts' :key='post.pk'
-			:to="{ name: status2view(post.status), params: {blog: blog_pk, post: post.pk }}"
 			class="post-item"
-			:active-class="'selected_post'"
-			:tag="'li'"
+			:class="{selected: is_selected(post)}"
+			@click='select_post($event, post)'
 			>
-			<input type="checkbox" value='post' v-model='selected_posts'>
+			<input type="checkbox" value='post' v-model='selected'>
 			<p>{{ post.abstract }}</p>
 			<!-- <span>{{ post.last_modified_time }}</span> -->
-		</router-link>
+		</li>
 	</ul>
 </div>
 </template>
 
 <script>
 export default {
+	props: {
+		posts: Array,
+	},
 	data: function(){
 		return {
-			selected_posts: [],
+			selected: [],
 			order_by: 'create',
 			order_asc: false,
 		}
-	},
-	props: {
-		posts: Array,
 	},
 	computed: {
 		blog_pk: function(){
@@ -41,6 +40,11 @@ export default {
 		is_select_all: function(){
 			return this.posts.every(this.is_selected);
 		},
+	},
+	watch: {
+		selected: function(){
+			this.$emit('selected', this.selected);
+		}
 	},
 	methods: {
 		status2view: function(status){
@@ -52,56 +56,58 @@ export default {
 			return map[status];
 		},
 		is_selected: function(post){
-			return this.selected_posts.includes(post);
+			return this.selected.includes(post);
 		},
 		select_all: function() {
 			if(this.is_select_all) {
-				this.selected_posts = [];
+				this.selected = [];
 			} else {
-				this.selected_posts = this.posts;
+				this.selected = this.posts;
 			}
 		},
 		select_post: function(event, post){
 			if(event.ctrlKey) {
 				if(this.is_selected(post)) {
-					this.selected_posts.remove(post);
+					this.selected.remove(post);
 				} else {
-					this.selected_posts.push(post);
+					this.selected.push(post);
 				}
 			} else {
-				this.selected_posts = [post];
+				this.selected = [post];
 			}
-			this.selected_changed();
 		},
 	}
 };
 </script>
 
 <style>
-.post-list-container {
+#wrapper {
 	height: 100%;
 }
-.post-list-container .post-order {
+#head {
+	justify-content: space-between;
+}
+.post-order {
 	flex: 0 0 1.6em;
 }
-.post-list-container .post-list {
+.post-list {
 	flex: 1;
 	overflow-y: scroll;
 }
-.post-list-container ul.post-list {
+ul.post-list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
-.post-list-container ul.post-list li {
+ul.post-list li {
 	height: 100px;
 	border: solid 1px rgba(77, 79, 77, 0.27);
 	margin-bottom: 2px;
 }
-.post-list-container .selected_post {
+.selected {
 	background-color: #d9d9d9;
 }
-.post-list-container .post-list li input {
+.post-list li input {
 	display: none;
 }
 </style>

@@ -249,7 +249,7 @@ var BUS = new Vue({
 				blog: blog_pk,
 				content: '',
 				content_type: type,
-				rendered_html: '<p/>',
+				rendered_html: '',
 				tags: [],
 			}, function(data){
 				self.reload_blog_list();

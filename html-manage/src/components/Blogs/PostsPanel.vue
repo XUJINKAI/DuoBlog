@@ -1,41 +1,72 @@
 <template>
-	<div id="wrapper" class="note-posts-container box stretch full-height">
-		<div class="posts-filter stretch full-height">
-			<li>All</li>
-			<li>sticky</li>
-			<li>public</li>
-			<li>hidden</li>
-			<li>private</li>
-			<Tags :tags='tags'></Tags>
+	<div class="wrapper box stretch full-height">
+		<div class="left stretch full-height">
+			<span style="font-weight: bolder;">Status:</span>
+			<ul>
+				<li @click=''>
+					<input type="radio" name="">
+					<span>All</span>
+				</li>
+				<li>sticky</li>
+				<li>public</li>
+				<li>hidden</li>
+				<li>private</li>
+			</ul>
+			<div>
+				<span style="font-weight: bolder;">Tags: </span>
+				<span @click='' class='clear_tags'>Clear</span>
+				<ul>
+					<li v-for='tag in tags'>
+						<input type="checkbox" :id="tag.name" :value='tag' v-model='selected_tags'>
+						<span :for='tag.name' @click='select_tag(tag);'>{{ tag.name }} {{ tag.count }}</span>
+					</li>
+				</ul>
+			</div>
 		</div>
-		<div class="posts-list stretch box-col">
+		<div class="right stretch box-col">
 			<div class="new-post box">
 				<button class="stretch" @click='new_markdown'>Markdown</button>
 				<button class="stretch" @click='new_html'>HTML</button>
 			</div>
-			<PostsList class='stretch' :posts='posts' @select_changed='selected_posts_change'></PostsList>
+			<div class="posts-div box-col">
+				<div class="posts-order box">
+					<input type="checkbox" @click='select_all' :bind='is_select_all'>
+					<span :class='{bolder: order_by=="title"}'>Title <span v-if='order_by=="title"'>{{ order_asc?'↑':'↓'}}</span></span>
+					<span :class='{bolder: order_by=="create"}'>Create <span v-if='order_by=="create"'>{{ order_asc?'↑':'↓'}}</span></span>
+					<span :class='{bolder: order_by=="modify"}'>Modify <span v-if='order_by=="modify"'>{{ order_asc?'↑':'↓'}}</span></span>
+				</div>
+				<ul class="posts-ul">
+					<li
+						v-for='post in posts_show' :key='post.pk'
+						class="post-item"
+						:class="{selected: is_selected(post)}"
+						@click='select_post($event, post)'
+						>
+						<input type="checkbox" value='post' v-model='selected_posts'>
+						<p>{{ post.abstract }}</p>
+						<!-- <span>{{ post.last_modified_time }}</span> -->
+					</li>
+				</ul>
+			</div>
 		</div>
 		<div class="posts-detail stretch">
-			<router-view></router-view>
+			<router-view v-if='is_select_one_post'></router-view>
+			<p v-else-if='is_select_multi_post'>multi selected</p>
+			<p v-else>no selected</p>
 		</div>
 	</div>
 </template>
 
 <script>
-import Tags from './PostsPanel/Tags'
-import PostsList from './PostsPanel/List'
-import PostEditor from './PostsPanel/PostEditor'
-
 export default {
-	components: {
-		Tags,
-		PostsList,
-		PostEditor,
-	},
 	data: function(){
 		return {
 			all_posts: [],
+
+			filter_status: '',
 			selected_tags: [],
+			selected_posts: [],
+
 			order_by: 'create',
 			order_asc: false,
 		};
@@ -44,7 +75,10 @@ export default {
 		blog_pk: function() {
 			return this.$route.params.blog;
 		},
-		posts: function(){
+		is_select_all: function(){
+			return this.posts_show.every(this.is_selected);
+		},
+		posts_show: function(){
 			if(this.selected_tags.length==0) {
 				return this.all_posts;
 			} else {
@@ -75,17 +109,24 @@ export default {
 			})
 			return _.orderBy(tags_coll, ['count', 'name'], ['desc', 'asc'])
 		},
-		select_one_post: function(){
-			return true;
+		is_select_one_post: function(){
+			return this.selected_posts.length == 1;
 		},
-		select_multi_post: function(){
-			return false;
+		is_select_multi_post: function(){
+			return this.selected_posts.length > 1;;
 		},
 	},
 	watch: {
-		'$route': function(){
-			this.reload_all_posts();
-		}
+		'$route.params.blog': function(){
+			if(this.$route.name.startsWith('post')) {
+				this.reload_all_posts();
+			}
+		},
+		selected_posts: function(){
+			if(this.is_select_one_post) {
+				this.$router.push({ name: 'post-detail', params: {blog: this.blog_pk, post: this.selected_posts[0].pk }})
+			}
+		},
 	},
 	methods: {
 		reload_all_posts: function(){
@@ -96,6 +137,15 @@ export default {
 				blog: self.blog_pk,
 			})
 		},
+
+		clear_tags: function(){
+			this.selected_tags = [];
+		},
+		select_tag: function(tag){
+			this.clear_tags();
+			this.selected_tags = [tag];
+		},
+
 		new_markdown: function(){
 			this.create_new_post('m');
 		},
@@ -105,11 +155,29 @@ export default {
 		create_new_post: function(type) {
 			this.BUS.create_new_post(type, this.blog_pk);
 		},
-		selected_posts_change: function(posts){
-			if(posts.length == 1) {
-				this.BUS.select_post(posts[0]);
+
+		selected_change: function(data){
+			this.selected_posts = data;
+		},
+		is_selected: function(post){
+			return this.selected_posts.includes(post);
+		},
+		select_post: function(event, post){
+			if(event.ctrlKey) {
+				if(this.is_selected(post)) {
+					this.selected_posts.remove(post);
+				} else {
+					this.selected_posts.push(post);
+				}
 			} else {
-				this.BUS.select_post = [];
+				this.selected_posts = [post];
+			}
+		},
+		select_all: function() {
+			if(this.is_select_all) {
+				this.selected = [];
+			} else {
+				this.selected = this.posts;
 			}
 		},
 	},
@@ -123,30 +191,57 @@ export default {
 </script>
 
 <style scoped>
-#wrapper {
+.wrapper {
 	height: 100%;
 	flex: 1;
 	padding-left: 5px;
 }
-.note-posts-container .posts-filter {
+.left {
 	height: 100%;
 	flex: 0 0 150px;
 }
-.note-posts-container .new-post {
-	flex: 0 0 34px;
-}
-.note-posts-container .new-post button {
-	flex: 1;
-	margin-bottom: 10px;
-}
-.note-posts-container .posts-list {
+.right {
 	height: 100%;
 	flex: 0 0 200px;
 }
-.note-posts-container .posts-detail {
+.new-post {
+	flex: 0 0 34px;
+}
+.new-post button {
+	flex: 1;
+	margin-bottom: 10px;
+}
+.posts-detail {
 	height: 100%;
 	width: 100%;
 	padding: 0 0 0 20px;
 	flex: 1;
+}
+
+
+.posts-list {
+	height: 100%;
+}
+.posts-order {
+	justify-content: space-between;
+	flex: 0 0 1.6em;
+}
+ul.posts-ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	flex: 1;
+	overflow-y: scroll;
+}
+ul.posts-ul li {
+	height: 100px;
+	border: solid 1px rgba(77, 79, 77, 0.27);
+	margin-bottom: 2px;
+}
+.posts-ul li input {
+	display: none;
+}
+.selected {
+	background-color: #d9d9d9;
 }
 </style>

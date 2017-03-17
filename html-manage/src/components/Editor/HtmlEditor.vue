@@ -6,6 +6,8 @@
 </template>
 
 <script>
+import {getCookie} from '@/API/API'
+
 export default {
 	data: function(){
 		return {
