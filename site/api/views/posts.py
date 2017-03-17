@@ -1,4 +1,4 @@
-from rest_framework import generics, viewsets, serializers, permissions, status
+from rest_framework import generics, viewsets, serializers, status
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
@@ -8,12 +8,10 @@ import django_filters
 
 from blog import models as blog_models
 from blog.shortcuts import get_current_blog
-from accounts import models as account_models
 
-from ..serializers.posts import PostListSerializer, PostCreateSerializer, \
-					PostDetailSerializer, PostUpdateSerializer
-from ..filters import MBooleanFilter, ToBoolean
-from ..permissions import PostPermission
+from ..serializers import posts
+from .. import permissions
+from ..filters import MBooleanFilter
 
 
 class PostFilter(rest_filter.FilterSet):
@@ -31,29 +29,21 @@ class PostFilter(rest_filter.FilterSet):
 class PostViewSet(viewsets.ModelViewSet):
 	lookup_field = 'pk'
 	queryset = blog_models.Post.objects.all()
-	permission_classes = (PostPermission,)
+	permission_classes = (permissions.SuperUserPermission,)
 	filter_backends = (rest_filter.DjangoFilterBackend,)
 	filter_class = PostFilter
 
 	def get_serializer_class(self):
 		return {
-			'list': PostListSerializer,
-			'retrieve': PostDetailSerializer,
-			'update': PostUpdateSerializer,
-			'partial_update': PostUpdateSerializer,
-			'create': PostCreateSerializer,
-			'metadata': PostListSerializer,
+			'list': posts.PostListSerializer,
+			'retrieve': posts.PostDetailSerializer,
+			'update': posts.PostUpdateSerializer,
+			'partial_update': posts.PostUpdateSerializer,
+			'create': posts.PostCreateSerializer,
+			'metadata': posts.PostListSerializer,
 		}[self.action]
-
-
-	def get_queryset(self):
-		manage = self.request.GET.get('manage', False)
-		if ToBoolean(manage):
-			return blog_models.Post.objects
-		else:
-			return blog_models.Post.objects.guest_queryset(self.request)
 		
-
+		
 	def create(self, request, *args, **kwargs):
 		if not get_current_blog(self.request):
 			return Response({

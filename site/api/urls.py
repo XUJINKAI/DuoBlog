@@ -1,23 +1,28 @@
 from django.conf.urls import url, include
 from rest_framework import routers
+
+from .views.root import RootView
+from .views.session import SessionView
+from .views.users import UsersViewSet
 from .views.blogs import BlogViewSet
 from .views.posts import PostViewSet
-from .views.comments import CommentViewSet
+from .views.posts_batch import PostBatchView
 from .views.img import img_view
-from .views.session import SessionView
 
 
 app_name = 'api'
 
 router = routers.DefaultRouter()
+router.register(r'users', UsersViewSet)
 router.register(r'blogs', BlogViewSet)
 router.register(r'posts', PostViewSet)
-# router.register(r'comments', CommentViewSet)
 
 
 urlpatterns = [
+	url(r'^$', RootView.as_view(), name='root'),
+	url(r'^session/', SessionView.as_view(), name='session'),
+	url(r'^posts/batch', PostBatchView.as_view(), name='posts-batch'),
 	url(r'^', include(router.urls)),
-	url(r'^session/', SessionView.as_view()),
 	# session
 	# users
 	# blogs/<pk>/tags	GET

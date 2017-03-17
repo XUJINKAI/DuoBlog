@@ -1,10 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 import json
+from blog import models as blog_models
+from .. import permissions
 
-class PostBatchViewSet(APIView):
 
+class PostBatchView(APIView):
+	lookup_field = 'pk'
+	queryset = blog_models.Post.objects.all()
+	permission_classes = (permissions.SuperUserPermission,)
 	
+
+	def post(self, request, *args, **kwargs):
+		pass
 
 	def delete(self, request, *args, **kwargs):
 		delete_pks = request.POST.get('delete_pks', None)

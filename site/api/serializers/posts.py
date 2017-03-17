@@ -4,14 +4,6 @@ from accounts import models as account_models
 from blog import models as blog_models
 
 
-class PostAuthorSerializer(serializers.HyperlinkedModelSerializer):
-
-	class Meta:
-		model = account_models.User
-		fields = ('username', )
-
-# view
-
 class PostListSerializer(serializers.ModelSerializer):
 	blog = serializers.IntegerField(source='blog.pk', required=False, read_only=True)
 	api_url = serializers.HyperlinkedIdentityField(view_name='api:post-detail', lookup_field='pk', read_only=True)
