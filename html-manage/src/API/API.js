@@ -1,8 +1,9 @@
-var API_URL = function(key){
+export var API_URL = function(key){
 	var maps = {
 		session: '/api/session/',
 		blog_list: '/api/blogs/',
 		post_list: '/api/posts/',
+		posts_batch: '/api/posts/batch',
 	}
 	return maps[key];
 }
@@ -140,6 +141,7 @@ function ajax_data(method, url, data, success, error, complete) {
 		},
 	})
 }
+
 function get_data(url, data, success, error, complete) {
 	return ajax_data('GET', url, data, success, error, complete)
 }
@@ -155,6 +157,14 @@ function patch_data(url, data, success, error, complete) {
 function delete_data(url, data, success, error, complete) {
 	return ajax_data('DELETE', url, data, success, error, complete);
 }
+export var ajax = {
+	get: get_data,
+	post: post_data,
+	put: put_data,
+	patch: patch_data,
+	delete: delete_data,
+}
+
 function TrimUrl(url) {
 	return url.replace(/https?:\/\/[^\/]+/i, "");
 }

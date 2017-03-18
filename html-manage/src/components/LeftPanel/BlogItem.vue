@@ -5,8 +5,8 @@
 	</div>
 	<ul class="blog_btn_ul">
 		<router-link :to="{ name: 'post-list', params: { blog: blog.pk } }" class="blog_btn" :active-class="'blog_btn_clicked'" :tag="'li'">博文 ({{ blog.post_count }})</router-link>
-		<li>废纸篓 ({{ blog.trash_count }})</li>
-		<li>评论 ({{ blog.comment_count }})</li>
+		<router-link :to="{ name: 'trash', params: {blog: blog.pk } }" class='blog_btn' :active-class="'blog_btn_clicked'" :tag="'li'">废纸篓 ({{ blog.trash_count }})</router-link>
+		<!-- <li>评论 ({{ blog.comment_count }})</li> -->
 	</ul>
 </div>
 </template>

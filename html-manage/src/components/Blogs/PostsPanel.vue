@@ -1,26 +1,32 @@
 <template>
-	<div class="wrapper box stretch full-height">
+	<div class="wrapper">
 		<div class="left stretch full-height">
-			<span style="font-weight: bolder;">Status:</span>
-			<ul>
-				<li @click=''>
-					<input type="radio" name="">
-					<span>All</span>
-				</li>
-				<li>sticky</li>
-				<li>public</li>
-				<li>hidden</li>
-				<li>private</li>
-			</ul>
-			<div>
+			<div class="status">
+				<span style="font-weight: bolder;">Status:</span>
+				<br>
+				<input type="radio" value="" id="all" v-model='filter_status'>
+				<label for="all">All ({{posts_all_count}})</label>
+				<br>
+				<input type="radio" value="s" id="sticky" v-model='filter_status'>
+				<label for="sticky">Sticky ({{posts_sticky_count}})</label>
+				<br>
+				<input type="radio" value="p" id="public" v-model='filter_status'>
+				<label for="public">Public ({{posts_public_count}})</label>
+				<br>
+				<input type="radio" value="h" id="hidden" v-model='filter_status'>
+				<label for="hidden">Hidden ({{posts_hidden_count}})</label>
+				<br>
+				<input type="radio" value="x" id="private" v-model='filter_status'>
+				<label for="private">Private ({{posts_private_count}})</label>
+			</div>
+			<br>
+			<div class="tags">
 				<span style="font-weight: bolder;">Tags: </span>
 				<span @click='' class='clear_tags'>Clear</span>
-				<ul>
-					<li v-for='tag in tags'>
-						<input type="checkbox" :id="tag.name" :value='tag' v-model='selected_tags'>
-						<span :for='tag.name' @click='select_tag(tag);'>{{ tag.name }} {{ tag.count }}</span>
-					</li>
-				</ul>
+				<p v-for='tag in tags'>
+					<input type="checkbox" :id="tag.name" :value='tag' v-model='selected_tags'>
+					<span :for='tag.name' @click='select_tag(tag);'>{{ tag.name }} {{ tag.count }}</span>
+				</p>
 			</div>
 		</div>
 		<div class="right stretch box-col">
@@ -29,36 +35,61 @@
 				<button class="stretch" @click='new_html'>HTML</button>
 			</div>
 			<div class="posts-div box-col">
-				<div class="posts-order box">
-					<input type="checkbox" @click='select_all' :bind='is_select_all'>
-					<span :class='{bolder: order_by=="title"}'>Title <span v-if='order_by=="title"'>{{ order_asc?'↑':'↓'}}</span></span>
-					<span :class='{bolder: order_by=="create"}'>Create <span v-if='order_by=="create"'>{{ order_asc?'↑':'↓'}}</span></span>
-					<span :class='{bolder: order_by=="modify"}'>Modify <span v-if='order_by=="modify"'>{{ order_asc?'↑':'↓'}}</span></span>
+				<div class="posts-order">
+					<input class="select-all" type="checkbox" @click='select_all' v-model='is_select_all'>
+					<span class="posts-order-btn" :class='{bolder: order_by=="title"}' @click='change_order("title")'>
+						Title <span v-if='order_by=="title"'>{{ order_asc?'↑':'↓'}}</span>
+					</span>
+					<span class="posts-order-btn" :class='{bolder: order_by=="create"}' @click='change_order("create")'>
+						Create <span v-if='order_by=="create"'>{{ order_asc?'↑':'↓'}}</span>
+					</span>
+					<span class="posts-order-btn" :class='{bolder: order_by=="modify"}' @click='change_order("modify")'>
+						Modify <span v-if='order_by=="modify"'>{{ order_asc?'↑':'↓'}}</span>
+					</span>
 				</div>
-				<ul class="posts-ul">
-					<li
-						v-for='post in posts_show' :key='post.pk'
+				<div class="posts-list">
+					<p
+						v-for='post in posts_show_list'
+						:id='post.pk'
 						class="post-item"
-						:class="{selected: is_selected(post)}"
-						@click='select_post($event, post)'
-						>
-						<input type="checkbox" value='post' v-model='selected_posts'>
-						<p>{{ post.abstract }}</p>
-						<!-- <span>{{ post.last_modified_time }}</span> -->
-					</li>
-				</ul>
+						:class="{selected: is_post_selected(post)}"
+						@click="click_post_item($event, post)"
+					>
+						<span class="post-title">{{ post.title }}</span>
+						<span class="post-abstract">{{ post.abstract }}</span>
+						<span class="post-time">
+							<span v-if='order_by=="create"'>{{ post.create_time | fromNow }}</span>
+							<span v-if='order_by=="modify"'>{{ post.last_modified_time | fromNow }}</span>
+						</span>
+						<span class="post-info">
+							<span class="post-lock" v-if='post.status="x"'>
+								<i class="fa fa-lock" aria-hidden="true"></i>
+							</span>
+						</span>
+					</p>
+				</div>
 			</div>
 		</div>
 		<div class="posts-detail stretch">
 			<router-view v-if='is_select_one_post'></router-view>
-			<p v-else-if='is_select_multi_post'>multi selected</p>
+			<MultiEditor
+				v-else-if='is_select_multi_post'
+				:posts='selected_posts'
+				@delete_all='selected_delete'
+				>
+			</MultiEditor>
 			<p v-else>no selected</p>
 		</div>
 	</div>
 </template>
 
 <script>
+import MultiEditor from './PostsPanel/PostsMultiEditor'
+
 export default {
+	components: {
+		MultiEditor,
+	},
 	data: function(){
 		return {
 			all_posts: [],
@@ -75,25 +106,23 @@ export default {
 		blog_pk: function() {
 			return this.$route.params.blog;
 		},
-		is_select_all: function(){
-			return this.posts_show.every(this.is_selected);
+
+		posts_all_count: function(){
+			return this.all_posts.length;
 		},
-		posts_show: function(){
-			if(this.selected_tags.length==0) {
-				return this.all_posts;
-			} else {
-				var self = this;
-				return _.filter(self.all_posts, function(post){
-					var flag = true;
-					_.forEach(self.selected_tags, function(t){
-						if(!_.includes(post.tags, t.name)) {
-							flag = false;
-						}
-					});
-					return flag;
-				});
-			}
+		posts_sticky_count: function(){
+			return _.filter(this.all_posts, {status: 's'}).length;
 		},
+		posts_public_count: function(){
+			return _.filter(this.all_posts, {status: 'p'}).length;
+		},
+		posts_hidden_count: function(){
+			return _.filter(this.all_posts, {status: 'h'}).length;
+		},
+		posts_private_count: function(){
+			return _.filter(this.all_posts, {status: 'x'}).length;
+		},
+
 		tags: function(){
 			var tags_list = [];
 			_.forEach(this.all_posts, function(post){
@@ -109,11 +138,53 @@ export default {
 			})
 			return _.orderBy(tags_coll, ['count', 'name'], ['desc', 'asc'])
 		},
+
+		posts_show_list: function(){
+			var tmp = [];
+
+			if(this.filter_status !== '') {
+				tmp = _.filter(this.all_posts, {status: this.filter_status});
+			} else {
+				tmp = this.all_posts;
+			}
+
+			var order_by = this.order_by;
+			if(order_by=='create') order_by = 'create_time';
+			if(order_by=='modify') order_by == 'last_modified_time';
+			if(this.order_asc) {
+				tmp = _.orderBy(tmp, [order_by], ['asc']);
+			} else {
+				tmp = _.orderBy(tmp, [order_by], ['desc']);
+			}
+			
+			return tmp;
+			// if(this.selected_tags.length==0) {
+			// 	return this.all_posts;
+			// } else {
+			// 	var self = this;
+			// 	return _.filter(self.all_posts, function(post){
+			// 		var flag = true;
+			// 		_.forEach(self.selected_tags, function(t){
+			// 			if(!_.includes(post.tags, t.name)) {
+			// 				flag = false;
+			// 			}
+			// 		});
+			// 		return flag;
+			// 	});
+			// }
+		},
 		is_select_one_post: function(){
 			return this.selected_posts.length == 1;
 		},
 		is_select_multi_post: function(){
 			return this.selected_posts.length > 1;;
+		},
+		is_select_all: function(){
+			var l = this.selected_posts.length;
+			if (l <= 1) {
+				return false;
+			}
+			return this.selected_posts.length == this.posts_show_list.length;
 		},
 	},
 	watch: {
@@ -122,20 +193,49 @@ export default {
 				this.reload_all_posts();
 			}
 		},
-		selected_posts: function(){
-			if(this.is_select_one_post) {
-				this.$router.push({ name: 'post-detail', params: {blog: this.blog_pk, post: this.selected_posts[0].pk }})
+		'$route': function(){
+			if(this.$route.name=='post-detail') {
+				this.on_router_changed();
 			}
 		},
 	},
 	methods: {
-		reload_all_posts: function(){
+		reload_all_posts: function(callback){
 			var self = this;
-			this.BUS.load_post_list(function(data){
-				self.all_posts = data;
-			}, {
+			this.BUS.load_post_list({
 				blog: self.blog_pk,
+				deleted: false
+			}, function(data){
+				self.all_posts = data;
+				if(callback) callback();
 			})
+		},
+		on_selected_posts_changed: function(){
+			if(this.is_select_one_post) {
+				this.$router.push({ name: 'post-detail', params: {blog: this.blog_pk, post: this.selected_posts[0].pk }})
+			} else {
+				this.$router.push({ name: 'post-list', params: {blog: this.blog_pk }})
+			}
+		},
+		on_router_changed: function(){
+			if(this.$route.name=='post-detail') {
+				this.filter_status = '';
+				var pk = parseInt(this.$route.params.post);
+				this.selected_posts = _.filter(this.all_posts, {pk: pk});
+			}
+		},
+
+		change_order: function(value) {
+			if(value==this.order_by) {
+				this.order_asc = !this.order_asc;
+			} else {
+				this.order_by = value;
+				if(value=='title') {
+					this.order_asc = true;
+				} else {
+					this.order_asc = false;
+				}
+			}
 		},
 
 		clear_tags: function(){
@@ -153,18 +253,22 @@ export default {
 			this.create_new_post('h');
 		},
 		create_new_post: function(type) {
-			this.BUS.create_new_post(type, this.blog_pk);
+			var self = this;
+			self.BUS.suppress_router(function(release_suppress){
+				self.BUS.create_new_post(type, self.blog_pk, function(data){
+					self.all_posts.unshift(data);
+					self.on_router_changed();
+				});
+				release_suppress();
+			})
 		},
-
-		selected_change: function(data){
-			this.selected_posts = data;
-		},
-		is_selected: function(post){
+		// posts-list
+		is_post_selected: function(post){
 			return this.selected_posts.includes(post);
 		},
-		select_post: function(event, post){
+		click_post_item: function(event, post){
 			if(event.ctrlKey) {
-				if(this.is_selected(post)) {
+				if(this.is_post_selected(post)) {
 					this.selected_posts.remove(post);
 				} else {
 					this.selected_posts.push(post);
@@ -172,29 +276,63 @@ export default {
 			} else {
 				this.selected_posts = [post];
 			}
+			this.on_selected_posts_changed();
+		},
+
+		selected_change: function(data){
+			this.selected_posts = data;
 		},
 		select_all: function() {
 			if(this.is_select_all) {
-				this.selected = [];
+				this.selected_posts = [];
 			} else {
-				this.selected = this.posts;
+				this.selected_posts = this.all_posts;
 			}
 		},
+		// batch
+		selected_delete: function(){
+			var self = this;
+			var delete_pks = [];
+			self.selected_posts.forEach(function(post){
+				delete_pks.push(post.pk);
+			})
+			self.BUS.delete_posts_batch(delete_pks, function(){
+				self.reload_all_posts();
+				self.BUS.reload_blog_list();
+				self.selected_posts = [];
+				self.on_selected_posts_changed();
+			});
+		},
+	},
+	filters: {
+		fromNow: function(time) {
+			return moment(time).fromNow();
+		}
 	},
 	created: function(){
-		this.BUS.$on('post_list_changed', this.reload_all_posts);
+		var self = this;
+		self.BUS.$on('post_list_changed', function(){
+			self.reload_all_posts();
+			self.selected_posts = [];
+		});
 	},
 	mounted: function(){
-		this.BUS.run_after(this.reload_all_posts, 'login');
+		var self = this;
+		self.BUS.run_after(function(){
+			self.reload_all_posts(function(){
+				self.on_router_changed();
+			})
+		},'login');
 	}
 }
 </script>
 
 <style scoped>
 .wrapper {
-	height: 100%;
-	flex: 1;
 	padding-left: 5px;
+	flex: 1;
+	display: flex;
+	height: calc(100% - 5px);
 }
 .left {
 	height: 100%;
@@ -219,26 +357,53 @@ export default {
 }
 
 
+.posts-order {
+	/*justify-content: space-between;*/
+	flex: 0 0 1.9em;
+	display: flex;
+}
+.select-all {
+	flex: 0 0 15px;
+}
+.posts-order-btn {
+	flex: 1 0 30%;
+	cursor: pointer;
+}
+
 .posts-list {
 	height: 100%;
-}
-.posts-order {
-	justify-content: space-between;
-	flex: 0 0 1.6em;
-}
-ul.posts-ul {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	flex: 1;
 	overflow-y: scroll;
 }
-ul.posts-ul li {
+.posts-list p.post-item {
 	height: 100px;
 	border: solid 1px rgba(77, 79, 77, 0.27);
+	margin-top: 0;
 	margin-bottom: 2px;
+	display: flex;
+	flex-direction: column;
 }
-.posts-ul li input {
+.post-item .post-title {
+	flex: 0 0 18px;
+	font-weight: bold;
+}
+.post-item .post-abstract {
+	flex: 1;
+}
+.post-item .post-time {
+	font-size: 12px;
+}
+.post-item .post-info {
+	flex: 0 0 10px;
+	font-size: 12px;
+}
+.post-item .post-lock {
+	float: right;
+}
+.posts-list p input {
 	display: none;
 }
 .selected {

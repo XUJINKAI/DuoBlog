@@ -175,6 +175,10 @@ class Post(models.Model):
 			self.deleted = True
 			self.save()
 
+	def restore(self):
+		self.deleted = False
+		self.save()
+
 	@staticmethod
 	def get_auto_slug():
 		return slugify(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '-' + get_random_id(4))

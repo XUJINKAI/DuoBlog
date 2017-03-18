@@ -7,6 +7,7 @@ import BlogImportJekyll from '@/components/Blogs/HomePanal/Import_Jekyll'
 import UserMe from '@/components/Users/UserMe'
 import PostsPanel from '@/components/Blogs/PostsPanel'
 import PostEditor from '@/components/Blogs/PostsPanel/PostEditor'
+import TrashPanel from '@/components/Blogs/TrashPanel'
 
 Vue.use(Router)
 
@@ -34,14 +35,9 @@ export default new Router({
 						},
 					],
 				},
-				// {
-				// 	path: 'trash/', component: PostsPanel, name: 'trash-list', meta: {status: 't'},
-				// 	children: [
-				// 		{
-				// 			path: ':post/', component: PostEditor,  name: 'trash-detail', meta: {status: 't'},
-				// 		},
-				// 	],
-				// },
+				{
+					path: 'trash/', component: TrashPanel, name: 'trash',
+				},
 			]
 		},
 		{

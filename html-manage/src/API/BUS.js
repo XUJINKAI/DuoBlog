@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import {API} from './API'
+import {API, API_URL, ajax} from './API'
 import {loading} from './loading'
 
 export default BUS;
@@ -240,7 +240,7 @@ var BUS = new Vue({
 				if(callback) callback(data);
 			})
 		},
-		load_post_list: function(callback, parameter){
+		load_post_list: function(parameter, callback){
 			API.post_list(parameter, callback);
 		},
 		create_new_post: function(type, blog_pk, callback){
@@ -252,7 +252,7 @@ var BUS = new Vue({
 				rendered_html: '',
 				tags: [],
 			}, function(data){
-				self.reload_blog_list();
+				_.filter(self.blog_list, {pk: parseInt(blog_pk)})[0].post_count += 1;
 				self.router_open_post(data);
 				if(callback) callback(data);
 			})
@@ -277,6 +277,17 @@ var BUS = new Vue({
 				self.$emit('post_deleted')
 				if(callback) callback();
 			});
+		},
+		// posts batch
+		delete_posts_batch: function(pks, callback){
+			ajax.delete(API_URL('posts_batch'), {
+				delete_pks: JSON.stringify(pks),
+			}, callback);
+		},
+		restore_posts_batch: function(pks, callback){
+			ajax.put(API_URL('posts_batch'), {
+				restore_pks: JSON.stringify(pks),
+			}, callback);
 		},
 	},
 	created: function(){
