@@ -118,6 +118,7 @@ class Post(models.Model):
 		help_text="as url")
 
 	title = models.CharField(max_length=70, blank=True, default='')
+	abstract = models.TextField(default='')
 	content = models.TextField(default='')
 	content_type = models.CharField(max_length=1, choices=POST_CONTENT_TYPE)
 	rendered_html = models.TextField(default='')
@@ -144,12 +145,6 @@ class Post(models.Model):
 	def is_public(self):
 		return self.status is not 'x'
 
-	def abstract(self):
-		if self.title.isspace() or self.title is '':
-			return strip_tags(self.rendered_html)[:POST_TITLE_TRUNC].strip() + '...'
-		else:
-			return self.title
-
 	def absolute_url(self):
 		return self.blog.absolute_url + settings.POSTS_URL_FIELD + '/' + self.slug
 
@@ -163,6 +158,7 @@ class Post(models.Model):
 		self.last_modified_time = datetime.datetime.now()
 		if self.content_type == 'h':
 			self.content = ''
+		self.abstract = strip_tags(self.rendered_html)[:POST_TITLE_TRUNC].strip() + '...'
 		# F() expressions can only be used to update, not to insert.
 		if self.pk is not None:
 			self.modified_count = F('modified_count') + 1

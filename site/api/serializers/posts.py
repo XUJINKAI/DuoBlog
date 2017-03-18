@@ -33,7 +33,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 			'create_time', 'last_modified_time', \
 			'views_count', 'modified_count', \
 			'comments', 'status', 'deleted', \
-			'title', 'content_type', 'content', 'rendered_html', \
+			'title', 'content_type', 'content', 'rendered_html', 'abstract', \
 			)
 
 
@@ -48,7 +48,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 		model = blog_models.Post
 		fields = (
 			'pk', 'blog', 'slug', 'title', 'content', 'content_type', 'rendered_html', \
-			'status', 'comments', 'tags', \
+			'status', 'comments', 'tags', 'abstract', \
 			)
 
 	def create(self, validated_data):

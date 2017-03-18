@@ -241,7 +241,7 @@ var BUS = new Vue({
 			})
 		},
 		load_post_list: function(parameter, callback){
-			API.post_list(parameter, callback);
+			ajax.get(API_URL('post_list'), parameter, callback);
 		},
 		create_new_post: function(type, blog_pk, callback){
 			var self = this;
@@ -264,7 +264,6 @@ var BUS = new Vue({
 				// 这样后续的操作才不会提醒未保存，
 				// 最先callback，最后$emit
 				if(callback) callback(data);
-				self.reload_blog_list();
 				self.router_open_post(data);
 				self.$emit('post_saved');
 			})

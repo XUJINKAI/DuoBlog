@@ -62,8 +62,12 @@
 							<span v-if='order_by=="modify"'>{{ post.last_modified_time | fromNow }}</span>
 						</span>
 						<span class="post-info">
-							<span class="post-lock" v-if='post.status="x"'>
-								<i class="fa fa-lock" aria-hidden="true"></i>
+							<span>
+								<span v-if='post.comments'>C</span>
+							</span>
+							<span class="post-status">
+								<span v-if='post.status=="s"'><i class="fa fa-thumb-tack" aria-hidden="true"></i></span>
+								<span v-if='post.status=="x"'><i class="fa fa-lock" aria-hidden="true"></i></span>
 							</span>
 						</span>
 					</p>
@@ -71,7 +75,7 @@
 			</div>
 		</div>
 		<div class="posts-detail stretch">
-			<router-view v-if='is_select_one_post'></router-view>
+			<router-view v-if='is_select_one_post' @save='post_saved'></router-view>
 			<MultiEditor
 				v-else-if='is_select_multi_post'
 				:posts='selected_posts'
@@ -274,7 +278,11 @@ export default {
 					this.selected_posts.push(post);
 				}
 			} else {
-				this.selected_posts = [post];
+				if(this.selected_posts.length==1 && this.selected_posts[0]==post) {
+					this.selected_posts = [];
+				} else {
+					this.selected_posts = [post];
+				}
 			}
 			this.on_selected_posts_changed();
 		},
@@ -286,7 +294,11 @@ export default {
 			if(this.is_select_all) {
 				this.selected_posts = [];
 			} else {
-				this.selected_posts = this.all_posts;
+				this.selected_posts = [];
+				var self = this;
+				this.all_posts.forEach(function(post){
+					self.selected_posts.push(post);
+				});
 			}
 		},
 		// batch
@@ -302,6 +314,16 @@ export default {
 				self.selected_posts = [];
 				self.on_selected_posts_changed();
 			});
+		},
+
+		post_saved: function(post){
+			var p = _.filter(this.all_posts, {pk: post.pk})
+			if(p.length==1) {
+				p = p[0];
+				_.forEach(post, function(value, key){
+					p[key] = value;
+				})
+			}
 		},
 	},
 	filters: {
@@ -385,13 +407,18 @@ export default {
 	margin-bottom: 2px;
 	display: flex;
 	flex-direction: column;
+	cursor: default;
 }
 .post-item .post-title {
 	flex: 0 0 18px;
 	font-weight: bold;
+	word-break: break-all;
+	overflow-y: hidden;
 }
 .post-item .post-abstract {
 	flex: 1;
+	word-break: break-all;
+	overflow-y: hidden;
 }
 .post-item .post-time {
 	font-size: 12px;
@@ -400,8 +427,11 @@ export default {
 	flex: 0 0 10px;
 	font-size: 12px;
 }
-.post-item .post-lock {
+.post-item .post-status {
 	float: right;
+}
+.post-item .post-status .fa-thumb-tack{
+	color: red;
 }
 .posts-list p input {
 	display: none;

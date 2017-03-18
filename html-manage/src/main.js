@@ -4,7 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import BUS from './API/BUS'
-import {API} from './API/API'
+import {API, ajax} from './API/API'
 import KeyCode from './config/keycode'
 
 import ElementUI from 'element-ui'
@@ -75,5 +75,6 @@ router.beforeEach((to, from, next) => {
 if(DEBUG) {
 	window.BUS = BUS;
 	window.API = API;
+	window.ajax = ajax;
 	window.app = app;
 }

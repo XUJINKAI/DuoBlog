@@ -110,7 +110,7 @@ export default {
 			this.BUS.delete_post(this.post);
 			this.BUS.clear_content();
 		},
-		_save: function(){
+		_save: function(callback){
 			var self = this;
 			// 传说中的回调地狱？
 			self.BUS.suppress_router(function(release_suppress){
@@ -119,13 +119,18 @@ export default {
 						// data didn't contains these fields
 						self.post.last_modified_time = Date();
 						self.post.modified_count += 1;
+						self.post.abstract = data.abstract;
 						self.BUS.set_content(self.post, self._save, false);
+						if(callback) callback(data);
 					});
 				});
 			})
 		},
 		save: function(){
-			this._save();
+			var self = this;
+			this._save(function(){
+				self.$emit('save', self.post);
+			});
 		},
 	},
 	created: function() {
