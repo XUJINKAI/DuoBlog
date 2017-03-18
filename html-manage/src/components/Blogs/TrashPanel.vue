@@ -37,7 +37,7 @@
 		Preview:
 		<div v-if='post'>
 			<div>{{ post.title }}</div>
-			<div v-html='post.html_content'></div>
+			<div v-html='post.rendered_html'></div>
 		</div>
 	</div>
 </div>

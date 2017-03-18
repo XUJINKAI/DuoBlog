@@ -52,12 +52,12 @@ ul {
 		<ul class="posts_ul" style="padding: 0;">
 			{% for post in posts %}
 			<li>
-				<h3>
+				<p>
 					<a href="{% url 'posts_detail' post.slug %}">
-					{{ post.abstract }}
-					<span class="post_time"><script>document.write(moment('{{ post.last_modified_time | date:"c" }}').fromNow());</script></span>
+					{% if post.title %}{{ post.title }}{% else %}{{ post.abstract }}{% endif %}
+					<span class="post_time"><script>document.write(moment('{{ post.create_time | date:"c" }}').fromNow());</script></span>
 					</a>
-				</h3>
+				</p>
 			</li>
 			{% endfor %}
 		</ul>
