@@ -57,13 +57,13 @@
 					>
 						<span v-if='post.title' class="post-title">{{ post.title }}</span>
 						<span class="post-abstract">{{ post.abstract }}</span>
-						<span class="post-time">
-							<span v-if='order_by=="create"'>{{ post.create_time | fromNow }}</span>
-							<span v-if='order_by=="modify"'>{{ post.last_modified_time | fromNow }}</span>
-						</span>
 						<span class="post-info">
-							<span>
-								<!-- <span v-if='post.comments'>C</span> -->
+							<span class="post-time">
+								<span v-if='order_by=="modify"'>{{ post.last_modified_time | fromNow }}</span>
+								<span v-else>{{ post.create_time | fromNow }}</span>
+							</span>
+							<span class="post-comment">
+								<span v-if='post.comments'><i class="fa fa-comment-o" aria-hidden="true"></i></span>
 							</span>
 							<span class="post-status">
 								<span v-if='post.status=="s"'><i class="fa fa-thumb-tack" aria-hidden="true"></i></span>
@@ -154,12 +154,18 @@ export default {
 			}
 
 			var order_by = this.order_by;
+			var order;
+			if(this.order_asc) {
+				order = 'asc';
+			} else {
+				order = 'desc';
+			}
 			if(order_by=='create') order_by = 'create_time';
 			if(order_by=='modify') order_by == 'last_modified_time';
-			if(this.order_asc) {
-				tmp = _.orderBy(tmp, [order_by], ['asc']);
+			if(order_by=='title') {
+				tmp = _.orderBy(tmp, ['title', 'abstract'], [order, order]);
 			} else {
-				tmp = _.orderBy(tmp, [order_by], ['desc']);
+				tmp = _.orderBy(tmp, [order_by], [order]);
 			}
 			
 			return tmp;
@@ -431,11 +437,21 @@ export default {
 	font-size: 12px;
 }
 .post-item .post-info {
-	flex: 0 0 10px;
+	flex: 0 0 13px;
 	font-size: 12px;
+	display: flex;
+	justify-content: space-between;
 }
-.post-item .post-status {
-	float: right;
+.post-info .post-time {
+	flex: 1;
+	font-style: italic;
+}
+.post-info .post-comment {
+	flex: 0 0 26px;
+	color: rgba(0, 0, 0, .35);
+}
+.post-info .post-status {
+	flex: 0 0 18px;
 }
 .post-item .post-status .fa-thumb-tack{
 	color: red;

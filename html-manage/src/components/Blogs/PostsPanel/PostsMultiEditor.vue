@@ -7,6 +7,7 @@
 		<thead>
 			<tr>
 				<th>Title</th>
+				<th>Abstract</th>
 				<th>Tags</th>
 				<th>Comments</th>
 				<th>Status</th>
@@ -18,6 +19,7 @@
 		</thead>
 		<tr v-for='post in posts'>
 			<th>{{ post.title }}</th>
+			<th>{{ post.abstract }}</th>
 			<th></th> 
 			<th>{{ post.comments }}</th>
 			<th>{{ post.status | status_filter }}</th>

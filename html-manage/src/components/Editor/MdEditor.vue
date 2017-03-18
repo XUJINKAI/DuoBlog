@@ -135,7 +135,7 @@ export default {
 	flex: 1;
 	resize: none;
 	overflow-y: scroll;
-	overflow-wrap: break-word;
+	word-break: break-all;
 	padding: 0.8em;
 	margin: 0;
 }

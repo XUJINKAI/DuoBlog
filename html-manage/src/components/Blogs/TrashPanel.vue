@@ -11,6 +11,7 @@
 				<tr>
 					<th><input type="checkbox" @click='check_all' v-model='is_selected_all'/>{{selected_list.length}}</th>
 					<th>Title</th>
+					<th>Abstract</th>
 					<th>Tags</th>
 					<th>Comments</th>
 					<th>Status</th>
@@ -22,7 +23,8 @@
 			</thead>
 			<tr v-for='post in posts' :key='post.pk'>
 				<th><input type="checkbox" :value='post' v-model='selected_list'/></th>
-				<th>{{ post.title }}</th>
+				<th @click='selected_list=[post]'>{{ post.title }}</th>
+				<th @click='selected_list=[post]'>{{ post.abstract }}</th>
 				<th></th> 
 				<th>{{ post.comments }}</th>
 				<th>{{ post.status | status_filter }}</th>
@@ -166,6 +168,9 @@ export default {
 }
 #left, #right {
 	flex: 1;
+}
+#right {
+	word-break: break-all;
 }
 #operator {
 
