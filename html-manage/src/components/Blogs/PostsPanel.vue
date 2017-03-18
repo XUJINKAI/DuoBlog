@@ -154,12 +154,18 @@ export default {
 			}
 
 			var order_by = this.order_by;
+			var order;
+			if(this.order_asc) {
+				order = 'asc';
+			} else {
+				order = 'desc';
+			}
 			if(order_by=='create') order_by = 'create_time';
 			if(order_by=='modify') order_by == 'last_modified_time';
-			if(this.order_asc) {
-				tmp = _.orderBy(tmp, [order_by], ['asc']);
+			if(order_by=='title') {
+				tmp = _.orderBy(tmp, ['title', 'abstract'], [order, order]);
 			} else {
-				tmp = _.orderBy(tmp, [order_by], ['desc']);
+				tmp = _.orderBy(tmp, [order_by], [order]);
 			}
 			
 			return tmp;
