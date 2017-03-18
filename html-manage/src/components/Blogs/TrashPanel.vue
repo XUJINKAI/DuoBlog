@@ -169,6 +169,9 @@ export default {
 #left, #right {
 	flex: 1;
 }
+#right {
+	word-break: break-all;
+}
 #operator {
 
 }

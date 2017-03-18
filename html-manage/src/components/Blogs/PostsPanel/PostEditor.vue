@@ -2,16 +2,16 @@
 	<div id='wrapper' v-if='post' class="box-col">
 		<div id="meta-div">
 			<div id="meta-left">
-				<input id="title" type="input" v-model='post.title' class='border0' style="width: 90%;" placeholder="<title>">
+				<input id="title" type="input" v-model='post.title' class='border0' style="width: 100%;" placeholder="<title>">
 				<div id="url" class="box">
 					<strong><a :href="post.html_url" target="_blank">URL</a></strong>
 					<span>: /p/</span>
-					<input type="text" v-model='post.slug' class="border0 stretch" placeholder="<auto>" style='width: 30em;'/>
+					<input type="text" v-model='post.slug' class="border0 stretch" placeholder="<auto>"/>
 				</div>
 				<div id="tags" class="stretch">
 					<strong>Tags: </strong>
 					<span v-for='tag in post.tags'>{{ tag }} <i class="fa fa-times" aria-hidden="true"></i>, </span>
-					<input type="text" name="" placeholder="Add Tag" class="border0" style="width: 10em;">
+					<input type="text" name="" placeholder="Add Tag" class="border0">
 				</div>
 				<p style="margin-top: 10px; color: gray;">创建 {{ create_time }}, 修改({{post.modified_count}}) {{ last_modified_time }}</p>
 			</div>
