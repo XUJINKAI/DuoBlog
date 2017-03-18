@@ -3,7 +3,7 @@
 		<span id="left" class="box">
 			<a href="javascript: window.location='/manage/'" class="logo">Manager</a>
 			<ul class="box">
-				<li v-for='blog in blogs' v-if='blog.absolute_url'><a :href='blog.absolute_url'>
+				<li v-for='blog in blogs' v-if='blog.absolute_url'><a :href='blog.absolute_url' target="_blank">
 					<i class="fa fa-home" aria-hidden="true"></i>
 					{{ blog.name }}
 				</a></li>

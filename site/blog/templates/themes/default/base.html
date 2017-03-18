@@ -123,7 +123,7 @@ p.text-muted {
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				{% if request.user.is_superuser %}
-				<li><a href="{% url 'manage_index' %}#/blog/{{blog.pk}}/draft" class="staff_btn"><i class="fa fa-pencil" aria-hidden="true"></i></a></li>
+				<li><a href="{% url 'manage_index' %}#/blog/{{blog.pk}}/post" class="staff_btn"><i class="fa fa-pencil" aria-hidden="true"></i></a></li>
 				{% endif %}
 				<li><a href="{% url 'index' %}">首页</a></li>
 				<li><a href="{% url 'posts_list' %}">存档</a></li>

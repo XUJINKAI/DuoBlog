@@ -55,7 +55,7 @@
 						:class="{selected: is_post_selected(post)}"
 						@click="click_post_item($event, post)"
 					>
-						<span class="post-title">{{ post.title }}</span>
+						<span v-if='post.title' class="post-title">{{ post.title }}</span>
 						<span class="post-abstract">{{ post.abstract }}</span>
 						<span class="post-time">
 							<span v-if='order_by=="create"'>{{ post.create_time | fromNow }}</span>
@@ -63,11 +63,12 @@
 						</span>
 						<span class="post-info">
 							<span>
-								<span v-if='post.comments'>C</span>
+								<!-- <span v-if='post.comments'>C</span> -->
 							</span>
 							<span class="post-status">
 								<span v-if='post.status=="s"'><i class="fa fa-thumb-tack" aria-hidden="true"></i></span>
 								<span v-if='post.status=="x"'><i class="fa fa-lock" aria-hidden="true"></i></span>
+								<span v-if='post.status=="h"'><i class="fa fa-eye-slash" aria-hidden="true"></i></i></span>
 							</span>
 						</span>
 					</p>
@@ -223,8 +224,10 @@ export default {
 		},
 		on_router_changed: function(){
 			if(this.$route.name=='post-detail') {
-				this.filter_status = '';
 				var pk = parseInt(this.$route.params.post);
+				if(_.filter(this.selected_posts, {pk: pk}).length==0) {
+					this.filter_status = '';
+				}
 				this.selected_posts = _.filter(this.all_posts, {pk: pk});
 			}
 		},
@@ -408,6 +411,7 @@ export default {
 	display: flex;
 	flex-direction: column;
 	cursor: default;
+	padding: 4px;
 }
 .post-item .post-title {
 	flex: 0 0 18px;
@@ -419,6 +423,9 @@ export default {
 	flex: 1;
 	word-break: break-all;
 	overflow-y: hidden;
+	background: -webkit-linear-gradient(black, gray);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
 }
 .post-item .post-time {
 	font-size: 12px;
