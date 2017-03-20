@@ -1,7 +1,7 @@
 {% extends './base.html' %}
 {% load staticfiles %}
 
-{% block title %}{{ post.title }}{% endblock %}
+{% block title %}{{ post }}{% endblock %}
 
 {% block cssext %}
 <style>
@@ -15,6 +15,7 @@
 }
 #content {
 	line-height: 1.8em;
+	word-break: break-all;
 }
 h1 {
 	font-size: 3ex;
@@ -69,7 +70,7 @@ p {
 {% block jsext %}
 <script src="//cdn.bootcss.com/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
 <script>
-$('#qrcode').qrcode(location.protocol+$("#current_url").attr('href'));
+$('#qrcode').qrcode($("#current_url").attr('href'));
 $("#qrcode_text").hover(function(){
 	$('#qrcode').css('display', '');
 	$('#qrcode').css('position', 'fixed');

@@ -109,6 +109,36 @@ def my_page(request, page):
 
 
 # //TODO cache
+def feed_atom(request):
+	LIMIT = 20
+	from accounts.models import User
+	blog = get_current_blog(request)
+	all_posts = models.Post.objects.guest_queryset(request)
+	posts = all_posts[:LIMIT]
+	atom_feed_url = blog.absolute_url[:-1] + reverse('feed_atom')
+	updated = all_posts.latest('last_modified_time').last_modified_time
+	author_name = User.objects.all().first().username
+	context = {
+		'blog': blog,
+		'posts': posts,
+		'atom_feed_url': atom_feed_url,
+		'home_url_canonical': blog.absolute_url,
+		'updated': updated,
+		'author_name': author_name,
+		'copyright_details': 'Copyright (c) {} all rights reserved.'.format(blog.domain),
+	}
+	return render(request, 'site/atom.xml', context, content_type='text/xml')
+
+
+def sitemap_xml(request):
+	blog = get_current_blog(request)
+	all_posts = models.Post.objects.guest_queryset(request)
+	context = {
+		'posts': all_posts,
+	}
+	return render(request, 'site/sitemap.xml', context, content_type='text/xml')
+
+
 # xml 比txt多重要度等一些信息，就等到like_count做完后再来搞
 def sitemap_txt(request):
 	blog = get_current_blog(request)
@@ -120,6 +150,10 @@ def sitemap_txt(request):
 	for post in posts:
 		txt += url + post.slug + '\r\n'
 	return HttpResponse(txt, content_type='text/plain')
+
+
+def robots_txt(request):
+	return render(request, 'site/robots.txt', content_type='text/plain')
 
 
 # admin SPA

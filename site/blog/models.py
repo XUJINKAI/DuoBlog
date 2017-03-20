@@ -139,7 +139,7 @@ class Post(models.Model):
 	comments = managers.CommentsManager()
 
 	def __str__(self):
-		return self.title
+		return self.title if self.title is not '' else self.abstract
 
 	@property
 	def is_public(self):
