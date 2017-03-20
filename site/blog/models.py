@@ -37,12 +37,8 @@ POST_STATUS = (
 	('h', 'hidden'),
 	('x', 'private'),
 	)
-POST_TITLE_TRUNC = 32
+POST_ABSTRACT_TRUNC = 32
 
-TAG_TYPE = (
-	('u', 'User tag'),
-	('s', 'System auto tag')
-	)
 
 def DEFAULT_NAVS():
 	return json.dumps([])
@@ -135,7 +131,7 @@ class Post(models.Model):
 	like_count = models.PositiveIntegerField(default=0)
 
 	objects = managers.PostManager()
-	tags = managers.TagsManager()
+	# tags = managers.TagsManager()
 	comments = managers.CommentsManager()
 
 	def __str__(self):
@@ -158,7 +154,7 @@ class Post(models.Model):
 		self.last_modified_time = datetime.datetime.now()
 		if self.content_type == 'h':
 			self.content = ''
-		self.abstract = strip_tags(self.rendered_html)[:POST_TITLE_TRUNC].strip() + '...'
+		self.abstract = strip_tags(self.rendered_html)[:POST_ABSTRACT_TRUNC].strip() + '...'
 		# F() expressions can only be used to update, not to insert.
 		if self.pk is not None:
 			self.modified_count = F('modified_count') + 1
@@ -182,8 +178,7 @@ class Post(models.Model):
 
 class Tag(models.Model):
 	post = models.ManyToManyField(Post)
-	name = models.CharField(max_length=42, unique=True)
-	tag_type = models.CharField(max_length=1, choices=TAG_TYPE, default='u')
+	name = models.CharField(max_length=42)
 
 
 class Comment(models.Model):

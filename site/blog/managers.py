@@ -1,7 +1,7 @@
 from django.db import models as db_models
 from django.db.models import Q
 from .shortcuts import get_current_blog
-from . import models as models
+from . import models
 
 
 class PostManager(db_models.Manager):
@@ -16,8 +16,22 @@ class PostManager(db_models.Manager):
 		return self.guest_queryset(request, **kwargs).exclude(status='h') # h for hidden for home
 
 
-class TagsManager(db_models.Manager):
-	pass
+# class TagsManager(db_models.manager.BaseManager.from_queryset(Tag)):
+	
+# 	def __str__(self):
+# 		return 'dddddddddd'
+
+
+# 	def add(self, tag):
+# 		pass
+
+# 	def all(self):
+# 		pass
+
+# 	def remove(self, tag):
+# 		pass
+		
+
 
 class CommentsManager(db_models.Manager):
 	pass
