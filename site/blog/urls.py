@@ -6,10 +6,10 @@ from . import views
 urlpatterns = [
 	url(r'^$', views.blog_index, name='index'),
 	url(r'^'+settings.POSTS_URL_FIELD+'/(?P<slug>(?!/).*)/$', views.post_show, name='posts_detail'),
-	url(r'^posts/$', views.posts_list, name='posts_list'),
+	url(r'^archive/$', views.posts_list, name='posts_list'),
 	url(r'^my/(?P<page>(?!/).*)/$', views.my_page, name='my_page'),
 	# RSS, Sitemap, robots
-	url(r'^atom\.xml$', views.feed_atom, name='feed_atom'),
+	url(r'^atom\.xml$', views.atom_xml, name='atom_xml'),
 	url(r'^sitemap\.xml$', views.sitemap_xml, name='sitemap_xml'),
 	url(r'^sitemap\.txt$', views.sitemap_txt, name='sitemap_txt'),
 	url(r'^robots\.txt$', views.robots_txt, name='robots_txt'),

@@ -6,14 +6,13 @@ from . import models as models
 
 class PostManager(db_models.Manager):
 
-	def guest_queryset(self, request, **kwargs):
+	def guest_queryset(self, request, hidden=False, **kwargs):
 		'''frontend'''
 		current_blog = get_current_blog(request)
-		return self.filter(blog=current_blog, deleted=False).exclude(status='x')
-
-	def guest_home_queryset(self, request, **kwargs):
-		'''frontend'''
-		return self.guest_queryset(request, **kwargs).exclude(status='h') # h for hidden for home
+		status = ['s', 'p']
+		if hidden:
+			status += 'h'
+		return self.filter(blog=current_blog, deleted=False, status__in=status)
 
 
 class TagsManager(db_models.Manager):

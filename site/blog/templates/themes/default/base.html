@@ -163,9 +163,9 @@ p.text-muted {
 						<span><a href="{% url 'account_login' %}">登录</span>
 						{% endif %}
 						{% if request.user.is_superuser %}
-						<span><a href="{% url 'manage_index' %}#/blog/{{blog.pk}}" class="staff_btn">管理</a></span>
+						<span><a href="{% url 'manage_index' %}#/blog/{{blog.pk}}/post" class="staff_btn">管理</a></span>
 						{% endif %}
-						<span><a href="{% url 'feed_atom' %}" class="staff_btn" style="margin-left: 8px;"><i class="fa fa-rss" aria-hidden="true"></i> 订阅</a></span>
+						<span><a href="{% url 'atom_xml' %}" class="staff_btn" style="margin-left: 8px;"><i class="fa fa-rss" aria-hidden="true"></i> 订阅</a></span>
 					</span>
 					</p>
 				</div>

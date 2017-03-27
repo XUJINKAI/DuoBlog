@@ -34,7 +34,7 @@ def blog_index(request):
 	blog = get_current_blog(request)
 	if not blog:
 		return HttpResponseRedirect(reverse('manage_index'))
-	queryset = models.Post.objects.guest_home_queryset(request)
+	queryset = models.Post.objects.guest_queryset(request)
 	sticky_posts = queryset.filter(status='s')
 	all_posts = queryset.exclude(status='s')
 
@@ -57,7 +57,7 @@ def blog_index(request):
 
 
 def post_show(request, slug):
-	post = models.Post.objects.guest_queryset(request).get(slug=slug)
+	post = models.Post.objects.guest_queryset(request, hidden=True).get(slug=slug)
 	if not post:
 		raise Http404
 	# tags_href_string = ', '.join(['<a href="%s?tags=%s">%s</a>' \
@@ -109,13 +109,13 @@ def my_page(request, page):
 
 
 # //TODO cache
-def feed_atom(request):
+def atom_xml(request):
 	LIMIT = 20
 	from accounts.models import User
 	blog = get_current_blog(request)
 	all_posts = models.Post.objects.guest_queryset(request)
 	posts = all_posts[:LIMIT]
-	atom_feed_url = blog.absolute_url[:-1] + reverse('feed_atom')
+	atom_feed_url = blog.absolute_url[:-1] + reverse('atom_xml')
 	updated = all_posts.latest('last_modified_time').last_modified_time
 	author_name = User.objects.all().first().username
 	context = {
@@ -132,7 +132,7 @@ def feed_atom(request):
 
 def sitemap_xml(request):
 	blog = get_current_blog(request)
-	all_posts = models.Post.objects.guest_queryset(request)
+	all_posts = models.Post.objects.guest_queryset(request, hidden=True)
 	context = {
 		'posts': all_posts,
 	}
@@ -145,7 +145,7 @@ def sitemap_txt(request):
 	if not blog.sitemap:
 		raise Http404
 	url = blog.absolute_url + settings.POSTS_URL_FIELD + '/'
-	posts = models.Post.objects.guest_queryset(request)
+	posts = models.Post.objects.guest_queryset(request, hidden=True)
 	txt = ''
 	for post in posts:
 		txt += url + post.slug + '\r\n'
