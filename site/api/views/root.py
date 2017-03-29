@@ -8,6 +8,7 @@ class RootView(APIView):
 
 	def get(self, request, format=None):
 		content = {
+			'version': reverse('api:version', request=request),
 			'session': reverse('api:session', request=request),
 			'users': reverse('api:user-list', request=request),
 			'blogs': reverse('api:blog-list', request=request),

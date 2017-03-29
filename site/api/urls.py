@@ -7,6 +7,7 @@ from .views.users import UsersViewSet
 from .views.blogs import BlogViewSet
 from .views.posts import PostViewSet
 from .views.posts_batch import PostBatchView
+from .views.version import version_view
 from .views.img import img_view
 
 
@@ -23,6 +24,7 @@ urlpatterns = [
 	url(r'^session/', SessionView.as_view(), name='session'),
 	url(r'^posts/batch', PostBatchView.as_view(), name='posts-batch'),
 	url(r'^', include(router.urls)),
+	url(r'^version', version_view, name='version'),
 	# session
 	# users
 	# blogs/<pk>/tags	GET

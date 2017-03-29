@@ -18,3 +18,12 @@ class SuperUserPermission(permissions.BasePermission):
 
 	def has_object_permission(self, request, view, obj):
 		return general_permission(request)
+
+
+class VersionPermission(permissions.BasePermission):
+
+	def has_permission(self, request, view):
+		if request.method == 'GET':
+			return True
+		else:
+			return general_permission(request)

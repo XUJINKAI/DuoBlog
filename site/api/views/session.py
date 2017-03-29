@@ -21,7 +21,7 @@ class SessionView(APIView):
 			}
 		return content
 
-	def get(self, request, format=None):
+	def get(self, request):
 		return Response(self.request_status(request))
 
 	def post(self, request):
