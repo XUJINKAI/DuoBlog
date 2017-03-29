@@ -11,7 +11,6 @@ urlpatterns = [
 	# RSS, Sitemap, robots
 	url(r'^atom\.xml$', views.atom_xml, name='atom_xml'),
 	url(r'^sitemap\.xml$', views.sitemap_xml, name='sitemap_xml'),
-	url(r'^sitemap\.txt$', views.sitemap_txt, name='sitemap_txt'),
 	url(r'^robots\.txt$', views.robots_txt, name='robots_txt'),
 	# SPA admin
 	url(r'^manage/$', views.manage_view, name='manage_index'),

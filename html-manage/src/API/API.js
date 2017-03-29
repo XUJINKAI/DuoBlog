@@ -1,9 +1,10 @@
 export var API_URL = function(key){
 	var maps = {
+		version: '/api/version/',
 		session: '/api/session/',
 		blog_list: '/api/blogs/',
 		post_list: '/api/posts/',
-		posts_batch: '/api/posts/batch',
+		posts_batch: '/api/posts/batch/',
 	}
 	return maps[key];
 }

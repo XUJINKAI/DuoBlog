@@ -6,7 +6,7 @@ export default BUS;
 
 var BUS = new Vue({
 	data: {
-		_session: {login: false, username: 'Not_Login'},
+		_session: null,
 		_blog_list: [],
 
 		_ori_content: null,
@@ -26,6 +26,9 @@ var BUS = new Vue({
 		},
 		bln_suppress_router: function(){
 			return this.$data._bln_suppress_router;
+		},
+		is_session_loaded: function(){
+			return !!this.$data._session;
 		},
 		is_login: function(){
 			if( ! this.$data._session) {
@@ -288,6 +291,15 @@ var BUS = new Vue({
 				restore_pks: JSON.stringify(pks),
 			}, callback);
 		},
+		// system
+		system_update(callback){
+			ajax.post(API_URL('version'), {
+				action: 'update'
+			}, (data)=>{
+				alert(data.msg);
+				if(callback) (data);
+			});
+		}
 	},
 	created: function(){
 		var self = this;

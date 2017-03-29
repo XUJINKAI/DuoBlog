@@ -160,8 +160,8 @@ export default {
 			} else {
 				order = 'desc';
 			}
-			if(order_by=='create') order_by = 'create_time';
-			if(order_by=='modify') order_by == 'last_modified_time';
+			if(order_by=='create') { order_by = 'create_time'; }
+			if(order_by=='modify') { order_by = 'last_modified_time'; }
 			if(order_by=='title') {
 				tmp = _.orderBy(tmp, ['title', 'abstract'], [order, order]);
 			} else {

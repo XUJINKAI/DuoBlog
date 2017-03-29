@@ -110,9 +110,11 @@ def my_page(request, page):
 
 # //TODO cache
 def atom_xml(request):
+	blog = get_current_blog(request)
+	if not blog.rss:
+		raise Http404
 	LIMIT = 20
 	from accounts.models import User
-	blog = get_current_blog(request)
 	all_posts = models.Post.objects.guest_queryset(request)
 	posts = all_posts[:LIMIT]
 	atom_feed_url = blog.absolute_url[:-1] + reverse('atom_xml')
@@ -132,24 +134,13 @@ def atom_xml(request):
 
 def sitemap_xml(request):
 	blog = get_current_blog(request)
+	if not blog.sitemap:
+		raise Http404
 	all_posts = models.Post.objects.guest_queryset(request, hidden=True)
 	context = {
 		'posts': all_posts,
 	}
 	return render(request, 'site/sitemap.xml', context, content_type='text/xml')
-
-
-# xml 比txt多重要度等一些信息，就等到like_count做完后再来搞
-def sitemap_txt(request):
-	blog = get_current_blog(request)
-	if not blog.sitemap:
-		raise Http404
-	url = blog.absolute_url + settings.POSTS_URL_FIELD + '/'
-	posts = models.Post.objects.guest_queryset(request, hidden=True)
-	txt = ''
-	for post in posts:
-		txt += url + post.slug + '\r\n'
-	return HttpResponse(txt, content_type='text/plain')
 
 
 def robots_txt(request):

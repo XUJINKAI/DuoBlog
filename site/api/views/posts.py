@@ -16,14 +16,14 @@ from ..filters import MBooleanFilter
 
 class PostFilter(rest_filter.FilterSet):
 	blog = django_filters.NumberFilter(name='blog__pk')
+	status = django_filters.CharFilter(name='status')
 	content_type = MBooleanFilter(name='content_type')
 	comments = MBooleanFilter(name='comment_enable')
-	status = MBooleanFilter(name='status')
 	deleted = MBooleanFilter(name='deleted')
 
 	class Meta:
 		model = blog_models.Post
-		fields = ['blog', 'slug', 'content_type', 'comments', 'status', 'deleted']
+		fields = ['blog', 'status', 'slug', 'content_type', 'comments', 'deleted']
 
 
 class PostViewSet(viewsets.ModelViewSet):

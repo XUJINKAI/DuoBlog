@@ -38,7 +38,7 @@ export default {
 	},
 	computed: {
 		Modal_Login: function(){
-			return !this.BUS.is_login;
+			return this.BUS.is_session_loaded && !this.BUS.is_login;
 		}
 	},
 	methods: {

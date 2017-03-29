@@ -1,6 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from django.conf import settings
+from distutils.version import StrictVersion
 import os
 
 from ..permissions import VersionPermission
@@ -11,7 +13,7 @@ class VersionView(APIView):
 
 	def get_version_obj(self):
 		content = {
-			'version': '0.0.0',
+			'version': str(StrictVersion('0.0.0')),
 		}
 		return content
 
@@ -32,17 +34,21 @@ class VersionView(APIView):
 	def post(self, request):
 		action = request.data.get('action')
 		msg = 'init'
+		sta = status.HTTP_200_OK
 		if action == 'update':
 			try:
 				self.do_update()
 				msg = 'updated'
 			except OnWinException:
 				msg = 'update error: running on windows'
+				sta = status.HTTP_500_INTERNAL_SERVER_ERROR
 			except Exception as e:
 				msg = 'update error: %s' % e.strerror
+				sta = status.HTTP_500_INTERNAL_SERVER_ERROR
 		else:
 			msg = 'no action'
-		return Response({'msg': msg})
+			sta = status.HTTP_400_BAD_REQUEST
+		return Response({'msg': msg}, status=sta)
 
 version_view = VersionView.as_view()
 

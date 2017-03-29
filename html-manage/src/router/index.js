@@ -4,6 +4,8 @@ import BlogView from '@/components/Blogs/BlogView'
 import BlogHomePanal from '@/components/Blogs/HomePanal'
 import BlogSetting from '@/components/Blogs/HomePanal/Setting'
 import BlogImportJekyll from '@/components/Blogs/HomePanal/Import_Jekyll'
+import SettingView from '@/components/Setting/SettingView'
+import About from '@/components/Setting/About'
 import UserMe from '@/components/Users/UserMe'
 import PostsPanel from '@/components/Blogs/PostsPanel'
 import PostEditor from '@/components/Blogs/PostsPanel/PostEditor'
@@ -38,6 +40,14 @@ export default new Router({
 				{
 					path: 'trash/', component: TrashPanel, name: 'trash',
 				},
+			]
+		},
+		{
+			path: '/setting', component: SettingView,
+			children: [
+				{
+					path: '', component: About, name: 'setting',
+				}
 			]
 		},
 		{

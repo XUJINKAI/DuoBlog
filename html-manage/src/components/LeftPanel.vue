@@ -5,7 +5,7 @@
 		</div>
 		<div id="bottom">
 			<el-button @click='create' size='small'>新建博客</el-button>
-			<span><i class="fa fa-cog" aria-hidden="true"></i> Settings</span>
+			<router-link :to="{ name: 'setting' }" class="setting" :active-class="'setting_actived'" :tag="'span'"><i class="fa fa-cog" aria-hidden="true"></i> Settings</router-link>
 		</div>
 	</div>
 </template>
@@ -58,5 +58,11 @@ export default {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-around;
+}
+.setting {
+	cursor: pointer;
+}
+.setting_actived {
+	background: rgba(135, 138, 142, 0.23);
 }
 </style>

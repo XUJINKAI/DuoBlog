@@ -110,6 +110,7 @@ export default {
 	height: 98%;
 	background-color: white;
 	font-size: 1.2em;
+	z-index: 1000;
 }
 #bar {
 	width: 100%;
