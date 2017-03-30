@@ -16,17 +16,20 @@ class PostManager(db_models.Manager):
 		return self.guest_queryset(request, **kwargs).exclude(status='h') # h for hidden for home
 
 
-# class TagsManager(db_models.manager.BaseManager.from_queryset(Tag)):
+class TagsManager(db_models.Manager):
 	
-# 	def __str__(self):
-# 		return 'dddddddddd'
+	def __str__(self):
+		return 'dddddddddd'
+
+	def __repr__(self):
+		return 'dddddddddd'
 
 
-# 	def add(self, tag):
-# 		pass
+	def add(self, tag):
+		pass
 
-# 	def all(self):
-# 		pass
+	def all(self):
+		return self.tag_set
 
 # 	def remove(self, tag):
 # 		pass

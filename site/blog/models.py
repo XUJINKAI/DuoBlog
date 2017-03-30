@@ -131,7 +131,7 @@ class Post(models.Model):
 	like_count = models.PositiveIntegerField(default=0)
 
 	objects = managers.PostManager()
-	# tags = managers.TagsManager()
+	tags = managers.TagsManager()
 	comments = managers.CommentsManager()
 
 	def __str__(self):
