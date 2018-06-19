@@ -63,7 +63,12 @@ def post_show(request, slug):
 	# tags_href_string = ', '.join(['<a href="%s?tags=%s">%s</a>' \
 	# 		% (reverse('posts_list'), tag.name, tag.name) for tag in post.tags.all()])
 	tags_href_string = ''
-	print(post.tag_set)
+	# t = models.Tag(name='x')
+	# t.save()
+	# print(post.tags.all())
+	# print(models.Post.objects.all().tags)
+	# print(models.Post.objects.filter(tags__name__in=['x'])) #ok
+	print(post.tags.add('xx'))
 	post_comment = post.comment_enable
 	blog_comment = post.blog.comments
 	context = {

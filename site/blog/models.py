@@ -131,11 +131,15 @@ class Post(models.Model):
 	like_count = models.PositiveIntegerField(default=0)
 
 	objects = managers.PostManager()
-	tags = managers.TagsManager()
+	# tags = managers.TagsManager()
 	comments = managers.CommentsManager()
 
 	def __str__(self):
 		return self.title if self.title is not '' else self.abstract
+
+	@property
+	def tags(self):
+		return self.tag_set
 
 	@property
 	def is_public(self):
@@ -177,8 +181,13 @@ class Post(models.Model):
 
 
 class Tag(models.Model):
+
 	post = models.ManyToManyField(Post)
 	name = models.CharField(max_length=42)
+	objects = managers.TagsManager()
+
+	def __str__(self):
+		return self.name
 
 
 class Comment(models.Model):

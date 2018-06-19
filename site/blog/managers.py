@@ -18,21 +18,12 @@ class PostManager(db_models.Manager):
 
 class TagsManager(db_models.Manager):
 	
-	def __str__(self):
-		return 'dddddddddd'
-
-	def __repr__(self):
-		return 'dddddddddd'
-
-
 	def add(self, tag):
-		pass
-
-	def all(self):
-		return self.tag_set
-
-# 	def remove(self, tag):
-# 		pass
+		t = Tag(name=tag)
+		t.save()
+		for post in self.all():
+			post.tag_set.add(t)
+			post.save()
 		
 
 
