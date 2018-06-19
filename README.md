@@ -3,3 +3,5 @@
 技术栈 Vue + Django。
 
 Demo和目前进度看这里：https://blog.xujinkai.net/p/this-blog-app/ 
+
+![](screenshots/admin.png)
